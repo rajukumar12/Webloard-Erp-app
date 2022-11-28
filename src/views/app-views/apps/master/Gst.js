@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import { Card, Table, Select, Input, Button, Badge, Menu, Modal, Form } from 'antd';
+import { Card, Table, Select, Input, Button, Badge, Menu, Modal, Form, message } from 'antd';
 import ProductListData from "assets/data/product-list.data.json"
-import { EyeOutlined, DeleteOutlined, SearchOutlined, PlusCircleOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, SearchOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import AvatarStatus from 'components/shared-components/AvatarStatus';
 import EllipsisDropdown from 'components/shared-components/EllipsisDropdown';
 import Flex from 'components/shared-components/Flex'
@@ -11,7 +11,7 @@ import utils from 'utils'
 
 // import { Form, Input, Checkbox } from 'antd';
 import { useEffect } from 'react';
-import { createGST, getGST,deleteGst, updateGST } from 'utils/api/gst';
+import { createGST, getGST, deleteGst, updateGST } from 'utils/api/gst';
 import Loading from 'views/app-views/components/feedback/message/Loading';
 
 const layout = {
@@ -64,6 +64,7 @@ const Gst = () => {
 		setIsModalOpen(false);
 		setIsEdit(false);
 		setSelectedId("")
+		form.resetFields();
 	};
 	const navigate = useNavigate();
 	const [list, setList] = useState(ProductListData)
@@ -72,23 +73,31 @@ const Gst = () => {
 	const [gstList, setGstList] = useState([])
 
 
-// add gst******
-    const [form]=Form.useForm()
+	// add gst******
+	const [form] = Form.useForm()
 	const onFinish = async (values) => {
 		const { name, percent } = values
-		if(isEdit && selectedId) {
-			Loading(true)
-			const res = await updateGST(selectedId, name, percent)
-			Loading(false)
+		if (isEdit && selectedId) {
+			const response = await updateGST(selectedId, name, percent)
+			if (response.success === true) {
+				message.success(response.message)
+				setIsModalOpen(false);
+				setIsEdit(false);
+				setSelectedId("")
+				init()
+				form.resetFields();
+			}
 		} else {
-			const res = await createGST(name, percent);
+			const response = await createGST(name, percent);
+			if (response.success === true) {
+				message.success(response.message)
+				setIsModalOpen(false);
+				setIsEdit(false);
+				setSelectedId("")
+				init()
+				form.resetFields();
+			}
 		}
-		init()
-		setIsModalOpen(false);
-		setIsEdit(false);
-		setSelectedId("")
-		form.resetFields();
-
 	};
 
 	const onFinishFailed = errorInfo => {
@@ -96,10 +105,9 @@ const Gst = () => {
 	};
 
 	async function init() {
-		const data = await getGST();
-		console.log(data)
-		if (data?.length) {
-			setGstList(data)
+		const response = await getGST();
+		if (response.data?.length) {
+			setGstList(response.data)
 			setIsModalOpen(false);
 		} else {
 			setGstList([])
@@ -108,17 +116,17 @@ const Gst = () => {
 	}
 
 	useEffect(() => {
-		
+
 		init()
 	}, [])
 
 	const dropdownMenu = row => (
-		
+
 		<Menu>
-		{console.log(row,"rowsss")}
+			{console.log(row, "rowsss")}
 			<Menu.Item onClick={() => showEditModal(row)}>
 				<Flex alignItems="center">
-					<EyeOutlined />
+					<EditOutlined />
 					<span className="ml-2">Edit</span>
 				</Flex>
 			</Menu.Item>
@@ -131,27 +139,16 @@ const Gst = () => {
 		</Menu>
 	);
 
-// delete gst***********
-	const deleteRow = async(id) => {
+	// delete gst***********
+	const deleteRow = async (id) => {
 		console.log(id)
 
-		await deleteGst(id)
+		const response = await deleteGst(id)
 		init()
-
-
-		// const objKey = 'id'
-		// let data = gstList
-		// if (selectedRows.length > 1) {
-		// 	console.log(selectedRows,"sel")
-		// 	selectedRows.forEach(elm => {
-		// 		data = utils.deleteArrayRow(data, objKey, elm.id)
-		// 		setList(data)
-		// 		setSelectedRows([])
-		// 	})
-		// } else {
-		// 	data = utils.deleteArrayRow(data, objKey, row.id)
-		// 	setList(data)
-		// }
+		if (response.success === true) {
+			message.success(response.message)
+			init()
+		}
 	}
 
 	const tableColumns = [
@@ -172,13 +169,13 @@ const Gst = () => {
 			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
 		},
 
-        {
+		{
 			title: 'Percent',
 			dataIndex: 'percent',
 			render: percent => (
 				<div>
-					{percent}
-					{console.log(percent,"datass")}
+					{percent}%
+					{console.log(percent, "datass")}
 
 				</div>
 			),
@@ -287,7 +284,7 @@ const Gst = () => {
 						<div className="mr-md-3 mb-3">
 							<Input placeholder="Search" prefix={<SearchOutlined />} onChange={e => onSearch(e)} />
 						</div>
-						<div className="mb-3">
+						{/* <div className="mb-3">
 							<Select
 								defaultValue="All"
 								className="w-100"
@@ -302,7 +299,7 @@ const Gst = () => {
 									))
 								}
 							</Select>
-						</div>
+						</div> */}
 					</Flex>
 					<div>
 						<Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Add GST</Button>
@@ -326,18 +323,18 @@ const Gst = () => {
 			{/* add gst************************************************************************ */}
 
 			<Modal
-		
-			 title="Add GST" open={isModalOpen} onCancel={handleCancel} footer={[
-				// <Button type="primary" htmlType="submit"  onClick={onFinish}>
-				// 	Submit
-				// </Button>,
-				// <Button type="primary" onClick={handleCancel}	>
-				// 			Cancel
-				// 		</Button>
-			]}>
+
+				title={isEdit ? "Edit GSt" : "Add GST"} open={isModalOpen} onCancel={handleCancel} footer={[
+					// <Button type="primary" htmlType="submit"  onClick={onFinish}>
+					// 	Submit
+					// </Button>,
+					// <Button type="primary" onClick={handleCancel}	>
+					// 			Cancel
+					// 		</Button>
+				]}>
 				<Form
-				form={form}
-				style={{width: '80%'}}
+					form={form}
+					style={{ width: '80%' }}
 					// style={{boxShadow: '2px 5px 15px -10px rgb(0,0,0,0.5)',  padding:'10px', width:'50%'}}
 					{...layout}
 					name="basic"
@@ -371,19 +368,20 @@ const Gst = () => {
 
 						<div style={{
 							width: '82%',
-							marginLeft: "50px"}}>
-						<Button type="primary" htmlType="submit" >
-							{isEdit ? "Save" : "Submit"}
-						</Button>
-						<Button type="primary" onClick={handleCancel} style={{ marginLeft: '20px' }}	>
-							Cancel
-						</Button>
-					</div>
+							marginLeft: "50px"
+						}}>
+							<Button type="primary" htmlType="submit" >
+								{isEdit ? "Save" : "Submit"}
+							</Button>
+							<Button type="primary" onClick={handleCancel} style={{ marginLeft: '20px' }}	>
+								Cancel
+							</Button>
+						</div>
 
-				</Form.Item>
+					</Form.Item>
 
-			</Form>
-		</Modal>
+				</Form>
+			</Modal>
 		</>
 	)
 

@@ -27,6 +27,7 @@ const ProductForm = props => {
 
 	useEffect(() => {
     	if(mode === EDIT) {
+			
 			console.log('is edit')
 			console.log('props', props)
 			const { id } = param

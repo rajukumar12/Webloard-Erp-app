@@ -26,6 +26,9 @@
     "sidenav.apps.master.hsn": "HSN", 
     "sidenav.apps.master.country": "Country", 
 	"sidenav.apps.master.cess": "CESS", 
+	"sidenav.apps.master.state": "State", 
+	"sidenav.apps.master.district": "District", 
+	"sidenav.apps.master.accountUnderGroup": "Account Under Group", 
 
 	"sidenav.components": "Components",
 	"sidenav.components.general": "General",

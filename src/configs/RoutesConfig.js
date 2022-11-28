@@ -116,13 +116,28 @@ export const protectedRoutes = [
         path: `${APP_PREFIX_PATH}/apps/master/country`,
         component: React.lazy(() => import('views/app-views/apps/master/Country')),
     },
+    {
+        key: 'apps.master.state',
+        path: `${APP_PREFIX_PATH}/apps/master/state`,
+        component: React.lazy(() => import('views/app-views/apps/master/States')),
+    },
+    {
+        key: 'apps.master.district',
+        path: `${APP_PREFIX_PATH}/apps/master/district`,
+        component: React.lazy(() => import('views/app-views/apps/master/District')),
+    },
     
     {
         key: 'apps.master.cess',
         path: `${APP_PREFIX_PATH}/apps/master/cess`,
         component: React.lazy(() => import('views/app-views/apps/master/Cess')),
     },
-   
+    {
+        key: 'apps.master.accountUnderGroup',
+        path: `${APP_PREFIX_PATH}/apps/master/accountUnderGroup`,
+        component: React.lazy(() => import('views/app-views/apps/master/AccountUnderGroup')),
+    },
+    
     {
         key: 'apps.ecommerce',
         path: `${APP_PREFIX_PATH}/apps/ecommerce`,

@@ -340,13 +340,39 @@ const appsNavTree = [{
           submenu: []
         },
         {
+          key: 'apps-master-state',
+          path: `${APP_PREFIX_PATH}/apps/master/state`,
+          title: 'sidenav.apps.master.state',
+          icon: '',
+          breadcrumb: false,
+          submenu: []
+        },
+        {
+          key: 'apps-master-district',
+          path: `${APP_PREFIX_PATH}/apps/master/district`,
+          title: 'sidenav.apps.master.district',
+          icon: '',
+          breadcrumb: false,
+          submenu: []
+        },
+        
+        {
           key: 'apps-master-cess',
           path: `${APP_PREFIX_PATH}/apps/master/cess`,
           title: 'sidenav.apps.master.cess',
           icon: '',
           breadcrumb: false,
           submenu: []
+        },
+        {
+          key: 'apps-master-accountUnderGroup',
+          path: `${APP_PREFIX_PATH}/apps/master/accountUnderGroup`,
+          title: 'sidenav.apps.master.accountUnderGroup',
+          icon: '',
+          breadcrumb: false,
+          submenu: []
         }
+        
       ]
     }
 
