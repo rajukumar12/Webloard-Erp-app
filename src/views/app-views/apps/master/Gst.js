@@ -11,8 +11,7 @@ import utils from 'utils'
 
 // import { Form, Input, Checkbox } from 'antd';
 import { useEffect } from 'react';
-import { createGST, getGST, deleteGst, updateGST } from 'utils/api/gst';
-import Loading from 'views/app-views/components/feedback/message/Loading';
+import { createGST, getGST,deleteGst, updateGST } from 'utils/api/gst';
 
 const layout = {
 	labelCol: { span: 8 },
@@ -43,6 +42,7 @@ const categories = ['Cloths', 'Bags', 'Shoes', 'Watches', 'Devices']
 const Gst = () => {
 
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [ isLoading, setIsLoading ] = useState(false)
 	const [isEdit, setIsEdit] = useState(false)
 	const [selectedId, setSelectedId] = useState("")
 	const showModal = () => {
@@ -76,28 +76,26 @@ const Gst = () => {
 	// add gst******
 	const [form] = Form.useForm()
 	const onFinish = async (values) => {
-		const { name, percent } = values
-		if (isEdit && selectedId) {
-			const response = await updateGST(selectedId, name, percent)
+		const { name, percent } = values;
+		setIsLoading(prevVal => !prevVal);
+		if(isEdit && selectedId) {
+			const response = await updateGST(selectedId, name, percent);
 			if (response.success === true) {
 				message.success(response.message)
-				setIsModalOpen(false);
-				setIsEdit(false);
-				setSelectedId("")
-				init()
-				form.resetFields();
 			}
 		} else {
 			const response = await createGST(name, percent);
 			if (response.success === true) {
 				message.success(response.message)
-				setIsModalOpen(false);
-				setIsEdit(false);
-				setSelectedId("")
-				init()
-				form.resetFields();
 			}
 		}
+		setIsLoading(prevVal => !prevVal);
+		init()
+		setIsModalOpen(false);
+		setIsEdit(false);
+		setSelectedId("")
+		form.resetFields();
+
 	};
 
 	const onFinishFailed = errorInfo => {
@@ -168,7 +166,6 @@ const Gst = () => {
 			),
 			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
 		},
-
 		{
 			title: 'Percent',
 			dataIndex: 'percent',
@@ -368,15 +365,14 @@ const Gst = () => {
 
 						<div style={{
 							width: '82%',
-							marginLeft: "50px"
-						}}>
-							<Button type="primary" htmlType="submit" >
-								{isEdit ? "Save" : "Submit"}
-							</Button>
-							<Button type="primary" onClick={handleCancel} style={{ marginLeft: '20px' }}	>
-								Cancel
-							</Button>
-						</div>
+							marginLeft: "50px"}}>
+						<Button disabled={isLoading} type="primary" htmlType="submit" loading={isLoading}>
+							{isEdit ? "Save" : "Submit"}
+						</Button>
+						<Button type="primary" onClick={handleCancel} style={{ marginLeft: '20px' }}	>
+							Cancel
+						</Button>
+					</div>
 
 					</Form.Item>
 
@@ -384,10 +380,6 @@ const Gst = () => {
 			</Modal>
 		</>
 	)
-
-
-
-
 }
 
 export default Gst

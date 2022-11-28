@@ -16,3 +16,12 @@
 .loading .ant-spin {
   color: #3e79f7;
 }
+
+*::-webkit-scrollbar {
+  width: 0.4em;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #5d5d5d;
+  border-radius: 8px;
+}
