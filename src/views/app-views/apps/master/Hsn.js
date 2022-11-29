@@ -11,7 +11,7 @@ import utils from 'utils'
 
 // import { Form, Input, Checkbox } from 'antd';
 import { useEffect } from 'react';
-import { getHsn, updateHsn, createHsn, deleteHsn } from 'utils/api/gst';
+import { getHsn, updateHsn, createHsn, deleteHsn } from 'utils/api/hsn';
 import Loading from 'views/app-views/components/feedback/message/Loading';
 
 const layout = {
@@ -79,32 +79,22 @@ const Hns = () => {
 	const [form] = Form.useForm()
 	const onFinish = async (values) => {
 		const { name, detail, code } = values
+		setSubmitLoading(true)
 		if (isEdit && selectedId) {
-			// setSubmitLoading(true)
 			const response = await updateHsn(selectedId, name, detail, code)
 			if (response.success === true) {
 				message.success(response.message)
-				setIsModalOpen(false);
-				setIsEdit(false);
-				setSelectedId("")
-				form.resetFields();
-				init()
 			}
-
+			
 		} else {
 			// setSubmitLoading(true)
 			const response = await createHsn(name, detail, code);
 			if (response.success === true) {
-				message.success(response.message)
-				setIsModalOpen(false);
-				setIsEdit(false);
-				setSelectedId("")
-				form.resetFields();
-				init()
+				
 			}
-			// setSubmitLoading(true)
-
+			
 		}
+		setSubmitLoading(false)
 		init()
 		setIsModalOpen(false);
 		setIsEdit(false);
@@ -143,10 +133,11 @@ const Hns = () => {
 					<span className="ml-2">Edit</span>
 				</Flex>
 			</Menu.Item>
-			<Menu.Item onClick={() => deleteRow(row.id)}>
+			<Menu.Item onClick={() => deleteRow(row.id)} loading={submitLoading}>
 				<Flex alignItems="center">
 					<DeleteOutlined />
-					<span className="ml-2">{selectedRows.length > 0 ? `Delete (${selectedRows.length})` : 'Delete'}</span>
+					
+					<span className="ml-2">{selectedRows.length > 0 ? `Delete (${selectedRows.length})` : 'Delete'} </span>
 				</Flex>
 			</Menu.Item>
 		</Menu>
@@ -154,7 +145,9 @@ const Hns = () => {
 
 	// delete gst***********
 	const deleteRow = async (id) => {
+		setSubmitLoading(true)
 		const response = await deleteHsn(id)
+		setSubmitLoading(false)
 		if (response.success === true) {
 			message.success(response.message)
 			init()
@@ -358,7 +351,7 @@ const Hns = () => {
 
 				<Form
 					form={form}
-					style={{ width: '80%' }}
+					style={{ width: '85%' }}
 					// style={{boxShadow: '2px 5px 15px -10px rgb(0,0,0,0.5)',  padding:'10px', width:'50%'}}
 					{...layout}
 					name="basic"
@@ -403,7 +396,7 @@ const Hns = () => {
 							width: '82%',
 							marginLeft: "50px"
 						}}>
-							<Button type="primary" htmlType="submit" >
+							<Button  type="primary" htmlType="submit" loading={submitLoading}>
 								{isEdit ? "Save" : "Submit"}
 							</Button>
 							<Button type="primary" onClick={handleCancel} style={{ marginLeft: '20px' }}	>

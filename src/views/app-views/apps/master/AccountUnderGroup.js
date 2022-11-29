@@ -11,8 +11,8 @@ import utils from 'utils'
 
 // import { Form, Input, Checkbox } from 'antd';
 import { useEffect } from 'react';
-import { getCountry, updateCountry, createCountry, deleteCountry } from 'utils/api/gst';
-import Loading from 'views/app-views/components/feedback/message/Loading';
+import { createGST, getGST,deleteGst, updateGST } from 'utils/api/gst';
+import { getAccountUnderGroup, createAccountUnderGroup, updateAccountUnderGroup, deleteAccountUnderGroup } from 'utils/api/accountUnderGroup';
 
 const layout = {
 	labelCol: { span: 8 },
@@ -40,15 +40,18 @@ const getStockStatus = stockCount => {
 
 const categories = ['Cloths', 'Bags', 'Shoes', 'Watches', 'Devices']
 
-const Country = () => {
+const AccountUnderGroup = () => {
+
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [submitLoading, setSubmitLoading] = useState(false)
+	const [isEdit, setIsEdit] = useState(false)
+	const [selectedId, setSelectedId] = useState("")
 	const navigate = useNavigate();
 	const [list, setList] = useState(ProductListData)
 	const [selectedRows, setSelectedRows] = useState([])
 	const [selectedRowKeys, setSelectedRowKeys] = useState([])
-	const [hsnList, setHsnList] = useState([])
-	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [isEdit, setIsEdit] = useState(false)
-	const [selectedId, setSelectedId] = useState("")
+	const [gstList, setGstList] = useState([])
+
 	const showModal = () => {
 		setIsModalOpen(true);
 	};
@@ -57,10 +60,8 @@ const Country = () => {
 		setIsEdit(true);
 		setSelectedId(row.id)
 		form.setFieldsValue({
-			name: row.name,
-			short_code: row.short_code,
-			mobile_no_ext: row.mobile_no_ext,
-			currency: row.currency
+			detail: row.detail,
+			name: row.name
 		})
 	};
 	const handleOk = () => {
@@ -72,36 +73,30 @@ const Country = () => {
 		setSelectedId("")
 		form.resetFields();
 	};
-
-
+	
 
 	// add gst******
 	const [form] = Form.useForm()
 	const onFinish = async (values) => {
-		const { name, short_code, mobile_no_ext, currency } = values
-		if (isEdit && selectedId) {
-
-			const response = await updateCountry(selectedId, name, short_code, mobile_no_ext, currency)
+		const { name, detail } = values;
+		setSubmitLoading(true)
+		if(isEdit && selectedId) {
+			const response = await updateAccountUnderGroup(selectedId, name, detail);
 			if (response.success === true) {
 				message.success(response.message)
-				setIsModalOpen(false);
-				setIsEdit(false);
-				setSelectedId("")
-				init()
-				form.resetFields();
 			}
 		} else {
-			const response = await createCountry(name, short_code, mobile_no_ext, currency);
+			const response = await createAccountUnderGroup(name, detail);
 			if (response.success === true) {
 				message.success(response.message)
-				setIsModalOpen(false);
-				setIsEdit(false);
-				setSelectedId("")
-				init()
-				form.resetFields();
 			}
 		}
-
+		setSubmitLoading(false)
+		init()
+		setIsModalOpen(false);
+		setIsEdit(false);
+		setSelectedId("")
+		form.resetFields();
 
 	};
 
@@ -110,13 +105,12 @@ const Country = () => {
 	};
 
 	async function init() {
-		const response = await getCountry();
-		console.log(response, 'datadetails')
+		const response = await getAccountUnderGroup();
 		if (response.data?.length) {
-			setHsnList(response.data)
+			setGstList(response.data)
 			setIsModalOpen(false);
 		} else {
-			setHsnList([])
+			setGstList([])
 		}
 
 	}
@@ -147,14 +141,14 @@ const Country = () => {
 
 	// delete gst***********
 	const deleteRow = async (id) => {
+		console.log(id)
 
-
-		const response = await deleteCountry(id)
+		const response = await deleteAccountUnderGroup(id)
+		init()
 		if (response.success === true) {
 			message.success(response.message)
 			init()
 		}
-
 	}
 
 	const tableColumns = [
@@ -163,8 +157,8 @@ const Country = () => {
 			dataIndex: 'id'
 		},
 		{
-			title: 'Country Name',
-			dataIndex: 'name',
+			title: 'Account Group',
+			dataIndex: 'acountUnderGroup',
 			render: (_, record) => (
 				<div className="d-flex">
 					{/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
@@ -175,43 +169,17 @@ const Country = () => {
 			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
 		},
 		{
-			title: 'Country Currency Code',
-			dataIndex: 'short_code',
+			title: 'Detail',
+			dataIndex: 'detail',
 			render: (_, record) => (
 				<div className="d-flex">
 					{/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
 					{/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
-					{record.short_code}
+					{record.detail}
 				</div>
 			),
 			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
 		},
-
-		{
-			title: 'Country code',
-			dataIndex: 'mobile_no_ext',
-			render: (_, record) => (
-				<div className="d-flex">
-					{/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
-					{/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
-					{record.mobile_no_ext}
-				</div>
-			),
-			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
-		},
-		{
-			title: 'Currency',
-			dataIndex: 'currency',
-			render: (_, record) => (
-				<div className="d-flex">
-					{/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
-					{/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
-					{record.currency}
-				</div>
-			),
-			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
-		},
-
 
 		{
 			title: 'Created Date',
@@ -333,13 +301,13 @@ const Country = () => {
 						</div> */}
 					</Flex>
 					<div>
-						<Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Add Country</Button>
+						<Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Add GST</Button>
 					</div>
 				</Flex>
 				<div className="table-responsive">
 					<Table
 						columns={tableColumns}
-						dataSource={hsnList}
+						dataSource={gstList}
 						rowKey='id'
 						rowSelection={{
 							selectedRowKeys: selectedRowKeys,
@@ -355,7 +323,7 @@ const Country = () => {
 
 			<Modal
 
-				title={isEdit ? "Edit Country" : "Add Country"} open={isModalOpen} onCancel={handleCancel} footer={[
+				title={isEdit ? "Edit Account" : "Add Account"} open={isModalOpen} onCancel={handleCancel} footer={[
 					// <Button type="primary" htmlType="submit"  onClick={onFinish}>
 					// 	Submit
 					// </Button>,
@@ -365,8 +333,7 @@ const Country = () => {
 				]}>
 				<Form
 					form={form}
-					// style={{ width: '95%' }}
-					// style={{boxShadow: '2px 5px 15px -10px rgb(0,0,0,0.5)',  padding:'10px', width:'50%'}}
+					style={{ width: '85%' }}
 					{...layout}
 					name="basic"
 					initialValues={{ remember: true }}
@@ -376,36 +343,18 @@ const Country = () => {
 
 					<Form.Item
 						// style={{width:"35%"}}
-						label="Country Name"
+						label="Account Group"
 						name="name"
-						rules={[{ required: true, message: 'Country Name field is required!' }]}
+						rules={[{ required: true, message: ' Account group is required!' }]}
 					>
 						<Input />
 					</Form.Item>
 
 					<Form.Item
 						// style={{width:"35%"}}
-
-						label="Country Currency Code"
-						name="short_code"
-						rules={[{ required: true, message: 'Countery code field  is required' }]}
-					>
-						<Input />
-					</Form.Item>
-					<Form.Item
-						// style={{width:"35%"}}
-						label="Country Code"
-						name="mobile_no_ext"
-						rules={[{ required: true, message: 'Mobile no field is required' }]}
-					>
-						<Input />
-					</Form.Item>
-
-					<Form.Item
-						// style={{width:"35%"}}
-						label="Currency"
-						name="currency"
-						rules={[{ required: true, message: 'Currency  field is required' }]}
+						label="Detail"
+						name="detail"
+						rules={[{ required: true, message: 'Detail is required' }]}
 					>
 						<Input />
 					</Form.Item>
@@ -416,15 +365,14 @@ const Country = () => {
 
 						<div style={{
 							width: '82%',
-							marginLeft: "50px"
-						}}>
-							<Button type="primary" htmlType="submit" >
-								{isEdit ? "Save" : "Submit"}
-							</Button>
-							<Button type="primary" onClick={handleCancel} style={{ marginLeft: '20px' }}	>
-								Cancel
-							</Button>
-						</div>
+							marginLeft: "50px"}}>
+						<Button type="primary" htmlType="submit" loading={submitLoading}>
+							{isEdit ? "Save" : "Submit"}
+						</Button>
+						<Button type="primary" onClick={handleCancel} style={{ marginLeft: '20px' }}	>
+							Cancel
+						</Button>
+					</div>
 
 					</Form.Item>
 
@@ -432,10 +380,6 @@ const Country = () => {
 			</Modal>
 		</>
 	)
-
-
-
-
 }
 
-export default Country
+export default AccountUnderGroup

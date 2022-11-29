@@ -11,7 +11,7 @@ import utils from 'utils'
 
 // import { Form, Input, Checkbox } from 'antd';
 import { useEffect } from 'react';
-import { getCess, createCess, updateCess, deleteCess } from 'utils/api/gst';
+import { getCess, createCess, updateCess, deleteCess } from 'utils/api/cess';
 import Loading from 'views/app-views/components/feedback/message/Loading';
 
 const layout = {
@@ -45,6 +45,13 @@ const Cess = () => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isEdit, setIsEdit] = useState(false)
 	const [selectedId, setSelectedId] = useState("")
+	const [submitLoading, setSubmitLoading] = useState(false)
+	const navigate = useNavigate();
+	const [list, setList] = useState(ProductListData)
+	const [selectedRows, setSelectedRows] = useState([])
+	const [selectedRowKeys, setSelectedRowKeys] = useState([])
+	// const [cessList, setCessList] = useState([])
+	const [cessList, setCessList] = useState([])
 	const showModal = () => {
 		setIsModalOpen(true);
 	};
@@ -66,40 +73,26 @@ const Cess = () => {
 		setSelectedId("")
 		form.resetFields();
 	};
-	const navigate = useNavigate();
-	const [list, setList] = useState(ProductListData)
-	const [selectedRows, setSelectedRows] = useState([])
-	const [selectedRowKeys, setSelectedRowKeys] = useState([])
-	// const [cessList, setCessList] = useState([])
-	const [cessList, setCessList] = useState([])
+	
 
-
-	// add gst******
+	// add and update hsn******
 	const [form] = Form.useForm()
 	const onFinish = async (values) => {
 		const { name, percent } = values
+		setSubmitLoading(true)
 		if (isEdit && selectedId) {
 
 			const response = await updateCess(selectedId, name, percent)
 			if (response.success === true) {
 				message.success(response.message)
-				setIsModalOpen(false);
-				setIsEdit(false);
-				setSelectedId("")
-				init()
-				form.resetFields();
 			}
 		} else {
 			const response = await createCess(name, percent);
 			if (response.success === true) {
 				message.success(response.message)
-				setIsModalOpen(false);
-				setIsEdit(false);
-				setSelectedId("")
-				init()
-				form.resetFields();
 			}
 		}
+		setSubmitLoading(false)
 		init()
 		setIsModalOpen(false);
 		setIsEdit(false);
@@ -343,7 +336,7 @@ const Cess = () => {
 				]}>
 				<Form
 					form={form}
-					style={{ width: '80%' }}
+					style={{ width: '85%' }}
 					// style={{boxShadow: '2px 5px 15px -10px rgb(0,0,0,0.5)',  padding:'10px', width:'50%'}}
 					{...layout}
 					name="basic"
@@ -379,7 +372,7 @@ const Cess = () => {
 							width: '82%',
 							marginLeft: "50px"
 						}}>
-							<Button type="primary" htmlType="submit" >
+							<Button type="primary" htmlType="submit"  loading={submitLoading}>
 								{isEdit ? "Save" : "Submit"}
 							</Button>
 							<Button type="primary" onClick={handleCancel} style={{ marginLeft: '20px' }}	>

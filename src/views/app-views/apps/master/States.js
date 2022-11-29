@@ -11,7 +11,7 @@ import utils from 'utils'
 
 // import { Form, Input, Checkbox } from 'antd';
 import { useEffect } from 'react';
-import { getCountry, updateCountry, createCountry, deleteCountry } from 'utils/api/gst';
+import { getState, createState, updateState, deleteState } from 'utils/api/state';
 import Loading from 'views/app-views/components/feedback/message/Loading';
 
 const layout = {
@@ -49,6 +49,7 @@ const Country = () => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isEdit, setIsEdit] = useState(false)
 	const [selectedId, setSelectedId] = useState("")
+	const [submitLoading, setSubmitLoading] = useState(false)
 	const showModal = () => {
 		setIsModalOpen(true);
 	};
@@ -79,29 +80,25 @@ const Country = () => {
 	const [form] = Form.useForm()
 	const onFinish = async (values) => {
 		const { name, short_code, mobile_no_ext, currency } = values
+		setSubmitLoading(true)
 		if (isEdit && selectedId) {
 
-			const response = await updateCountry(selectedId, name, short_code, mobile_no_ext, currency)
+			const response = await updateState(selectedId, name, short_code, mobile_no_ext, currency)
 			if (response.success === true) {
 				message.success(response.message)
-				setIsModalOpen(false);
-				setIsEdit(false);
-				setSelectedId("")
-				init()
-				form.resetFields();
 			}
 		} else {
-			const response = await createCountry(name, short_code, mobile_no_ext, currency);
+			const response = await createState(name, short_code, mobile_no_ext, currency);
 			if (response.success === true) {
 				message.success(response.message)
-				setIsModalOpen(false);
-				setIsEdit(false);
-				setSelectedId("")
-				init()
-				form.resetFields();
 			}
 		}
-
+		setSubmitLoading(false)
+		init()
+		setIsModalOpen(false);
+		setIsEdit(false);
+		setSelectedId("")
+		form.resetFields();
 
 	};
 
@@ -110,8 +107,8 @@ const Country = () => {
 	};
 
 	async function init() {
-		const response = await getCountry();
-		console.log(response, 'datadetails')
+		const response = await getState();
+		
 		if (response.data?.length) {
 			setHsnList(response.data)
 			setIsModalOpen(false);
@@ -136,7 +133,7 @@ const Country = () => {
 					<span className="ml-2">Edit</span>
 				</Flex>
 			</Menu.Item>
-			<Menu.Item onClick={() => deleteRow(row.id)}>
+			<Menu.Item onClick={() => deleteRow(row.id)} loading={submitLoading}>
 				<Flex alignItems="center">
 					<DeleteOutlined />
 					<span className="ml-2">{selectedRows.length > 0 ? `Delete (${selectedRows.length})` : 'Delete'}</span>
@@ -148,8 +145,9 @@ const Country = () => {
 	// delete gst***********
 	const deleteRow = async (id) => {
 
-
-		const response = await deleteCountry(id)
+		setSubmitLoading(true)
+		const response = await deleteState(id)
+		setSubmitLoading(false)
 		if (response.success === true) {
 			message.success(response.message)
 			init()
@@ -418,7 +416,7 @@ const Country = () => {
 							width: '82%',
 							marginLeft: "50px"
 						}}>
-							<Button type="primary" htmlType="submit" >
+							<Button type="primary" htmlType="submit" loading={submitLoading}>
 								{isEdit ? "Save" : "Submit"}
 							</Button>
 							<Button type="primary" onClick={handleCancel} style={{ marginLeft: '20px' }}	>

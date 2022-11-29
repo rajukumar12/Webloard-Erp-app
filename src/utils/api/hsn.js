@@ -1,9 +1,9 @@
 import { del, get, post, put,} from "utils/HttpUtil"
-// GST 
-// Get gst
-export const getGST = async () => {
+//  HSN
+// Get hns
+export const getHsn = async () => {
     try {
-        const url = `${process.env.REACT_APP_BASEURL}/gst_percent`;
+        const url = `${process.env.REACT_APP_BASEURL}/hsn`;
         const json = await get(url);
         if (json) {
             return json
@@ -12,13 +12,14 @@ export const getGST = async () => {
         console.log("Error with getGST: ", error);
     }
 }
-// Create gst
-export const createGST = async (name, percent) => {
+// Create hsn
+export const createHsn = async (name, detail,code) => {
     try {
-        const url = `${process.env.REACT_APP_BASEURL}/gst_percent`;
+        const url = `${process.env.REACT_APP_BASEURL}/hsn`;
         const json = await post(url, {
             name,
-            percent
+            detail,
+            code
         });
         if (json) {
             return json
@@ -27,13 +28,15 @@ export const createGST = async (name, percent) => {
         console.log("Error with createGST: ", error);
     }
 }
-// update gst
-export const updateGST = async (id, name, percent) => {
+
+//update hsn
+export const updateHsn = async (id, name, detail,code) => {
     try {
-        const url = `${process.env.REACT_APP_BASEURL}/gst_percent/${id}?name=${name}&percent=${percent}`;
+        const url = `${process.env.REACT_APP_BASEURL}/hsn/${id}?name=${name}&detail=${detail}&code=${code}`;
         const json = await put(url, {
             name,
-            percent
+            detail,
+            code
         });
         console.log(json, 'update json')
         if (json) {
@@ -44,10 +47,11 @@ export const updateGST = async (id, name, percent) => {
     }
 }
 
-// delete gst
-export const deleteGst = async (id) => {
+// delete hsn
+export const deleteHsn = async (id) => {
+    console.log(id, 'delete')
     try {
-        const url = `${process.env.REACT_APP_BASEURL}/gst_percent/${id}`;
+        const url = `${process.env.REACT_APP_BASEURL}/hsn/${id}`;
         const json = await del(url, {
             id
         });

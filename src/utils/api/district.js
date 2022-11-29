@@ -1,9 +1,10 @@
 import { del, get, post, put,} from "utils/HttpUtil"
-// GST 
-// Get gst
-export const getGST = async () => {
+
+//  District
+// Get District
+export const getDistrict = async () => {
     try {
-        const url = `${process.env.REACT_APP_BASEURL}/gst_percent`;
+        const url = `${process.env.REACT_APP_BASEURL}/district`;
         const json = await get(url);
         if (json) {
             return json
@@ -12,13 +13,15 @@ export const getGST = async () => {
         console.log("Error with getGST: ", error);
     }
 }
-// Create gst
-export const createGST = async (name, percent) => {
+// Create District
+export const createDistrict= async (name, short_code, state_code, country_id) => {
     try {
-        const url = `${process.env.REACT_APP_BASEURL}/gst_percent`;
+        const url = `${process.env.REACT_APP_BASEURL}/district`;
         const json = await post(url, {
             name,
-            percent
+            short_code,
+            state_code,
+            country_id
         });
         if (json) {
             return json
@@ -27,13 +30,16 @@ export const createGST = async (name, percent) => {
         console.log("Error with createGST: ", error);
     }
 }
-// update gst
-export const updateGST = async (id, name, percent) => {
+
+//update District
+export const updateDistrict= async (id, name, short_code, state_code, country_id) => {
     try {
-        const url = `${process.env.REACT_APP_BASEURL}/gst_percent/${id}?name=${name}&percent=${percent}`;
+        const url = `${process.env.REACT_APP_BASEURL}/district/${id}?name=${name}&short_code=${short_code}&state_code=${state_code}&country_id=${country_id}`;
         const json = await put(url, {
             name,
-            percent
+            short_code,
+            state_code,
+            country_id
         });
         console.log(json, 'update json')
         if (json) {
@@ -44,10 +50,11 @@ export const updateGST = async (id, name, percent) => {
     }
 }
 
-// delete gst
-export const deleteGst = async (id) => {
+// delete District
+export const deleteDistrict= async (id) => {
+    console.log(id, 'delete')
     try {
-        const url = `${process.env.REACT_APP_BASEURL}/gst_percent/${id}`;
+        const url = `${process.env.REACT_APP_BASEURL}/district/${id}`;
         const json = await del(url, {
             id
         });

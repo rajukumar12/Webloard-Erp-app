@@ -42,9 +42,15 @@ const categories = ['Cloths', 'Bags', 'Shoes', 'Watches', 'Devices']
 const Gst = () => {
 
 	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [ isLoading, setIsLoading ] = useState(false)
+	const [submitLoading, setSubmitLoading] = useState(false)
 	const [isEdit, setIsEdit] = useState(false)
 	const [selectedId, setSelectedId] = useState("")
+	const navigate = useNavigate();
+	const [list, setList] = useState(ProductListData)
+	const [selectedRows, setSelectedRows] = useState([])
+	const [selectedRowKeys, setSelectedRowKeys] = useState([])
+	const [gstList, setGstList] = useState([])
+
 	const showModal = () => {
 		setIsModalOpen(true);
 	};
@@ -66,18 +72,13 @@ const Gst = () => {
 		setSelectedId("")
 		form.resetFields();
 	};
-	const navigate = useNavigate();
-	const [list, setList] = useState(ProductListData)
-	const [selectedRows, setSelectedRows] = useState([])
-	const [selectedRowKeys, setSelectedRowKeys] = useState([])
-	const [gstList, setGstList] = useState([])
-
+	
 
 	// add gst******
 	const [form] = Form.useForm()
 	const onFinish = async (values) => {
 		const { name, percent } = values;
-		setIsLoading(prevVal => !prevVal);
+		setSubmitLoading(true)
 		if(isEdit && selectedId) {
 			const response = await updateGST(selectedId, name, percent);
 			if (response.success === true) {
@@ -89,7 +90,7 @@ const Gst = () => {
 				message.success(response.message)
 			}
 		}
-		setIsLoading(prevVal => !prevVal);
+		setSubmitLoading(false)
 		init()
 		setIsModalOpen(false);
 		setIsEdit(false);
@@ -331,7 +332,7 @@ const Gst = () => {
 				]}>
 				<Form
 					form={form}
-					style={{ width: '80%' }}
+					style={{ width: '85%' }}
 					// style={{boxShadow: '2px 5px 15px -10px rgb(0,0,0,0.5)',  padding:'10px', width:'50%'}}
 					{...layout}
 					name="basic"
@@ -366,7 +367,7 @@ const Gst = () => {
 						<div style={{
 							width: '82%',
 							marginLeft: "50px"}}>
-						<Button disabled={isLoading} type="primary" htmlType="submit" loading={isLoading}>
+						<Button type="primary" htmlType="submit" loading={submitLoading}>
 							{isEdit ? "Save" : "Submit"}
 						</Button>
 						<Button type="primary" onClick={handleCancel} style={{ marginLeft: '20px' }}	>
