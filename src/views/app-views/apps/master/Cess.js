@@ -2,17 +2,13 @@ import React, { useState } from 'react'
 import { Card, Table, Select, Input, Button, Badge, Menu, Modal, Form, message } from 'antd';
 import ProductListData from "assets/data/product-list.data.json"
 import { EditOutlined, DeleteOutlined, SearchOutlined, PlusCircleOutlined } from '@ant-design/icons';
-import AvatarStatus from 'components/shared-components/AvatarStatus';
 import EllipsisDropdown from 'components/shared-components/EllipsisDropdown';
 import Flex from 'components/shared-components/Flex'
-import NumberFormat from 'react-number-format';
-import { useNavigate } from "react-router-dom";
 import utils from 'utils'
 
 // import { Form, Input, Checkbox } from 'antd';
 import { useEffect } from 'react';
 import { getCess, createCess, updateCess, deleteCess } from 'utils/api/cess';
-import Loading from 'views/app-views/components/feedback/message/Loading';
 
 const layout = {
 	labelCol: { span: 8 },
@@ -22,35 +18,21 @@ const tailLayout = {
 	wrapperCol: { offset: 8, span: 16 },
 };
 
-
-const { Option } = Select
-
-const getStockStatus = stockCount => {
-	if (stockCount >= 10) {
-		return <><Badge status="success" /><span>In Stock</span></>
-	}
-	if (stockCount < 10 && stockCount > 0) {
-		return <><Badge status="warning" /><span>Limited Stock</span></>
-	}
-	if (stockCount === 0) {
-		return <><Badge status="error" /><span>Out of Stock</span></>
-	}
-	return null
-}
-
-const categories = ['Cloths', 'Bags', 'Shoes', 'Watches', 'Devices']
-
 const Cess = () => {
 
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isEdit, setIsEdit] = useState(false)
 	const [selectedId, setSelectedId] = useState("")
 	const [submitLoading, setSubmitLoading] = useState(false)
-	const navigate = useNavigate();
 	const [list, setList] = useState(ProductListData)
 	const [selectedRows, setSelectedRows] = useState([])
 	const [selectedRowKeys, setSelectedRowKeys] = useState([])
 	// const [cessList, setCessList] = useState([])
+	const [openDeleteModal, setOpenDeleteModal] = useState({
+		open: false,
+		id: '',
+		name: ''
+	})
 	const [cessList, setCessList] = useState([])
 	const showModal = () => {
 		setIsModalOpen(true);
@@ -125,14 +107,13 @@ const Cess = () => {
 	const dropdownMenu = row => (
 
 		<Menu>
-			{console.log(row, "rowsss")}
 			<Menu.Item onClick={() => showEditModal(row)}>
 				<Flex alignItems="center">
 					<EditOutlined />
 					<span className="ml-2">Edit</span>
 				</Flex>
 			</Menu.Item>
-			<Menu.Item onClick={() => deleteRow(row.id)}>
+			<Menu.Item onClick={() => setOpenDeleteModal({ open: true, id: row.id, name: row.name })}>
 				<Flex alignItems="center">
 					<DeleteOutlined />
 					<span className="ml-2">{selectedRows.length > 0 ? `Delete (${selectedRows.length})` : 'Delete'}</span>
@@ -143,14 +124,19 @@ const Cess = () => {
 
 	// delete gst***********
 	const deleteRow = async (id) => {
-
-
+		if(!id) return;
+		setSubmitLoading(true)
 		const response = await deleteCess(id)
+		setSubmitLoading(false)
 		if (response.success === true) {
 			message.success(response.message)
 			init()
 		}
-		
+		setOpenDeleteModal({
+			open: false,
+			id: '',
+			name: ''
+		})
 	}
 
 	const tableColumns = [
@@ -383,6 +369,38 @@ const Cess = () => {
 					</Form.Item>
 
 				</Form>
+			</Modal>
+			{/* Delete confirmation popup */}
+			<Modal
+				title={"Delete CESS"}
+				open={openDeleteModal.open}
+				onCancel={() => setOpenDeleteModal({
+					open: false,
+					id: '',
+					name: ''
+				})}
+				footer={[
+					<Button 
+						type="primary" 
+						loading={submitLoading} 
+						htmlType="submit"
+						onClick={() => deleteRow(openDeleteModal.id)}
+					>
+						Delete
+					</Button>,
+					<Button type="primary" onClick={() => setOpenDeleteModal({
+							open: false,
+							id: '',
+							name: ''
+						})}
+					>
+						Cancel
+					</Button>
+				]}
+			>
+				<div>
+					<h2>{`Are you sure you want to delete ${openDeleteModal.name} CESS?`}</h2>
+				</div>
 			</Modal>
 		</>
 	)

@@ -2,18 +2,14 @@ import React, { useState } from 'react'
 import { Card, Table, Select, Input, Button, Badge, Menu, Modal, Form, message } from 'antd';
 import ProductListData from "assets/data/product-list.data.json"
 import { EditOutlined, DeleteOutlined, SearchOutlined, PlusCircleOutlined } from '@ant-design/icons';
-import AvatarStatus from 'components/shared-components/AvatarStatus';
 import EllipsisDropdown from 'components/shared-components/EllipsisDropdown';
 import Flex from 'components/shared-components/Flex'
-import NumberFormat from 'react-number-format';
-import { useNavigate } from "react-router-dom";
 import utils from 'utils'
 
 // import { Form, Input, Checkbox } from 'antd';
 import { useEffect } from 'react';
 import { getState, createState, updateState, deleteState } from 'utils/api/state';
 import { getCountry } from 'utils/api/country';
-import Loading from 'views/app-views/components/feedback/message/Loading';
 
 
 const layout = {
@@ -27,23 +23,7 @@ const tailLayout = {
 
 const { Option } = Select
 
-const getStockStatus = stockCount => {
-	if (stockCount >= 10) {
-		return <><Badge status="success" /><span>In Stock</span></>
-	}
-	if (stockCount < 10 && stockCount > 0) {
-		return <><Badge status="warning" /><span>Limited Stock</span></>
-	}
-	if (stockCount === 0) {
-		return <><Badge status="error" /><span>Out of Stock</span></>
-	}
-	return null
-}
-
-const categories = ['Cloths', 'Bags', 'Shoes', 'Watches', 'Devices']
-
 const State = () => {
-	const navigate = useNavigate();
 	const [list, setList] = useState(ProductListData)
 	const [selectedRows, setSelectedRows] = useState([])
 	const [selectedRowKeys, setSelectedRowKeys] = useState([])
@@ -52,8 +32,12 @@ const State = () => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isEdit, setIsEdit] = useState(false)
 	const [selectedId, setSelectedId] = useState("")
-	const [submitLoading, setSubmitLoading] = useState(false)
-	console.log(countryList, 'country2')
+	const [submitLoading, setSubmitLoading] = useState(false);
+	const [openDeleteModal, setOpenDeleteModal] = useState({
+		open: false,
+		id: '',
+		name: ''
+	})
 	const showModal = () => {
 		setIsModalOpen(true);
 	};
@@ -78,7 +62,6 @@ const State = () => {
 		form.resetFields();
 		setSubmitLoading(false)
 	};
-
 
 	const [form] = Form.useForm()
 	const onFinish = async (values) => {
@@ -111,14 +94,12 @@ const State = () => {
 
 	async function init() {
 		const response = await getState();
-
 		if (response.data?.length) {
 			setHsnList(response.data)
 			setIsModalOpen(false);
 		} else {
 			setHsnList([])
 		}
-
 	}
 	async function cuntry() {
 		const response = await getCountry();
@@ -128,27 +109,22 @@ const State = () => {
 		} else {
 			setHsnList([])
 		}
-
 	}
 
 	useEffect(() => {
-
 		init()
 		cuntry()
-
 	}, [])
 
 	const dropdownMenu = row => (
-
 		<Menu>
-			{console.log(row, "rowsss")}
 			<Menu.Item onClick={() => showEditModal(row)}>
 				<Flex alignItems="center">
 					<EditOutlined />
 					<span className="ml-2">Edit</span>
 				</Flex>
 			</Menu.Item>
-			<Menu.Item onClick={() => deleteRow(row.id)} loading={submitLoading}>
+			<Menu.Item onClick={() => setOpenDeleteModal({ open: true, id: row.id, name: row.name })}>
 				<Flex alignItems="center">
 					<DeleteOutlined />
 					<span className="ml-2">{selectedRows.length > 0 ? `Delete (${selectedRows.length})` : 'Delete'}</span>
@@ -159,7 +135,7 @@ const State = () => {
 
 	// delete gst***********
 	const deleteRow = async (id) => {
-
+		if(!id) return;
 		setSubmitLoading(true)
 		const response = await deleteState(id)
 		setSubmitLoading(false)
@@ -167,7 +143,11 @@ const State = () => {
 			message.success(response.message)
 			init()
 		}
-
+		setOpenDeleteModal({
+			open: false,
+			id: '',
+			name: ''
+		})
 	}
 
 	const tableColumns = [
@@ -367,7 +347,6 @@ const State = () => {
 			</Card>
 
 			<Modal
-
 				title={isEdit ? "Edit State" : "Add State"} open={isModalOpen} onCancel={handleCancel} footer={[
 					// <Button type="primary" htmlType="submit"  onClick={onFinish}>
 					// 	Submit
@@ -451,6 +430,38 @@ const State = () => {
 
 
 				</Form>
+			</Modal>
+			{/* Delete confirmation popup */}
+			<Modal
+				title={"Delete State"}
+				open={openDeleteModal.open}
+				onCancel={() => setOpenDeleteModal({
+					open: false,
+					id: '',
+					name: ''
+				})}
+				footer={[
+					<Button 
+						type="primary" 
+						loading={submitLoading} 
+						htmlType="submit"
+						onClick={() => deleteRow(openDeleteModal.id)}
+					>
+						Delete
+					</Button>,
+					<Button type="primary" onClick={() => setOpenDeleteModal({
+							open: false,
+							id: '',
+							name: ''
+						})}
+					>
+						Cancel
+					</Button>
+				]}
+			>
+				<div>
+					<h2>{`Are you sure you want to delete ${openDeleteModal.name} State?`}</h2>
+				</div>
 			</Modal>
 		</>
 	)
