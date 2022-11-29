@@ -56,20 +56,21 @@ const State = () => {
     const [isEdit, setIsEdit] = useState(false)
     const [selectedId, setSelectedId] = useState("")
     const [submitLoading, setSubmitLoading] = useState(false)
-    console.log(countryList, 'country2')
     const showModal = () => {
         setIsModalOpen(true);
     };
     const showEditModal = (row) => {
         setIsModalOpen(true);
         setIsEdit(true);
-        setSelectedId(row.id)
+        setSelectedId(row.id);
+        console.log(stateList,'state===')
+        console.log(row,'state===')
         form.setFieldsValue({
             name: row.name,
             short_code: row.short_code,
             state_code: row.state_code,
             country_id: row.Country_name,
-            state_id: row.State_Name
+            state_id: row.state_id
         })
     };
     const handleOk = () => {
@@ -87,18 +88,16 @@ const State = () => {
     const [form] = Form.useForm()
     const onFinish = async (values) => {
         try {
-            const { name, short_code, mobile_no_ext, currency } = values
+            const { name, short_code, state_id, country_id } = values
             setSubmitLoading(true)
             let response;
             if (isEdit && selectedId) {
-
-                response = await updateDistrict(selectedId, name, short_code, mobile_no_ext, currency)
-                console.log(response,'res===')
+                response = await updateDistrict(selectedId, name, short_code, state_id, country_id)
                 if (response?.success === true) {
                     message.success(response.message)
                 }
             } else {
-                response = await createDistrict(name, short_code, mobile_no_ext, currency);
+                response = await createDistrict(name, short_code, state_id, country_id);
                 if (response?.success === true) {
                     message.success(response.message)
                 }
@@ -165,7 +164,6 @@ const State = () => {
     const dropdownMenu = row => (
 
         <Menu>
-            {console.log(row, "rowsss")}
             <Menu.Item onClick={() => showEditModal(row)}>
                 <Flex alignItems="center">
                     <EditOutlined />
@@ -414,9 +412,9 @@ const State = () => {
 
                     <Form.Item
 
-                        label="State Name"
+                        label="District Name"
                         name="name"
-                        rules={[{ required: true, message: 'Country Name field is required!' }]}
+                        rules={[{ required: true, message: 'District Name field is required!' }]}
                     >
                         <Input />
                     </Form.Item>
@@ -438,7 +436,6 @@ const State = () => {
                             {
                                 countryList.length > 0 ?
                                     countryList.map((elm) => {
-                                        console.log(elm, "elm")
                                         return <Option key={elm.id} value={elm.id}>{elm.name}</Option>
                                     })
                                     :
@@ -446,12 +443,11 @@ const State = () => {
                             }
                         </Select>
                     </Form.Item>
-                    <Form.Item name="state_id" label="State" rules={[{ required: true, message: 'State  field is required' }]} >
+                    <Form.Item name="state_id" label="State" rules={[{ required: true, message: 'State  select is required' }]} >
                         <Select className="w-100" placeholder="Select State">
                             {
                                 stateList.length > 0 ?
                                     stateList.map((elm) => {
-                                        console.log(elm, "elm")
                                         return <Option key={elm.id} value={elm.id}>{elm.name}</Option>
                                     })
                                     :

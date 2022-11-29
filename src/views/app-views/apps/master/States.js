@@ -82,16 +82,16 @@ const State = () => {
 
 	const [form] = Form.useForm()
 	const onFinish = async (values) => {
-		const { name, short_code, mobile_no_ext, currency } = values
+		const { name, short_code, state_code, country_id } = values
 		setSubmitLoading(true)
 		if (isEdit && selectedId) {
 
-			const response = await updateState(selectedId, name, short_code, mobile_no_ext, currency)
+			const response = await updateState(selectedId, name, short_code, state_code, country_id)
 			if (response.success === true) {
 				message.success(response.message)
 			}
 		} else {
-			const response = await createState(name, short_code, mobile_no_ext, currency);
+			const response = await createState(name, short_code, state_code, country_id);
 			if (response.success === true) {
 				message.success(response.message)
 			}
@@ -391,7 +391,7 @@ const State = () => {
 						// style={{width:"35%"}}
 						label="State Name"
 						name="name"
-						rules={[{ required: true, message: 'Country Name field is required!' }]}
+						rules={[{ required: true, message: 'State Name field is required!' }]}
 					>
 						<Input />
 					</Form.Item>
@@ -402,7 +402,7 @@ const State = () => {
 
 						label="Sort Code"
 						name="short_code"
-						rules={[{ required: true, message: 'Countery code field  is required' }]}
+						rules={[{ required: true, message: 'Shor code field  is required' }]}
 					>
 
 						<Input />
@@ -417,7 +417,7 @@ const State = () => {
 						<Input />
 					</Form.Item>
 
-					<Form.Item name="country_id" label="Country" rules={[{ required: true, message: 'Country  field is required' }]} >
+					<Form.Item name="country_id" label="Country" rules={[{ required: true, message: 'Country  select is required' }]} >
 						<Select className="w-100" placeholder="Select Country">
 							{
 								countryList.length > 0 ?

@@ -14,13 +14,13 @@ export const getCity = async () => {
     }
 }
 // Create City
-export const createCity= async (name, short_code, state_code, country_id) => {
+export const createCity= async (name, district_id, state_id, country_id) => {
     try {
         const url = `${process.env.REACT_APP_BASEURL}/city`;
         const json = await post(url, {
             name,
-            short_code,
-            state_code,
+            district_id,
+            state_id,
             country_id
         });
         if (json) {
@@ -32,13 +32,13 @@ export const createCity= async (name, short_code, state_code, country_id) => {
 }
 
 //update City
-export const updateCity= async (id, name, short_code, state_code, country_id) => {
+export const updateCity= async (id, name, district_id, state_id, country_id) => {
     try {
-        const url = `${process.env.REACT_APP_BASEURL}/city/${id}?name=${name}&short_code=${short_code}&state_code=${state_code}&country_id=${country_id}`;
+        const url = `${process.env.REACT_APP_BASEURL}/city/${id}?name=${name}&district_id=${district_id}&state_id=${state_id}&country_id=${country_id}`;
         const json = await put(url, {
             name,
-            short_code,
-            state_code,
+            district_id,
+            state_id,
             country_id
         });
         console.log(json, 'update json')
