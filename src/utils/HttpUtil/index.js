@@ -53,5 +53,6 @@ const http = async (url, method, body) => {
     } catch (error) {
         console.log("Error with http: ", error)
         message.error(error.message)
+        return { message: error.message, success: false }
     }
 }

@@ -128,6 +128,11 @@ export const protectedRoutes = [
     },
     
     {
+        key: 'apps.master.city',
+        path: `${APP_PREFIX_PATH}/apps/master/city`,
+        component: React.lazy(() => import('views/app-views/apps/master/City')),
+    },
+    {
         key: 'apps.master.cess',
         path: `${APP_PREFIX_PATH}/apps/master/cess`,
         component: React.lazy(() => import('views/app-views/apps/master/Cess')),
@@ -137,6 +142,7 @@ export const protectedRoutes = [
         path: `${APP_PREFIX_PATH}/apps/master/accountUnderGroup`,
         component: React.lazy(() => import('views/app-views/apps/master/AccountUnderGroup')),
     },
+   
     
     {
         key: 'apps.ecommerce',

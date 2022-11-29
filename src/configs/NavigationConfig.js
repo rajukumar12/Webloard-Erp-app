@@ -355,7 +355,14 @@ const appsNavTree = [{
           breadcrumb: false,
           submenu: []
         },
-        
+        {
+          key: 'apps-master-city',
+          path: `${APP_PREFIX_PATH}/apps/master/city`,
+          title: 'sidenav.apps.master.city',
+          icon: '',
+          breadcrumb: false,
+          submenu: []
+        },
         {
           key: 'apps-master-cess',
           path: `${APP_PREFIX_PATH}/apps/master/cess`,
@@ -371,8 +378,8 @@ const appsNavTree = [{
           icon: '',
           breadcrumb: false,
           submenu: []
-        }
-        
+        },
+ 
       ]
     }
 

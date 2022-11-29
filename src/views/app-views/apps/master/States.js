@@ -12,7 +12,9 @@ import utils from 'utils'
 // import { Form, Input, Checkbox } from 'antd';
 import { useEffect } from 'react';
 import { getState, createState, updateState, deleteState } from 'utils/api/state';
+import { getCountry } from 'utils/api/country';
 import Loading from 'views/app-views/components/feedback/message/Loading';
+
 
 const layout = {
 	labelCol: { span: 8 },
@@ -40,16 +42,18 @@ const getStockStatus = stockCount => {
 
 const categories = ['Cloths', 'Bags', 'Shoes', 'Watches', 'Devices']
 
-const Country = () => {
+const State = () => {
 	const navigate = useNavigate();
 	const [list, setList] = useState(ProductListData)
 	const [selectedRows, setSelectedRows] = useState([])
 	const [selectedRowKeys, setSelectedRowKeys] = useState([])
 	const [hsnList, setHsnList] = useState([])
+	const [countryList, setCountryList] = useState([])
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isEdit, setIsEdit] = useState(false)
 	const [selectedId, setSelectedId] = useState("")
 	const [submitLoading, setSubmitLoading] = useState(false)
+	console.log(countryList, 'country2')
 	const showModal = () => {
 		setIsModalOpen(true);
 	};
@@ -60,8 +64,8 @@ const Country = () => {
 		form.setFieldsValue({
 			name: row.name,
 			short_code: row.short_code,
-			mobile_no_ext: row.mobile_no_ext,
-			currency: row.currency
+			state_code: row.state_code,
+			country_id: row.Country_name
 		})
 	};
 	const handleOk = () => {
@@ -72,11 +76,10 @@ const Country = () => {
 		setIsEdit(false);
 		setSelectedId("")
 		form.resetFields();
+		setSubmitLoading(false)
 	};
 
 
-
-	// add gst******
 	const [form] = Form.useForm()
 	const onFinish = async (values) => {
 		const { name, short_code, mobile_no_ext, currency } = values
@@ -108,9 +111,19 @@ const Country = () => {
 
 	async function init() {
 		const response = await getState();
-		
+
 		if (response.data?.length) {
 			setHsnList(response.data)
+			setIsModalOpen(false);
+		} else {
+			setHsnList([])
+		}
+
+	}
+	async function cuntry() {
+		const response = await getCountry();
+		if (response.data?.length) {
+			setCountryList(response.data)
 			setIsModalOpen(false);
 		} else {
 			setHsnList([])
@@ -121,6 +134,8 @@ const Country = () => {
 	useEffect(() => {
 
 		init()
+		cuntry()
+
 	}, [])
 
 	const dropdownMenu = row => (
@@ -161,7 +176,7 @@ const Country = () => {
 			dataIndex: 'id'
 		},
 		{
-			title: 'Country Name',
+			title: 'State Name',
 			dataIndex: 'name',
 			render: (_, record) => (
 				<div className="d-flex">
@@ -173,7 +188,7 @@ const Country = () => {
 			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
 		},
 		{
-			title: 'Country Currency Code',
+			title: 'Sort Code',
 			dataIndex: 'short_code',
 			render: (_, record) => (
 				<div className="d-flex">
@@ -184,31 +199,33 @@ const Country = () => {
 			),
 			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
 		},
+		{
+			title: 'State Code',
+			dataIndex: 'State_code',
+			render: (_, record) => (
+				<div className="d-flex">
+					{/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
+					{/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
+					{record.state_code}
+				</div>
+			),
+			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
+		},
+
 
 		{
-			title: 'Country code',
-			dataIndex: 'mobile_no_ext',
+			title: 'Country Name',
+			dataIndex: 'counter_name',
 			render: (_, record) => (
 				<div className="d-flex">
 					{/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
 					{/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
-					{record.mobile_no_ext}
+					{record.Country_name}
 				</div>
 			),
 			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
 		},
-		{
-			title: 'Currency',
-			dataIndex: 'currency',
-			render: (_, record) => (
-				<div className="d-flex">
-					{/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
-					{/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
-					{record.currency}
-				</div>
-			),
-			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
-		},
+
 
 
 		{
@@ -331,7 +348,7 @@ const Country = () => {
 						</div> */}
 					</Flex>
 					<div>
-						<Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Add Country</Button>
+						<Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Add State</Button>
 					</div>
 				</Flex>
 				<div className="table-responsive">
@@ -349,11 +366,9 @@ const Country = () => {
 				</div>
 			</Card>
 
-			{/* add gst************************************************************************ */}
-
 			<Modal
 
-				title={isEdit ? "Edit Country" : "Add Country"} open={isModalOpen} onCancel={handleCancel} footer={[
+				title={isEdit ? "Edit State" : "Add State"} open={isModalOpen} onCancel={handleCancel} footer={[
 					// <Button type="primary" htmlType="submit"  onClick={onFinish}>
 					// 	Submit
 					// </Button>,
@@ -374,40 +389,47 @@ const Country = () => {
 
 					<Form.Item
 						// style={{width:"35%"}}
-						label="Country Name"
+						label="State Name"
 						name="name"
 						rules={[{ required: true, message: 'Country Name field is required!' }]}
 					>
 						<Input />
 					</Form.Item>
 
+
 					<Form.Item
 						// style={{width:"35%"}}
 
-						label="Country Currency Code"
+						label="Sort Code"
 						name="short_code"
 						rules={[{ required: true, message: 'Countery code field  is required' }]}
 					>
-						<Input />
-					</Form.Item>
-					<Form.Item
-						// style={{width:"35%"}}
-						label="Country Code"
-						name="mobile_no_ext"
-						rules={[{ required: true, message: 'Mobile no field is required' }]}
-					>
+
 						<Input />
 					</Form.Item>
 
 					<Form.Item
 						// style={{width:"35%"}}
-						label="Currency"
-						name="currency"
-						rules={[{ required: true, message: 'Currency  field is required' }]}
+						label="State Code"
+						name="state_code"
+						rules={[{ required: true, message: 'State code field is required' }]}
 					>
 						<Input />
 					</Form.Item>
 
+					<Form.Item name="country_id" label="Country" rules={[{ required: true, message: 'Country  field is required' }]} >
+						<Select className="w-100" placeholder="Select Country">
+							{
+								countryList.length > 0 ?
+									countryList.map((elm) => {
+										console.log(elm, "elm")
+										return <Option key={elm.id} value={elm.id}>{elm.name}</Option>
+									})
+									:
+									"No Data"
+							}
+						</Select>
+					</Form.Item>
 
 
 					<Form.Item {...tailLayout}  >
@@ -426,6 +448,8 @@ const Country = () => {
 
 					</Form.Item>
 
+
+
 				</Form>
 			</Modal>
 		</>
@@ -436,4 +460,4 @@ const Country = () => {
 
 }
 
-export default Country
+export default State
