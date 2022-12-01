@@ -27,6 +27,7 @@ const Hns = () => {
 	const [isEdit, setIsEdit] = useState(false)
 	const [selectedId, setSelectedId] = useState("")
 	const [submitLoading, setSubmitLoading] = useState(false);
+	const [initialLoading, setInitialLoading]=useState(false)
 	const [openDeleteModal, setOpenDeleteModal] = useState({
 		open: false,
 		id: '',
@@ -87,6 +88,7 @@ const Hns = () => {
 	};
 
 	async function init() {
+		setInitialLoading(true)
 		const response = await getHsn();
 		if (response.data?.length) {
 			setHsnList(response.data)
@@ -94,6 +96,7 @@ const Hns = () => {
 		} else {
 			setHsnList([])
 		}
+		setInitialLoading(false)
 	}
 
 	useEffect(() => {
@@ -313,6 +316,7 @@ const Hns = () => {
 							preserveSelectedRowKeys: false,
 							...rowSelection,
 						}}
+						loading={initialLoading}
 					/>
 				</div>
 			</Card>

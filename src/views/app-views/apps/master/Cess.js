@@ -27,6 +27,7 @@ const Cess = () => {
 	const [list, setList] = useState(ProductListData)
 	const [selectedRows, setSelectedRows] = useState([])
 	const [selectedRowKeys, setSelectedRowKeys] = useState([])
+	const [initialLoading, setInitialLoading]=useState(false)
 	// const [cessList, setCessList] = useState([])
 	const [openDeleteModal, setOpenDeleteModal] = useState({
 		open: false,
@@ -88,15 +89,15 @@ const Cess = () => {
 	};
 
 	async function init() {
+		setInitialLoading(true)
 		const response = await getCess();
-		
 		if (response.data?.length) {
 			setCessList(response.data)
 			setIsModalOpen(false);
 		} else {
 			setCessList([])
 		}
-
+		setInitialLoading(false)
 	}
 
 	useEffect(() => {
@@ -304,6 +305,7 @@ const Cess = () => {
 							preserveSelectedRowKeys: false,
 							...rowSelection,
 						}}
+						loading={initialLoading}
 					/>
 				</div>
 			</Card>

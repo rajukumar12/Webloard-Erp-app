@@ -7,6 +7,16 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from "framer-motion"
 
 const rules = {
+	name: [
+		{ 
+			required: true,
+			message: 'Please input your Name'
+		},
+		// { 
+		// 	type: 'email',
+		// 	message: 'Please enter a validate email!'
+		// }
+	],
 	email: [
 		{ 
 			required: true,
@@ -55,17 +65,25 @@ export const RegisterForm = (props) => {
 		});
 	}
 
-	useEffect(() => {
-		if (token !== null && allowRedirect) {
-			navigate(redirect)
+
+	useEffect(()=>{
+		if(redirect){
+			navigate("/")
 		}
-		if (showMessage) {
-			const timer = setTimeout(() => hideAuthMessage(), 3000)
-			return () => {
-				clearTimeout(timer);
-			};
-		}
-	});
+		
+	}, [redirect])
+
+	// useEffect(() => {
+	// 	if (token !== null && allowRedirect) {
+	// 		navigate(redirect)
+	// 	}
+	// 	if (showMessage) {
+	// 		const timer = setTimeout(() => hideAuthMessage(), 3000)
+	// 		return () => {
+	// 			clearTimeout(timer);
+	// 		};
+	// 	}
+	// });
 	
 	return (
 		<>
@@ -78,6 +96,15 @@ export const RegisterForm = (props) => {
 				<Alert type="error" showIcon message={message}></Alert>
 			</motion.div>
 			<Form form={form} layout="vertical" name="register-form" onFinish={onSignUp}>
+				
+			<Form.Item 
+					name="name" 
+					label="Name" 
+					rules={rules.name}
+					hasFeedback
+				>
+					<Input prefix={<MailOutlined className="text-primary" />}/>
+				</Form.Item>
 				<Form.Item 
 					name="email" 
 					label="Email" 
@@ -86,6 +113,7 @@ export const RegisterForm = (props) => {
 				>
 					<Input prefix={<MailOutlined className="text-primary" />}/>
 				</Form.Item>
+
 				<Form.Item 
 					name="password" 
 					label="Password" 
@@ -95,7 +123,7 @@ export const RegisterForm = (props) => {
 					<Input.Password prefix={<LockOutlined className="text-primary" />}/>
 				</Form.Item>
 				<Form.Item 
-					name="confirm" 
+					name="c_password" 
 					label="ConfirmPassword" 
 					rules={rules.confirm}
 					hasFeedback

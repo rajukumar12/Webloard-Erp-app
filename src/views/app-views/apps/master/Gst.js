@@ -29,6 +29,7 @@ const Gst = () => {
 	const [selectedRows, setSelectedRows] = useState([])
 	const [selectedRowKeys, setSelectedRowKeys] = useState([])
 	const [gstList, setGstList] = useState([]);
+	const [initialLoading, setInitialLoading] = useState(false)
 	const [openDeleteModal, setOpenDeleteModal] = useState({
 		open: false,
 		id: '',
@@ -86,6 +87,7 @@ const Gst = () => {
 	};
 
 	async function init() {
+		setInitialLoading(true)
 		const response = await getGST();
 		if (response.data?.length) {
 			setGstList(response.data)
@@ -93,6 +95,7 @@ const Gst = () => {
 		} else {
 			setGstList([])
 		}
+		setInitialLoading(false)
 	}
 
 	useEffect(() => {
@@ -190,40 +193,7 @@ const Gst = () => {
 			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
 		},
 
-		// {
-		// 	title: 'Category',
-		// 	dataIndex: 'category',
-		// 	sorter: (a, b) => utils.antdTableSorter(a, b, 'category')
-		// },
-		// {
-		// 	title: 'Price',
-		// 	dataIndex: 'price',
-		// 	render: price => (
-		// 		<div>
-		// 			<NumberFormat
-		// 				displayType={'text'}
-		// 				value={(Math.round(price * 100) / 100).toFixed(2)}
-		// 				prefix={'$'}
-		// 				thousandSeparator={true}
-		// 			/>
-		// 		</div>
-		// 	),
-		// 	sorter: (a, b) => utils.antdTableSorter(a, b, 'price')
-		// },
-		// {
-		// 	title: 'Stock',
-		// 	dataIndex: 'stock',
-		// 	sorter: (a, b) => utils.antdTableSorter(a, b, 'stock')
-		// },
-		// {
-		// 	title: 'Status',
-		// 	dataIndex: 'stock',
-		// 	render: stock => (
-		// 		<Flex alignItems="center">{getStockStatus(stock)}</Flex>
-		// 	),
-		// 	sorter: (a, b) => utils.antdTableSorter(a, b, 'stock')
-		// },
-		{
+				{
 			title: 'Action',
 			dataIndex: 'actions',
 			render: (_, elm) => (
@@ -298,7 +268,9 @@ const Gst = () => {
 							type: 'checkbox',
 							preserveSelectedRowKeys: false,
 							...rowSelection,
+							
 						}}
+						loading={initialLoading}
 					/>
 				</div>
 			</Card>
@@ -357,7 +329,7 @@ const Gst = () => {
 								justifyContent: "center"
 							}}
 						>
-							<Button disabled={submitLoading} type="primary" htmlType="submit" loading={submitLoading}>
+							<Button  type="primary" htmlType="submit" loading={submitLoading}>
 								{isEdit ? "Save" : "Submit"}
 							</Button>
 							<Button type="primary" onClick={handleCancel} style={{ marginLeft: '20px' }}	>

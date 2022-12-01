@@ -22,7 +22,7 @@ const tailLayout = {
 
 const { Option } = Select
 
-const State = () => {
+const District = () => {
     const [list, setList] = useState(ProductListData)
     const [selectedRows, setSelectedRows] = useState([])
     const [selectedRowKeys, setSelectedRowKeys] = useState([])
@@ -33,6 +33,7 @@ const State = () => {
     const [isEdit, setIsEdit] = useState(false)
     const [selectedId, setSelectedId] = useState("")
     const [submitLoading, setSubmitLoading] = useState(false)
+    const [initialLoadin, setInitalLoading]=useState(false)
     const [openDeleteModal, setOpenDeleteModal] = useState({
 		open: false,
 		id: '',
@@ -49,8 +50,8 @@ const State = () => {
             name: row.name,
             short_code: row.short_code,
             state_code: row.state_code,
-            country_id: row.Country_name,
-            state_id: row.state_id
+            country_id: row.Country_id,
+            state_id: row.State_id
         })
     };
     const handleOk = () => {
@@ -73,19 +74,20 @@ const State = () => {
             let response;
             if (isEdit && selectedId) {
                 response = await updateDistrict(selectedId, name, short_code, state_id, country_id)
-                if (response?.success === true) {
-                    message.success(response.message)
-                }
             } else {
                 response = await createDistrict(name, short_code, state_id, country_id);
-                if (response?.success === true) {
-                    message.success(response.message)
-                }
             }
-            if(response?.success === false) {
+            if (response?.success === true) {
+                message.success(response.message)
+            }
+            else if(response?.success === false){
+                Object.keys(response.data).map(item=>{
+                    message.warning(response.data[item][0])
+                })
                 setSubmitLoading(false);
                 return;
             }
+            
             setSubmitLoading(false)
             init()
             setIsModalOpen(false);
@@ -123,6 +125,7 @@ const State = () => {
 
     }
     async function getStatData() {
+        setInitalLoading(true)
         const response = await getState();
         if (response.data?.length) {
             setStateList(response.data)
@@ -130,7 +133,7 @@ const State = () => {
         } else {
             setHsnList([])
         }
-
+        setInitalLoading(false)
     }
 
     useEffect(() => {
@@ -366,6 +369,7 @@ const State = () => {
                             preserveSelectedRowKeys: false,
                             ...rowSelection,
                         }}
+                        loading={initialLoadin}
                     />
                 </div>
             </Card>
@@ -496,4 +500,4 @@ const State = () => {
 
 }
 
-export default State
+export default District

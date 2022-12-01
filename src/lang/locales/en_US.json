@@ -30,6 +30,7 @@
 	"sidenav.apps.master.district": "District", 
 	"sidenav.apps.master.city": "City", 
 	"sidenav.apps.master.accountUnderGroup": "Account Under Group", 
+	"sidenav.apps.master.godown": "Godown",
 	
 
 	"sidenav.components": "Components",

@@ -29,6 +29,7 @@ const AccountUnderGroup = () => {
 	const [selectedRows, setSelectedRows] = useState([])
 	const [selectedRowKeys, setSelectedRowKeys] = useState([])
 	const [gstList, setGstList] = useState([])
+	const [initialLoading, setInitialLoading]=useState(false)
 	const [openDeleteModal, setOpenDeleteModal] = useState({
 		open: false,
 		id: '',
@@ -88,6 +89,7 @@ const AccountUnderGroup = () => {
 	};
 
 	async function init() {
+		setInitialLoading(true)
 		const response = await getAccountUnderGroup();
 		if (response.data?.length) {
 			setGstList(response.data)
@@ -95,7 +97,7 @@ const AccountUnderGroup = () => {
 		} else {
 			setGstList([])
 		}
-
+		setInitialLoading(false)
 	}
 
 	useEffect(() => {
@@ -158,6 +160,7 @@ const AccountUnderGroup = () => {
 		},
 		{
 			title: 'Detail',
+
 			dataIndex: 'detail',
 			render: (_, record) => (
 				<div className="d-flex">
@@ -289,7 +292,7 @@ const AccountUnderGroup = () => {
 						</div> */}
 					</Flex>
 					<div>
-						<Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Add GST</Button>
+						<Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Add Account Group</Button>
 					</div>
 				</Flex>
 				<div className="table-responsive">
@@ -303,6 +306,7 @@ const AccountUnderGroup = () => {
 							preserveSelectedRowKeys: false,
 							...rowSelection,
 						}}
+						loading={initialLoading}
 					/>
 				</div>
 			</Card>

@@ -16,6 +16,7 @@ export const initialState = {
 	profile:{}
 }
 
+
 // export const signIn = createAsyncThunk('auth/signIn',async (data, { rejectWithValue }) => {
 // 	const { email, password } = data
 // 	try {
@@ -54,13 +55,15 @@ export const signIn = createAsyncThunk('auth/signIn',async (data, { rejectWithVa
 })
 
 export const signUp = createAsyncThunk('auth/signUp',async (data, { rejectWithValue }) => {
-	const { email, password } = data
+	const { email, password , c_password, name} = data
 	try {
-		const response = await FirebaseService.signUpEmailRequest(email, password)
-		if (response.user) {
-			const token = response.user.refreshToken;
-			localStorage.setItem(AUTH_TOKEN, response.user.refreshToken);
-			return token;
+		// const response = await FirebaseService.signUpEmailRequest(email, password)
+		const response= await axios.post(`${process.env.REACT_APP_BASEURL}/register`, {email, password, c_password, name})
+		if (response.data) {
+			const token = response.data.data.token; 
+			localStorage.setItem(AUTH_TOKEN, response.data.data.token);
+			localStorage.setItem(AUTH_DATA, JSON.stringify({name: response.data.data?.name}));
+			return response.data.data;
 		} else {
 			return rejectWithValue(response.message?.replace('Firebase: ', ''));
 		}

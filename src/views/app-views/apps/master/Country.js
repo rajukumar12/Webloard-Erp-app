@@ -27,6 +27,7 @@ const Country = () => {
 	const [isEdit, setIsEdit] = useState(false)
 	const [selectedId, setSelectedId] = useState("")
 	const [submitLoading, setSubmitLoading] = useState(false);
+	const [initialLoading, setInitialLoading]=useState(false)
 	const [openDeleteModal, setOpenDeleteModal] = useState({
 		open: false,
 		id: '',
@@ -59,43 +60,54 @@ const Country = () => {
 	// add gst******
 	const [form] = Form.useForm()
 	const onFinish = async (values) => {
-		const { name, short_code, mobile_no_ext, currency } = values
-		setSubmitLoading(true)
-		if (isEdit && selectedId) {
+		try {
+			let response
+			const { name, short_code, mobile_no_ext, currency } = values
 
-			const response = await updateCountry(selectedId, name, short_code, mobile_no_ext, currency)
-			if (response.success === true) {
+			setSubmitLoading(true)
+			if (isEdit && selectedId) {
+				response = await updateCountry(selectedId, name, short_code, mobile_no_ext, currency)
+			} else {
+				response = await createCountry(name, short_code, mobile_no_ext, currency);
+			}
+			if (response?.success === true) {
 				message.success(response.message)
 			}
-		} else {
-			const response = await createCountry(name, short_code, mobile_no_ext, currency);
-			if (response.success === true) {
-				message.success(response.message)
+			else if (response?.success === false) {
+				Object.keys(response.data).map(item => {
+					message.warning(response.data[item][0])
+				})
+				setSubmitLoading(false)
+				return
 			}
+			setSubmitLoading(false)
+			init()
+			setIsModalOpen(false);
+			setIsEdit(false);
+			setSelectedId("")
+			form.resetFields();
+
+
+		} catch (error) {
+			setSubmitLoading(false)
+
 		}
-		setSubmitLoading(false)
-		init()
-		setIsModalOpen(false);
-		setIsEdit(false);
-		setSelectedId("")
-		form.resetFields();
 
-	};
+	}
 
 	const onFinishFailed = errorInfo => {
-		console.log('Failed:', errorInfo);
 	};
 
 	async function init() {
+		setInitialLoading(true)
 		const response = await getCountry();
-		console.log(response, 'datadetails')
 		if (response.data?.length) {
 			setHsnList(response.data)
 			setIsModalOpen(false);
 		} else {
 			setHsnList([])
 		}
-
+		setInitialLoading(false)
 	}
 
 	useEffect(() => {
@@ -121,7 +133,7 @@ const Country = () => {
 
 	// delete gst***********
 	const deleteRow = async (id) => {
-		if(!id) return;
+		if (!id) return;
 		setSubmitLoading(true)
 		const response = await deleteCountry(id)
 		setSubmitLoading(false)
@@ -326,6 +338,7 @@ const Country = () => {
 							preserveSelectedRowKeys: false,
 							...rowSelection,
 						}}
+						loading={initialLoading}
 					/>
 				</div>
 			</Card>
@@ -407,19 +420,19 @@ const Country = () => {
 					name: ''
 				})}
 				footer={[
-					<Button 
-						type="primary" 
-						loading={submitLoading} 
+					<Button
+						type="primary"
+						loading={submitLoading}
 						htmlType="submit"
 						onClick={() => deleteRow(openDeleteModal.id)}
 					>
 						Delete
 					</Button>,
 					<Button type="primary" onClick={() => setOpenDeleteModal({
-							open: false,
-							id: '',
-							name: ''
-						})}
+						open: false,
+						id: '',
+						name: ''
+					})}
 					>
 						Cancel
 					</Button>

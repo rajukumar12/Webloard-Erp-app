@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-import { Button, Form, Input, Divider, Alert } from 'antd';
+import { Button, Form, Input, Divider, Alert ,message} from 'antd';
 import { MailOutlined, LockOutlined } from '@ant-design/icons';
 import PropTypes from 'prop-types';
 import { GoogleSVG, FacebookSVG } from 'assets/svg/icon';
@@ -48,11 +48,14 @@ export const LoginForm = props => {
 			Navigate("/")
 		}
 		
-	}, [redirect])
+	}, [])
 
-	const onLogin = values => {
+	const onLogin = async(values) => {
 		showLoading()
-		signIn(values);
+		const response =await signIn(values);
+		if(response.success===false){
+			message.error(response.message)
+		}
 	};
 
 	const onGoogleLogin = () => {

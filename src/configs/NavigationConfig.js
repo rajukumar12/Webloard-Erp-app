@@ -379,6 +379,14 @@ const appsNavTree = [{
           breadcrumb: false,
           submenu: []
         },
+        {
+          key: 'apps-master-godown',
+          path: `${APP_PREFIX_PATH}/apps/master/godown`,
+          title: 'sidenav.apps.master.godown',
+          icon: '',
+          breadcrumb: false,
+          submenu: []
+        },
  
       ]
     }
