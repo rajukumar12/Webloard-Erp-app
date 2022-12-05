@@ -28,6 +28,7 @@ const District = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState([])
     const [hsnList, setHsnList] = useState([])
     const [countryList, setCountryList] = useState([])
+    const [stateListOgn, setStateListOgn] = useState([])
     const [stateList, setStateList] = useState([])
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEdit, setIsEdit] = useState(false)
@@ -53,6 +54,7 @@ const District = () => {
             country_id: row.Country_id,
             state_id: row.State_id
         })
+        handleCountryChange(row.Country_id, true)
     };
     const handleOk = () => {
         setIsModalOpen(false);
@@ -63,6 +65,7 @@ const District = () => {
         setSelectedId("")
         form.resetFields();
         setSubmitLoading(false)
+        setStateList([])
     };
 
 
@@ -95,22 +98,25 @@ const District = () => {
             setSelectedId("")
             form.resetFields();
         } catch (error) {
-            console.log("Error with onFinish: ",error)
+           message.error(message)
         }
     };
 
     const onFinishFailed = errorInfo => {
-        console.log('Failed:', errorInfo);
     };
 
     async function init() {
-        const response = await getDistrict();
-
+        try {
+            const response = await getDistrict();
         if (response.data?.length) {
             setHsnList(response.data)
             setIsModalOpen(false);
+            // message.success(response.message)
         } else {
             setHsnList([])
+        }
+        } catch (error) {
+            message.error(message)
         }
 
     }
@@ -128,7 +134,8 @@ const District = () => {
         setInitalLoading(true)
         const response = await getState();
         if (response.data?.length) {
-            setStateList(response.data)
+            setStateListOgn(response.data)
+            // setStateList(response.data)
             setIsModalOpen(false);
         } else {
             setHsnList([])
@@ -145,6 +152,7 @@ const District = () => {
     }, [])
 
     const dropdownMenu = row => (
+        
         <Menu>
             <Menu.Item onClick={() => showEditModal(row)}>
                 <Flex alignItems="center">
@@ -329,6 +337,14 @@ const District = () => {
         }
     }
 
+    const handleCountryChange =(val, isEdit) =>{
+		setStateList(stateListOgn.filter(ele=>ele.Country_id == val))
+       if(!isEdit){
+        form.setFieldValue('state_id', '')
+       }
+	}
+
+
     return (
         <>
             <Card>
@@ -415,7 +431,7 @@ const District = () => {
                     </Form.Item>
 
                     <Form.Item name="country_id" label="Country" rules={[{ required: true, message: 'Country  field is required' }]} >
-                        <Select className="w-100" placeholder="Select Country">
+                        <Select className="w-100" placeholder="Select Country" onChange={(val)=>handleCountryChange(val, false)}>
                             {
                                 countryList.length > 0 ?
                                     countryList.map((elm) => {

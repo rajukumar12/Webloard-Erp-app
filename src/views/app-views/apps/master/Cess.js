@@ -5,8 +5,6 @@ import { EditOutlined, DeleteOutlined, SearchOutlined, PlusCircleOutlined } from
 import EllipsisDropdown from 'components/shared-components/EllipsisDropdown';
 import Flex from 'components/shared-components/Flex'
 import utils from 'utils'
-
-// import { Form, Input, Checkbox } from 'antd';
 import { useEffect } from 'react';
 import { getCess, createCess, updateCess, deleteCess } from 'utils/api/cess';
 
@@ -61,7 +59,8 @@ const Cess = () => {
 	// add and update hsn******
 	const [form] = Form.useForm()
 	const onFinish = async (values) => {
-		const { name, percent } = values
+		try {
+			const { name, percent } = values
 		setSubmitLoading(true)
 		if (isEdit && selectedId) {
 
@@ -81,23 +80,31 @@ const Cess = () => {
 		setIsEdit(false);
 		setSelectedId("")
 		form.resetFields();
+		} catch (error) {
+			message.error(message)
+		}
 
 	};
 
 	const onFinishFailed = errorInfo => {
-		console.log('Failed:', errorInfo);
+		// console.log('Failed:', errorInfo);
 	};
 
 	async function init() {
-		setInitialLoading(true)
+		try {
+			setInitialLoading(true)
 		const response = await getCess();
 		if (response.data?.length) {
 			setCessList(response.data)
 			setIsModalOpen(false);
+			// message.success(response.message)
 		} else {
 			setCessList([])
 		}
 		setInitialLoading(false)
+		} catch (error) {
+			message.error(message)
+		}
 	}
 
 	useEffect(() => {
@@ -164,7 +171,6 @@ const Cess = () => {
 			render: percent => (
 				<div>
 					{percent}%
-					{console.log(percent, "datass")}
 
 				</div>
 			),
@@ -351,9 +357,6 @@ const Cess = () => {
 					>
 						<Input />
 					</Form.Item>
-
-
-
 					<Form.Item {...tailLayout}  >
 
 						<div style={{

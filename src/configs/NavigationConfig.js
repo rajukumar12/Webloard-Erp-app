@@ -387,6 +387,15 @@ const appsNavTree = [{
           breadcrumb: false,
           submenu: []
         },
+        {
+          key: 'apps-master-typeOfUnit',
+          path: `${APP_PREFIX_PATH}/apps/master/typeOfUnit`,
+          title: 'sidenav.apps.master.typeOfUnit',
+          icon: '',
+          breadcrumb: false,
+          submenu: []
+        },
+        
  
       ]
     }

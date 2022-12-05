@@ -31,6 +31,7 @@
 	"sidenav.apps.master.city": "City", 
 	"sidenav.apps.master.accountUnderGroup": "Account Under Group", 
 	"sidenav.apps.master.godown": "Godown",
+	"sidenav.apps.master.typeOfUnit": "Type of Unit",
 	
 
 	"sidenav.components": "Components",

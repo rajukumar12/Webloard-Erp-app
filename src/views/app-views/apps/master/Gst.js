@@ -58,10 +58,11 @@ const Gst = () => {
 		form.resetFields();
 	};
 	
-	// add gst******
+	
 	const [form] = Form.useForm()
 	const onFinish = async (values) => {
-		const { name, percent } = values;
+		try {
+			const { name, percent } = values;
 		setSubmitLoading(true)
 		if(isEdit && selectedId) {
 			const response = await updateGST(selectedId, name, percent);
@@ -80,22 +81,33 @@ const Gst = () => {
 		setIsEdit(false);
 		setSelectedId("")
 		form.resetFields();
+		} catch (error) {
+			message.error(message)
+			submitLoading(false)
+			return
+		}
 	};
 
 	const onFinishFailed = errorInfo => {
-		console.log('Failed:', errorInfo);
+		// console.log('Failed:', errorInfo);
 	};
 
 	async function init() {
-		setInitialLoading(true)
+		try {
+			setInitialLoading(true)
 		const response = await getGST();
 		if (response.data?.length) {
 			setGstList(response.data)
 			setIsModalOpen(false);
+			// message.success(response.message)
 		} else {
 			setGstList([])
 		}
 		setInitialLoading(false)
+		} catch (error) {
+			message.error(message)
+			setInitialLoading(false)
+		}
 	}
 
 	useEffect(() => {
@@ -161,7 +173,6 @@ const Gst = () => {
 			render: percent => (
 				<div>
 					{percent}%
-					{console.log(percent, "datass")}
 
 				</div>
 			),

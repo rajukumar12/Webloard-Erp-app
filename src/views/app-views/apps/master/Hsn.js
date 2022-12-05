@@ -58,7 +58,8 @@ const Hns = () => {
 	// add gst******
 	const [form] = Form.useForm()
 	const onFinish = async (values) => {
-		const { name, detail, code } = values
+		try {
+			const { name, detail, code } = values
 		setSubmitLoading(true)
 		if (isEdit && selectedId) {
 			const response = await updateHsn(selectedId, name, detail, code)
@@ -74,6 +75,10 @@ const Hns = () => {
 			}
 			
 		}
+		} catch (error) {
+			message.error(message)
+
+		}
 		setSubmitLoading(false)
 		init()
 		setIsModalOpen(false);
@@ -84,19 +89,24 @@ const Hns = () => {
 	};
 
 	const onFinishFailed = errorInfo => {
-		console.log('Failed:', errorInfo);
+		// console.log('Failed:', errorInfo);
 	};
 
 	async function init() {
-		setInitialLoading(true)
+		try {
+			setInitialLoading(true)
 		const response = await getHsn();
 		if (response.data?.length) {
 			setHsnList(response.data)
 			setIsModalOpen(false);
+			// message.success(response.message)
 		} else {
 			setHsnList([])
 		}
 		setInitialLoading(false)
+		} catch (error) {
+			message.error(message)
+		}
 	}
 
 	useEffect(() => {

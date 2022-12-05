@@ -147,7 +147,12 @@ export const protectedRoutes = [
         path: `${APP_PREFIX_PATH}/apps/master/godown`,
         component: React.lazy(() => import('views/app-views/apps/master/Godown')),
     },
-   
+    {
+        key: 'apps.master.typeOfUnit',
+        path: `${APP_PREFIX_PATH}/apps/master/typeOfUnit`,
+        component: React.lazy(() => import('views/app-views/apps/master/TypeOfUnit')),
+    },
+    
     
     {
         key: 'apps.ecommerce',

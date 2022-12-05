@@ -62,7 +62,8 @@ const AccountUnderGroup = () => {
 	// add gst******
 	const [form] = Form.useForm()
 	const onFinish = async (values) => {
-		const { name, detail } = values;
+		try {
+			const { name, detail } = values;
 		setSubmitLoading(true)
 		if(isEdit && selectedId) {
 			const response = await updateAccountUnderGroup(selectedId, name, detail);
@@ -81,23 +82,31 @@ const AccountUnderGroup = () => {
 		setIsEdit(false);
 		setSelectedId("")
 		form.resetFields();
+		} catch (error) {
+			message.error(message)
+		}
 
 	};
 
 	const onFinishFailed = errorInfo => {
-		console.log('Failed:', errorInfo);
+		// console.log('Failed:', errorInfo);
 	};
 
 	async function init() {
-		setInitialLoading(true)
+		try {
+			setInitialLoading(true)
 		const response = await getAccountUnderGroup();
 		if (response.data?.length) {
 			setGstList(response.data)
 			setIsModalOpen(false);
+			// message.success(response.message)
 		} else {
 			setGstList([])
 		}
 		setInitialLoading(false)
+		} catch (error) {
+			message.error(message)
+		}
 	}
 
 	useEffect(() => {

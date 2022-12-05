@@ -52,15 +52,22 @@ const Godown = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState([])
     const [godownLis, setGodownList] = useState([])
     const [countryList, setCountryList] = useState([])
-    const [districtList, setDistrictList] = useState([])
-    const [cityList, setCityList] = useState([])
+    const [stateListOgn, setStateListOgn] = useState([])
     const [stateList, setStateList] = useState([])
+    const [districtListOgn, setDistrictListOgn] = useState([])
+    const [districtList, setDistrictList] = useState([])
+    const [cityListOgn, setCityListOgn] = useState([])
+    const [cityList, setCityList] = useState([])
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEdit, setIsEdit] = useState(false)
     const [selectedId, setSelectedId] = useState("")
     const [submitLoading, setSubmitLoading] = useState(false)
     const [initialLoading, setInitialLoading] = useState(false)
-    console.log(countryList, 'country2')
+    const [openDeleteModal, setOpenDeleteModal] = useState({
+		open: false,
+		id: '',
+		name: ''
+	})
     const showModal = () => {
         setIsModalOpen(true);
     };
@@ -78,6 +85,9 @@ const Godown = () => {
             address: row.address,
             pincode: `${row.pincode}`
         })
+        handleCountryChange(row.Country_id, true)
+        handleStateChange(row.State_id, true)
+        handleDistrictChange(row.District_id, true)
     };
     const handleOk = () => {
         setIsModalOpen(false);
@@ -88,6 +98,9 @@ const Godown = () => {
         setSelectedId("")
         form.resetFields();
         setSubmitLoading(false)
+        setStateList([])
+        setDistrictList([])
+        setCityList([])
     };
 
 
@@ -100,7 +113,6 @@ const Godown = () => {
             if (isEdit && selectedId) {
 
                 response = await updateGodow(selectedId, name, city_id, district_id, state_id, country_id, address, pincode)
-                console.log(response, 'res===')
                 if (response?.success === true) {
                     message.success(response.message)
                 }
@@ -121,26 +133,31 @@ const Godown = () => {
             setSelectedId("")
             form.resetFields();
         } catch (error) {
-            console.log("Error with onFinish: ", error)
+            message.error(message)
         }
     };
 
     const onFinishFailed = errorInfo => {
-        console.log('Failed:', errorInfo);
+        // console.log('Failed:', errorInfo);
     };
 
     async function init() {
-        setInitialLoading(true)
-        const response = await getGodown();
+        try {
+            setInitialLoading(true)
+            const response = await getGodown();
 
-        if (response.data?.length) {
-            setGodownList(response.data)
-            setIsModalOpen(false);
-        } else {
-            setGodownList([])
+            if (response.data?.length) {
+                setGodownList(response.data)
+                setIsModalOpen(false);
+                // message.success(response.message)
+            } else {
+                setGodownList([])
+            }
+            setInitialLoading(false)
+
+        } catch (error) {
+            message.error(message)
         }
-        setInitialLoading(false)
-
     }
     async function getCountryData() {
         const response = await getCountry();
@@ -155,7 +172,7 @@ const Godown = () => {
     async function getStatData() {
         const response = await getState();
         if (response.data?.length) {
-            setStateList(response.data)
+            setStateListOgn(response.data)
             setIsModalOpen(false);
         } else {
             setGodownList([])
@@ -165,7 +182,7 @@ const Godown = () => {
     async function getDistrictData() {
         const response = await getDistrict();
         if (response.data?.length) {
-            setDistrictList(response.data)
+            setDistrictListOgn(response.data)
             setIsModalOpen(false);
         } else {
             setGodownList([])
@@ -176,7 +193,7 @@ const Godown = () => {
     async function getCityData() {
         const response = await getCity();
         if (response.data?.length) {
-            setCityList(response.data)
+            setCityListOgn(response.data)
             setIsModalOpen(false);
         } else {
             setGodownList([])
@@ -198,14 +215,13 @@ const Godown = () => {
     const dropdownMenu = row => (
 
         <Menu>
-            {console.log(row, "rowsss")}
             <Menu.Item onClick={() => showEditModal(row)}>
                 <Flex alignItems="center">
                     <EditOutlined />
                     <span className="ml-2">Edit</span>
                 </Flex>
             </Menu.Item>
-            <Menu.Item onClick={() => deleteRow(row.id)} loading={submitLoading}>
+            <Menu.Item onClick={() => setOpenDeleteModal({ open: true, id: row.id, name: row.name })}loading={submitLoading}>
                 <Flex alignItems="center">
                     <DeleteOutlined />
                     <span className="ml-2">{selectedRows.length > 0 ? `Delete (${selectedRows.length})` : 'Delete'}</span>
@@ -216,7 +232,7 @@ const Godown = () => {
 
 
     const deleteRow = async (id) => {
-
+        if(!id) return;
         setSubmitLoading(true)
         const response = await deleteGodow(id)
         setSubmitLoading(false)
@@ -224,6 +240,11 @@ const Godown = () => {
             message.success(response.message)
             init()
         }
+        setOpenDeleteModal({
+			open: false,
+			id: '',
+			name: ''
+		})
 
     }
 
@@ -379,6 +400,32 @@ const Godown = () => {
         }
     }
 
+    const handleCountryChange = (val, isEdit) => {
+        setStateList(stateListOgn.filter(elm => elm.Country_id === val))
+        if(!isEdit){
+            form.setFieldValue('state_id', '')
+            form.setFieldValue('district_id', '')
+            form.setFieldValue('city_id', '')
+        }
+    }
+
+    const handleStateChange = (val, isEdit) => {
+        setDistrictList(districtListOgn.filter(elm => elm.State_id === val))
+        if(!isEdit){
+            form.setFieldValue('district_id', '')
+        }
+    }
+
+    const handleDistrictChange = (val, isEdit) => {
+
+        setCityList(cityListOgn.filter(elm => elm.District_id === val))
+        if(!isEdit){
+            form.setFieldValue('city_id', '')
+        }
+       
+    }
+
+
     return (
         <>
 
@@ -458,11 +505,10 @@ const Godown = () => {
                         <Input />
                     </Form.Item>
                     <Form.Item name="country_id" label="Country" rules={[{ required: true, message: 'Country  select is required' }]} >
-                        <Select className="w-100" placeholder="Select Country">
+                        <Select className="w-100" placeholder="Select Country" onChange={(val)=>handleCountryChange(val, false)}>
                             {
                                 countryList?.length > 0 ?
                                     countryList.map((elm) => {
-                                        console.log(elm, "elm")
                                         return <Option key={elm.id} value={elm.id}>{elm.name}</Option>
                                     })
                                     :
@@ -471,7 +517,7 @@ const Godown = () => {
                         </Select>
                     </Form.Item>
                     <Form.Item name="state_id" label="State" rules={[{ required: true, message: 'State  select is required' }]} >
-                        <Select className="w-100" placeholder="Select State">
+                        <Select className="w-100" placeholder="Select State" onChange={(val)=>handleStateChange(val, false)}>
                             {
                                 stateList?.length > 0 ?
                                     stateList.map((elm) => {
@@ -484,11 +530,10 @@ const Godown = () => {
                         </Select>
                     </Form.Item>
                     <Form.Item name="district_id" label="District" rules={[{ required: true, message: 'District  select is required' }]} >
-                        <Select className="w-100" placeholder="Select District">
+                        <Select className="w-100" placeholder="Select District" onChange={(val)=>handleDistrictChange(val, false)}>
                             {
                                 districtList?.length > 0 ?
                                     districtList.map((elm) => {
-                                        console.log(elm, "elmdis")
                                         return <Option key={elm.id} value={elm.id}>{elm.name}</Option>
                                     })
                                     :
@@ -497,11 +542,10 @@ const Godown = () => {
                         </Select>
                     </Form.Item>
                     <Form.Item name="city_id" label="City" rules={[{ required: true, message: 'City  select is required' }]} >
-                        <Select className="w-100" placeholder="Select City">
+                        <Select className="w-100" placeholder="Select City" >
                             {
                                 cityList?.length > 0 ?
                                     cityList.map((elm) => {
-                                        console.log(elm, "elmdis")
                                         return <Option key={elm.id} value={elm.id}>{elm.name}</Option>
                                     })
                                     :
@@ -556,6 +600,39 @@ const Godown = () => {
 
                 </Form>
             </Modal>
+            {/* Delete confirmation popup */}
+			<Modal
+				title={"Delete Godown"}
+				open={openDeleteModal.open}
+				onCancel={() => setOpenDeleteModal({
+					open: false,
+					id: '',
+					name: ''
+				})}
+				footer={[
+					<Button 
+						type="primary" 
+						loading={submitLoading} 
+						htmlType="submit"
+						onClick={() => deleteRow(openDeleteModal.id)}
+					>
+						Delete
+					</Button>,
+					<Button type="primary" onClick={() => setOpenDeleteModal({
+							open: false,
+							id: '',
+							name: ''
+						})}
+					>
+						Cancel
+					</Button>
+				]}
+			>
+				<div>
+					<h2>{`Are you sure you want to delete ${openDeleteModal.name} Godown?`}</h2>
+				</div>
+			</Modal>
+
         </>
     )
 

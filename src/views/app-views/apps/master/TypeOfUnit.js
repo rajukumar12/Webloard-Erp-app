@@ -8,10 +8,7 @@ import utils from 'utils'
 
 // import { Form, Input, Checkbox } from 'antd';
 import { useEffect } from 'react';
-import { getCity, createCity, updateCity, deleteCity } from 'utils/api/city';
-import { getCountry } from 'utils/api/country';
-import { getState } from 'utils/api/state';
-import { getDistrict } from 'utils/api/district';
+import { createUnitType, deleteUnitTypet, getUnitType, updateUnitType } from 'utils/api/typeOfUnit';
 
 const layout = {
     labelCol: { span: 8 },
@@ -22,28 +19,23 @@ const tailLayout = {
 };
 
 
-const { Option } = Select
+const UnitOfType = () => {
 
-const City = () => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [submitLoading, setSubmitLoading] = useState(false)
+    const [isEdit, setIsEdit] = useState(false)
+    const [selectedId, setSelectedId] = useState("")
     const [list, setList] = useState(ProductListData)
     const [selectedRows, setSelectedRows] = useState([])
     const [selectedRowKeys, setSelectedRowKeys] = useState([])
-    const [hsnList, setHsnList] = useState([])
-    const [countryList, setCountryList] = useState([])
-    const [districtListOgn, setDistrictListOgn] = useState([])
-    const [districtList, setDistrictList] = useState([])
-    const [stateListOgn, setStateListOgn] = useState([])
-    const [stateList, setStateList] = useState([])
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isEdit, setIsEdit] = useState(false)
-    const [selectedId, setSelectedId] = useState("")
-    const [submitLoading, setSubmitLoading] = useState(false)
+    const [unitTypeList, setUnitTypeList] = useState([]);
     const [initialLoading, setInitialLoading] = useState(false)
     const [openDeleteModal, setOpenDeleteModal] = useState({
         open: false,
         id: '',
         name: ''
     })
+
     const showModal = () => {
         setIsModalOpen(true);
     };
@@ -53,14 +45,8 @@ const City = () => {
         setSelectedId(row.id)
         form.setFieldsValue({
             name: row.name,
-            short_code: row.short_code,
-            state_code: row.state_code,
-            country_id: row.Country_id,
-            state_id: row.State_id,
-            district_id: row.District_id
+            detail: row.detail
         })
-        handleCountryChange(row.Country_id, true)
-        handleStateChange(row.State_id, true)
     };
     const handleOk = () => {
         setIsModalOpen(false);
@@ -70,113 +56,69 @@ const City = () => {
         setIsEdit(false);
         setSelectedId("")
         form.resetFields();
-        setSubmitLoading(false)
-        setStateList([])
-        setDistrictList([])
     };
-
 
     const [form] = Form.useForm()
     const onFinish = async (values) => {
         try {
-            const { name, country_id, district_id, state_id } = values
+            let response
+            const { name, detail } = values;
             setSubmitLoading(true)
-            let response;
             if (isEdit && selectedId) {
-
-                response = await updateCity(selectedId, name, district_id, state_id, country_id)
-                if (response?.success === true) {
-                    message.success(response.message)
-                }
+                response = await updateUnitType(selectedId, name, detail);
             } else {
-                response = await createCity(name, district_id, state_id, country_id);
-                if (response?.success === true) {
-                    message.success(response.message)
-                }
+                response = await createUnitType(name, detail);
             }
 
-            if (response?.success === false) {
-                Object.keys(response.data).map(item => {
+            if (response.success === true) {
+                message.success(response.message)
+            }
+            else if(response.success=== false){
+                Object.keys(response.data).map(item=>{
                     message.warning(response.data[item][0])
                 })
                 setSubmitLoading(false);
                 return;
             }
-
             setSubmitLoading(false)
             init()
             setIsModalOpen(false);
             setIsEdit(false);
             setSelectedId("")
             form.resetFields();
+
         } catch (error) {
-            message.error(message)
+           message.error(message)
         }
     };
-
     const onFinishFailed = errorInfo => {
         // console.log('Failed:', errorInfo);
     };
 
+
     async function init() {
-        try {
-            const response = await getCity();
-            if (response.data?.length) {
-                setHsnList(response.data)
-                setIsModalOpen(false);
-                setInitialLoading(false)
-                // message.success(response.message)
-            } else {
-                setHsnList([])
-            }
-        } catch (error) {
-            message.error(message)
-        }
-
-    }
-    async function getCountryData() {
-        const response = await getCountry();
-        if (response.data?.length) {
-            setCountryList(response.data)
-            setIsModalOpen(false);
-        } else {
-            setHsnList([])
-        }
-        setInitialLoading(false)
-    }
-    async function getStatData() {
+       try {
         setInitialLoading(true)
-        const response = await getState();
+        const response = await getUnitType();
         if (response.data?.length) {
-            setStateListOgn(response.data)
+            setUnitTypeList(response.data)
             setIsModalOpen(false);
+            // message.success(response.message)
         } else {
-            setHsnList([])
+            setUnitTypeList([])
         }
         setInitialLoading(false)
+       } catch (error) {
+        message.error(message)
+       }
     }
-    async function getDistrictData() {
-        const response = await getDistrict();
-        if (response.data?.length) {
-            setDistrictListOgn(response.data)
-            setIsModalOpen(false);
-        } else {
-            setHsnList([])
-        }
-
-    }
-
 
     useEffect(() => {
-
         init()
-        getCountryData()
-        getStatData()
-        getDistrictData()
-
     }, [])
 
     const dropdownMenu = row => (
+
         <Menu>
             <Menu.Item onClick={() => showEditModal(row)}>
                 <Flex alignItems="center">
@@ -193,13 +135,14 @@ const City = () => {
         </Menu>
     );
 
-
+    // delete gst***********
     const deleteRow = async (id) => {
         if (!id) return;
         setSubmitLoading(true)
-        const response = await deleteCity(id)
+        const response = await deleteUnitTypet(id)
         setSubmitLoading(false)
-        if (response.success === true) {
+        init()
+        if (response?.success === true) {
             message.success(response.message)
             init()
         }
@@ -215,48 +158,9 @@ const City = () => {
             title: 'ID',
             dataIndex: 'id'
         },
-
-
         {
-            title: 'Country Name',
-            dataIndex: 'counter_name',
-            render: (_, record) => (
-                <div className="d-flex">
-                    {/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
-                    {/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
-                    {record.Country_name}
-                </div>
-            ),
-            sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
-        },
-        {
-            title: 'State Name',
-            dataIndex: 'State_Name',
-            render: (_, record) => (
-                <div className="d-flex">
-                    {/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
-                    {/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
-                    {record.State_Name}
-                </div>
-            ),
-            sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
-        },
-        {
-            title: 'District Name',
-            dataIndex: 'District_Name',
-            render: (_, record) => (
-                <div className="d-flex">
-                    {/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
-                    {/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
-                    {record.District_Name}
-                </div>
-            ),
-            sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
-        },
-
-        {
-            title: 'City Name',
-            dataIndex: 'City_name',
+            title: 'Type Of Unit',
+            dataIndex: 'name',
             render: (_, record) => (
                 <div className="d-flex">
                     {/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
@@ -266,7 +170,18 @@ const City = () => {
             ),
             sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
         },
-
+        {
+            title: 'Details',
+            dataIndex: 'detail',
+            render: (_, record) => (
+                <div className="d-flex">
+                    {/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
+                    {/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
+                    {record.detail}
+                </div>
+            ),
+            sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
+        },
 
         {
             title: 'Created Date',
@@ -285,6 +200,8 @@ const City = () => {
             dataIndex: 'name',
             render: (_, record) => (
                 <div className="d-flex">
+                    {/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
+                    {/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
                     {record.updated_at}
                 </div>
             ),
@@ -327,20 +244,6 @@ const City = () => {
         }
     }
 
-    const handleCountryChange =(val, isEdit) =>{
-		setStateList(stateListOgn.filter(ele=>ele.Country_id == val))
-        if(!isEdit) {
-            form.setFieldValue('state_id', '')
-            form.setFieldValue('district_id', '')
-        }
-	}
-    const handleStateChange =(val, isEdit) =>{
-		setDistrictList(districtListOgn.filter(ele=>ele.State_id == val))
-        if(!isEdit) {
-            form.setFieldValue('district_id', '')
-        }
-	}
-    
     return (
         <>
             <Card>
@@ -367,19 +270,20 @@ const City = () => {
 						</div> */}
                     </Flex>
                     <div>
-                        <Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Add City</Button>
+                        <Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Add Unit Type</Button>
                     </div>
                 </Flex>
                 <div className="table-responsive">
                     <Table
                         columns={tableColumns}
-                        dataSource={hsnList}
+                        dataSource={unitTypeList}
                         rowKey='id'
                         rowSelection={{
                             selectedRowKeys: selectedRowKeys,
                             type: 'checkbox',
                             preserveSelectedRowKeys: false,
                             ...rowSelection,
+
                         }}
                         loading={initialLoading}
                     />
@@ -387,8 +291,7 @@ const City = () => {
             </Card>
 
             <Modal
-
-                title={isEdit ? "Edit City" : "Add City"} open={isModalOpen} onCancel={handleCancel} footer={[
+                title={isEdit ? "Edit Unit Type" : "Add Unit Type"} open={isModalOpen} onCancel={handleCancel} footer={[
                     // <Button type="primary" htmlType="submit"  onClick={onFinish}>
                     // 	Submit
                     // </Button>,
@@ -408,56 +311,35 @@ const City = () => {
                 >
 
                     <Form.Item
-
-                        label="City Name"
+                        // style={{width:"35%"}}
+                        label="Unit Type"
                         name="name"
-                        rules={[{ required: true, message: 'City Name field is required!' }]}
+                        rules={[{ required: true, message: ' Name field is required!' }]}
                     >
                         <Input />
                     </Form.Item>
-                    <Form.Item name="country_id" label="Country" rules={[{ required: true, message: 'Country  select is required' }]} >
-                        <Select className="w-100" placeholder="Select Country" onChange={(val) => handleCountryChange(val, false)}>
-                            {
-                                countryList?.length > 0 ?
-                                    countryList.map((elm) => {
-                                        return <Option key={elm.id} value={elm.id}>{elm.name}</Option>
-                                    })
-                                    :
-                                    "No Data"
-                            }
-                        </Select>
-                    </Form.Item>
-                    <Form.Item name="state_id" label="State" rules={[{ required: true, message: 'State  select is required' }]} >
-                        <Select className="w-100" placeholder="Select State"  onChange={(val) => handleStateChange(val, false)}>
-                            {
-                                stateList?.length > 0 ?
-                                    stateList.map((elm) => {
 
-                                        return <Option key={elm.id} value={elm.id}>{elm.name}</Option>
-                                    })
-                                    :
-                                    "No Data"
-                            }
-                        </Select>
+                    <Form.Item
+                        label="Detail"
+                        name="detail"
+                        rules={[{ required: true, message: 'Unit Type field is required' }]}
+                    >
+                        <Input />
                     </Form.Item>
-                    <Form.Item name="district_id" label="District" rules={[{ required: true, message: 'District  select is required' }]} >
-                        <Select className="w-100" placeholder="Select District">
-                            {
-                                districtList?.length > 0 ?
-                                    districtList.map((elm) => {
-                                        return <Option key={elm.id} value={elm.id}>{elm.name}</Option>
-                                    })
-                                    :
-                                    "No Data"
-                            }
-                        </Select>
-                    </Form.Item>
-                    <Form.Item {...tailLayout}  >
-
-                        <div style={{
-                            width: '82%',
-                            marginLeft: "50px"
-                        }}>
+                    <Form.Item
+                        {...tailLayout}
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'center'
+                        }}
+                    >
+                        <div
+                            style={{
+                                width: 'fit-content',
+                                display: "flex",
+                                justifyContent: "center"
+                            }}
+                        >
                             <Button type="primary" htmlType="submit" loading={submitLoading}>
                                 {isEdit ? "Save" : "Submit"}
                             </Button>
@@ -470,7 +352,7 @@ const City = () => {
             </Modal>
             {/* Delete confirmation popup */}
             <Modal
-                title={"Delete City"}
+                title={"Delete Unit Type"}
                 open={openDeleteModal.open}
                 onCancel={() => setOpenDeleteModal({
                     open: false,
@@ -497,11 +379,11 @@ const City = () => {
                 ]}
             >
                 <div>
-                    <h2>{`Are you sure you want to delete ${openDeleteModal.name} City?`}</h2>
+                    <h2>{`Are you sure you want to delete ${openDeleteModal.name}  Type of Unit?`}</h2>
                 </div>
             </Modal>
         </>
     )
 }
 
-export default City
+export default UnitOfType

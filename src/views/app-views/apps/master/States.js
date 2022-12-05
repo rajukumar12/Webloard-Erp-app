@@ -94,25 +94,31 @@ const State = () => {
 			setSelectedId("")
 			form.resetFields();
 		} catch (error) {
+			message.error(message)
 			setSubmitLoading(false)
 		}
 
 	};
 
 	const onFinishFailed = errorInfo => {
-		console.log('Failed:', errorInfo);
+		// console.log('Failed:', errorInfo);
 	};
 
 	async function init() {
-		setInitialLoading(true)
+		try {
+			setInitialLoading(true)
 		const response = await getState();
 		if (response.data?.length) {
 			setHsnList(response.data)
 			setIsModalOpen(false);
+			// message.success(response.message)
 		} else {
 			setHsnList([])
 		}
 		setInitialLoading(false)
+		} catch (error) {
+			message.error(message)
+		}
 	}
 	async function cuntry() {
 		const response = await getCountry();
@@ -315,6 +321,7 @@ const State = () => {
 		}
 	}
 
+	
 	return (
 		<>
 			<Card>
@@ -341,7 +348,7 @@ const State = () => {
 						</div> */}
 					</Flex>
 					<div>
-						<Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Add State</Button>
+						<Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block loading={submitLoading}>Add State</Button>
 					</div>
 				</Flex>
 				<div className="table-responsive">
@@ -415,7 +422,6 @@ const State = () => {
 							{
 								countryList.length > 0 ?
 									countryList.map((elm) => {
-										console.log(elm, "elm")
 										return <Option key={elm.id} value={elm.id}>{elm.name}</Option>
 									})
 									:

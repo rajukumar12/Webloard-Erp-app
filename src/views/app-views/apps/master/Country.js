@@ -99,15 +99,20 @@ const Country = () => {
 	};
 
 	async function init() {
-		setInitialLoading(true)
+		try {
+			setInitialLoading(true)
 		const response = await getCountry();
 		if (response.data?.length) {
 			setHsnList(response.data)
 			setIsModalOpen(false);
+			// message.success(response.message)
 		} else {
 			setHsnList([])
 		}
 		setInitialLoading(false)
+		} catch (error) {
+			message.error(message)
+		}
 	}
 
 	useEffect(() => {
