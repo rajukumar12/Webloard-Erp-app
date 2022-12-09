@@ -75,7 +75,22 @@ const City = () => {
         setDistrictList([])
     };
 
-
+    function handleEnter(event) {
+        const form = event?.target?.form;
+        console.log(event?.key, form?.elements, 'key===')
+        const index = Array.prototype.indexOf.call(form, event.target);
+        if (event.keyCode === 13) {
+            if ((index + 1) < form.elements.length) {
+                form.elements[index + 1]?.focus();
+            }
+            event.preventDefault();
+        } else if (event.keyCode === 27) {
+            if ((index - 1) > 0) {
+                form.elements[index - 1]?.focus();
+            }
+            event.preventDefault();
+        }
+    }
     const [form] = Form.useForm()
     const onFinish = async (values) => {
         try {
@@ -327,20 +342,20 @@ const City = () => {
         }
     }
 
-    const handleCountryChange =(val, isEdit) =>{
-		setStateList(stateListOgn.filter(ele=>ele.Country_id == val))
-        if(!isEdit) {
+    const handleCountryChange = (val, isEdit) => {
+        setStateList(stateListOgn.filter(ele => ele.Country_id == val))
+        if (!isEdit) {
             form.setFieldValue('state_id', '')
             form.setFieldValue('district_id', '')
         }
-	}
-    const handleStateChange =(val, isEdit) =>{
-		setDistrictList(districtListOgn.filter(ele=>ele.State_id == val))
-        if(!isEdit) {
+    }
+    const handleStateChange = (val, isEdit) => {
+        setDistrictList(districtListOgn.filter(ele => ele.State_id == val))
+        if (!isEdit) {
             form.setFieldValue('district_id', '')
         }
-	}
-    
+    }
+
     return (
         <>
             <Card>
@@ -408,14 +423,14 @@ const City = () => {
                 >
 
                     <Form.Item
-
+                        onKeyDown={handleEnter}
                         label="City Name"
                         name="name"
                         rules={[{ required: true, message: 'City Name field is required!' }]}
                     >
                         <Input />
                     </Form.Item>
-                    <Form.Item name="country_id" label="Country" rules={[{ required: true, message: 'Country  select is required' }]} >
+                    <Form.Item onKeyDown={handleEnter} name="country_id" label="Country" rules={[{ required: true, message: 'Country  select is required' }]} >
                         <Select className="w-100" placeholder="Select Country" onChange={(val) => handleCountryChange(val, false)}>
                             {
                                 countryList?.length > 0 ?
@@ -427,8 +442,8 @@ const City = () => {
                             }
                         </Select>
                     </Form.Item>
-                    <Form.Item name="state_id" label="State" rules={[{ required: true, message: 'State  select is required' }]} >
-                        <Select className="w-100" placeholder="Select State"  onChange={(val) => handleStateChange(val, false)}>
+                    <Form.Item onKeyDown={handleEnter} name="state_id" label="State" rules={[{ required: true, message: 'State  select is required' }]} >
+                        <Select className="w-100" placeholder="Select State" onChange={(val) => handleStateChange(val, false)}>
                             {
                                 stateList?.length > 0 ?
                                     stateList.map((elm) => {
@@ -440,7 +455,7 @@ const City = () => {
                             }
                         </Select>
                     </Form.Item>
-                    <Form.Item name="district_id" label="District" rules={[{ required: true, message: 'District  select is required' }]} >
+                    <Form.Item onKeyDown={handleEnter} name="district_id" label="District" rules={[{ required: true, message: 'District  select is required' }]} >
                         <Select className="w-100" placeholder="Select District">
                             {
                                 districtList?.length > 0 ?

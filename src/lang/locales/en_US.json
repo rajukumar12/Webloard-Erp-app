@@ -32,7 +32,16 @@
 	"sidenav.apps.master.accountUnderGroup": "Account Under Group", 
 	"sidenav.apps.master.godown": "Godown",
 	"sidenav.apps.master.typeOfUnit": "Type of Unit",
+	"sidenav.apps.master.unit_of_measure": "Unit of Measure",
+	"sidenav.apps.master.uniqur_quantity_code": "Unique Quantity Code",
+	"sidenav.apps.master.group_creation": "Group Creation",
+	"sidenav.apps.master.voucher_Type_Creation": "Voucher Type Creation",
+	"sidenav.apps.master.type_of_Voucher": "Type of Voucher",
 	
+	
+	"sidenav.apps.company": "Company",
+	"sidenav.apps.company.create_comapny": "Create Company",
+	"sidenav.apps.company.view_comapny": "View Company",
 
 	"sidenav.components": "Components",
 	"sidenav.components.general": "General",

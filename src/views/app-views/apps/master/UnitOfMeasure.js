@@ -5,10 +5,12 @@ import { EditOutlined, DeleteOutlined, SearchOutlined, PlusCircleOutlined } from
 import EllipsisDropdown from 'components/shared-components/EllipsisDropdown';
 import Flex from 'components/shared-components/Flex'
 import utils from 'utils'
-
-// import { Form, Input, Checkbox } from 'antd';
 import { useEffect } from 'react';
-import { createUnitType, deleteUnitTypet, getUnitType, updateUnitType } from 'utils/api/typeOfUnit';
+import { createUnitMeasure, getUnitMeasure, updateUnitMeasure, deleteUnitMeasure } from 'utils/api/unitOfMeasure';
+import { getUniqueOuqantityCode } from 'utils/api/uniqueQuantityCode';
+import { createUnitType, getUnitType } from 'utils/api/typeOfUnit';
+
+
 
 const layout = {
     labelCol: { span: 8 },
@@ -18,44 +20,43 @@ const tailLayout = {
     wrapperCol: { offset: 8, span: 16 },
 };
 
+const { Option } = Select
 
-const UnitOfType = () => {
-
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [submitLoading, setSubmitLoading] = useState(false)
-    const [isEdit, setIsEdit] = useState(false)
-    const [selectedId, setSelectedId] = useState("")
+const District = () => {
     const [list, setList] = useState(ProductListData)
     const [selectedRows, setSelectedRows] = useState([])
     const [selectedRowKeys, setSelectedRowKeys] = useState([])
-    const [unitTypeList, setUnitTypeList] = useState([]);
-    const [initialLoading, setInitialLoading] = useState(false)
+    const [hsnList, setHsnList] = useState([])
+    const [uniqurQuntityList, setUniqurQuntityList] = useState([])
+    const [unitTypeList, setUnitypeList] = useState([])
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isEdit, setIsEdit] = useState(false)
+    const [selectedId, setSelectedId] = useState("")
+    const [submitLoading, setSubmitLoading] = useState(false)
+    const [initialLoadin, setInitalLoading] = useState(false)
     const [openDeleteModal, setOpenDeleteModal] = useState({
         open: false,
         id: '',
         name: ''
     })
-
     const showModal = () => {
         setIsModalOpen(true);
     };
     const showEditModal = (row) => {
         setIsModalOpen(true);
         setIsEdit(true);
-        setSelectedId(row.id)
+        setSelectedId(row.id);
         form.setFieldsValue({
-            name: row.name,
-            detail: row.detail
+            type_of_unit_id: row.Type_Id,
+            symbol: row.Symbol,
+            formal_name: row.Formal_Name,
+            No_of_decimal_places: row.Number_of_Decimal_Places,
+            u_q_c_id: row.Unique_Quantity_Code_id
         })
+        // handleCountryChange(row.Country_id, true)
     };
     const handleOk = () => {
         setIsModalOpen(false);
-    };
-    const handleCancel = () => {
-        setIsModalOpen(false);
-        setIsEdit(false);
-        setSelectedId("")
-        form.resetFields();
     };
 
     function handleEnter(event) {
@@ -74,63 +75,97 @@ const UnitOfType = () => {
             event.preventDefault();
         }
     }
+
+    const handleCancel = () => {
+        setIsModalOpen(false);
+        setIsEdit(false);
+        setSelectedId("")
+        form.resetFields();
+        setSubmitLoading(false)
+        // setStateList([])
+    };
+
+
     const [form] = Form.useForm()
     const onFinish = async (values) => {
         try {
-            let response
-            const { name, detail } = values;
+            const { type_of_unit_id, symbol, formal_name, No_of_decimal_places, u_q_c_id } = values
             setSubmitLoading(true)
+            let response;
             if (isEdit && selectedId) {
-                response = await updateUnitType(selectedId, name, detail);
+                response = await updateUnitMeasure(selectedId, type_of_unit_id, symbol, formal_name, No_of_decimal_places, u_q_c_id)
             } else {
-                response = await createUnitType(name, detail);
+                response = await createUnitMeasure(type_of_unit_id, symbol, formal_name, No_of_decimal_places, u_q_c_id);
             }
-
-            if (response.success === true) {
+            if (response?.success === true) {
                 message.success(response.message)
             }
-            else if(response.success=== false){
-                Object.keys(response.data).map(item=>{
+            else if (response?.success === false) {
+                Object.keys(response.data).map(item => {
                     message.warning(response.data[item][0])
                 })
                 setSubmitLoading(false);
                 return;
             }
+
             setSubmitLoading(false)
             init()
             setIsModalOpen(false);
             setIsEdit(false);
             setSelectedId("")
             form.resetFields();
-
         } catch (error) {
-           message.error(message)
+            message.error(message)
         }
     };
-    const onFinishFailed = errorInfo => {
-        // console.log('Failed:', errorInfo);
-    };
 
+    const onFinishFailed = errorInfo => {
+    };
 
     async function init() {
-       try {
-        setInitialLoading(true)
+        try {
+            const response = await getUnitMeasure();
+            if (response.data?.length) {
+                setHsnList(response.data)
+                setIsModalOpen(false);
+                // message.success(response.message)
+            } else {
+                setHsnList([])
+            }
+        } catch (error) {
+            message.error(message)
+        }
+
+    }
+    async function getCountryData() {
+        const response = await getUniqueOuqantityCode();
+        if (response.data?.length) {
+            setUniqurQuntityList(response.data)
+            setIsModalOpen(false);
+        } else {
+            setHsnList([])
+        }
+
+    }
+    async function getStatData() {
+        setInitalLoading(true)
         const response = await getUnitType();
         if (response.data?.length) {
-            setUnitTypeList(response.data)
+            setUnitypeList(response.data)
+            // setStateList(response.data)
             setIsModalOpen(false);
-            // message.success(response.message)
         } else {
-            setUnitTypeList([])
+            setHsnList([])
         }
-        setInitialLoading(false)
-       } catch (error) {
-        message.error(message)
-       }
+        setInitalLoading(false)
     }
 
     useEffect(() => {
+
         init()
+        getCountryData()
+        getStatData()
+
     }, [])
 
     const dropdownMenu = row => (
@@ -151,14 +186,12 @@ const UnitOfType = () => {
         </Menu>
     );
 
-    // delete gst***********
     const deleteRow = async (id) => {
         if (!id) return;
         setSubmitLoading(true)
-        const response = await deleteUnitTypet(id)
+        const response = await deleteUnitMeasure(id)
         setSubmitLoading(false)
-        init()
-        if (response?.success === true) {
+        if (response.success === true) {
             message.success(response.message)
             init()
         }
@@ -175,29 +208,66 @@ const UnitOfType = () => {
             dataIndex: 'id'
         },
         {
-            title: 'Type Of Unit',
-            dataIndex: 'name',
+            title: 'Symbol',
+            dataIndex: 'symbol',
             render: (_, record) => (
                 <div className="d-flex">
                     {/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
                     {/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
-                    {record.name}
+                    {record.Symbol}
                 </div>
             ),
             sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
         },
         {
-            title: 'Details',
-            dataIndex: 'detail',
+            title: 'Formal Name',
+            dataIndex: 'name',
             render: (_, record) => (
                 <div className="d-flex">
                     {/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
                     {/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
-                    {record.detail}
+                    {record.Formal_Name}
                 </div>
             ),
             sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
         },
+        {
+            title: 'Unique Quantity Code',
+            dataIndex: 'uqc',
+            render: (_, record) => (
+                <div className="d-flex">
+                    {/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
+                    {/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
+                    {record.Unique_Quantity_Code}
+                </div>
+            ),
+            sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
+        },
+        {
+            title: 'No of Decimal Places',
+            dataIndex: 'uqc',
+            render: (_, record) => (
+                <div className="d-flex">
+                    {/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
+                    {/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
+                    {record.Number_of_Decimal_Places}
+                </div>
+            ),
+            sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
+        },
+        {
+            title: 'Unit Type',
+            dataIndex: 'type',
+            render: (_, record) => (
+                <div className="d-flex">
+                    {/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
+                    {/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
+                    {record.Type}
+                </div>
+            ),
+            sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
+        },
+
 
         {
             title: 'Created Date',
@@ -235,6 +305,7 @@ const UnitOfType = () => {
         }
     ];
 
+
     const rowSelection = {
         onChange: (key, rows) => {
             setSelectedRows(rows)
@@ -259,6 +330,14 @@ const UnitOfType = () => {
             setList(ProductListData)
         }
     }
+
+    // const handleCountryChange =(val, isEdit) =>{
+    // 	setStateList(unitTypeListOgn.filter(ele=>ele.Country_id == val))
+    //    if(!isEdit){
+    //     form.setFieldValue('state_id', '')
+    //    }
+    // }
+
 
     return (
         <>
@@ -286,28 +365,26 @@ const UnitOfType = () => {
 						</div> */}
                     </Flex>
                     <div>
-                        <Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Add Unit Type</Button>
+                        <Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Add Unit measure</Button>
                     </div>
                 </Flex>
                 <div className="table-responsive">
                     <Table
                         columns={tableColumns}
-                        dataSource={unitTypeList}
+                        dataSource={hsnList}
                         rowKey='id'
                         rowSelection={{
                             selectedRowKeys: selectedRowKeys,
                             type: 'checkbox',
                             preserveSelectedRowKeys: false,
                             ...rowSelection,
-
                         }}
-                        loading={initialLoading}
+                        loading={initialLoadin}
                     />
                 </div>
             </Card>
-
             <Modal
-                title={isEdit ? "Edit Unit Type" : "Add Unit Type"} open={isModalOpen} onCancel={handleCancel} footer={[
+                title={isEdit ? "Edit Unit Measure" : "Add Measure"} open={isModalOpen} onCancel={handleCancel} footer={[
                     // <Button type="primary" htmlType="submit"  onClick={onFinish}>
                     // 	Submit
                     // </Button>,
@@ -327,37 +404,68 @@ const UnitOfType = () => {
                 >
 
                     <Form.Item
-                    onKeyDown={handleEnter}
-                        // style={{width:"35%"}}
-                        label="Unit Type"
-                        name="name"
-                        rules={[{ required: true, message: ' Name field is required!' }]}
+                        onKeyDown={handleEnter}
+                        label="symbol"
+                        name="symbol"
+                        rules={[{ required: true, message: 'Symbol  field is required!' }]}
                     >
-                        <Input />
+                        <Input placeholder="symbol" />
                     </Form.Item>
 
+
                     <Form.Item
-                    onKeyDown={handleEnter}
-                        label="Detail"
-                        name="detail"
-                        rules={[{ required: true, message: 'Unit Type field is required' }]}
+
+                        onKeyDown={handleEnter}
+                        label="Formal Name"
+                        name="formal_name"
+                        rules={[{ required: true, message: ' Formal name field  is required' }]}
                     >
-                        <Input />
+
+                        <Input placeholder="Formal Name" />
                     </Form.Item>
                     <Form.Item
-                        {...tailLayout}
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'center'
-                        }}
+
+                        onKeyDown={handleEnter}
+                        label="No of decimal "
+                        name="No_of_decimal_places"
+                        rules={[{ required: true, message: ' No of decimal places field  is required' }]}
                     >
-                        <div
-                            style={{
-                                width: 'fit-content',
-                                display: "flex",
-                                justifyContent: "center"
-                            }}
-                        >
+
+                        <Input placeholder="No of decimal"/>
+                    </Form.Item>
+
+                    <Form.Item onKeyDown={handleEnter} name="u_q_c_id" label="Unique quantity " rules={[{ required: true, message: ' Unique quantity Code  Select is required' }]} >
+                        <Select className="w-100" placeholder="Select Unique quantity Code " >
+                            {
+                                uniqurQuntityList.length > 0 ?
+                                    uniqurQuntityList.map((elm) => {
+                                        return <Option key={elm.id} value={elm.id}>{elm.name}</Option>
+                                    })
+                                    :
+                                    "No Data"
+                            }
+                        </Select>
+                    </Form.Item>
+                    <Form.Item onKeyDown={handleEnter} name="type_of_unit_id" label="Select Unit type" rules={[{ required: true, message: 'Unit type  select is required' }]} >
+                        <Select className="w-100" placeholder="Select Unit type ">
+                            {
+                                unitTypeList.length > 0 ?
+                                    unitTypeList.map((elm) => {
+                                        return <Option key={elm.id} value={elm.id}>{elm.name}</Option>
+                                    })
+                                    :
+                                    "No Data"
+                            }
+                        </Select>
+                    </Form.Item>
+
+
+                    <Form.Item {...tailLayout}  >
+
+                        <div style={{
+                            width: '82%',
+                            marginLeft: "50px"
+                        }}>
                             <Button type="primary" htmlType="submit" loading={submitLoading}>
                                 {isEdit ? "Save" : "Submit"}
                             </Button>
@@ -365,7 +473,11 @@ const UnitOfType = () => {
                                 Cancel
                             </Button>
                         </div>
+
                     </Form.Item>
+
+
+
                 </Form>
             </Modal>
             {/* Delete confirmation popup */}
@@ -397,11 +509,15 @@ const UnitOfType = () => {
                 ]}
             >
                 <div>
-                    <h2>{`Are you sure you want to delete ${openDeleteModal.name}  Type of Unit?`}</h2>
+                    <h2>{`Are you sure you want to delete ${openDeleteModal.name} District?`}</h2>
                 </div>
             </Modal>
         </>
     )
+
+
+
+
 }
 
-export default UnitOfType
+export default District

@@ -1,14 +1,12 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { Card, Table, Select, Input, Button, Badge, Menu, Modal, Form, message } from 'antd';
 import ProductListData from "assets/data/product-list.data.json"
 import { EditOutlined, DeleteOutlined, SearchOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import EllipsisDropdown from 'components/shared-components/EllipsisDropdown';
 import Flex from 'components/shared-components/Flex'
 import utils from 'utils'
-
-// import { Form, Input, Checkbox } from 'antd';
 import { useEffect } from 'react';
-import { getHsn, updateHsn, createHsn, deleteHsn } from 'utils/api/hsn';
+import { createGST, getGST, deleteGst, updateGST } from 'utils/api/gst'; 
 
 const layout = {
 	labelCol: { span: 8 },
@@ -18,33 +16,39 @@ const tailLayout = {
 	wrapperCol: { offset: 8, span: 16 },
 };
 
-const Hns = () => {
+
+const TypeOfVoucher = () => {
+
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [submitLoading, setSubmitLoading] = useState(false)
+	const [isEdit, setIsEdit] = useState(false)
+	const [selectedId, setSelectedId] = useState("")
 	const [list, setList] = useState(ProductListData)
 	const [selectedRows, setSelectedRows] = useState([])
 	const [selectedRowKeys, setSelectedRowKeys] = useState([])
-	const [hsnList, setHsnList] = useState([])
-	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [isEdit, setIsEdit] = useState(false)
-	const [selectedId, setSelectedId] = useState("")
-	const [submitLoading, setSubmitLoading] = useState(false);
-	const [initialLoading, setInitialLoading]=useState(false)
+  const [voucherTypeList, setVoucherTypeList] = useState([]);
+	const [initialLoading, setInitialLoading] = useState(false)
 	const [openDeleteModal, setOpenDeleteModal] = useState({
 		open: false,
 		id: '',
 		name: ''
 	})
+	const refs = useRef(null);
 	const showModal = () => {
 		setIsModalOpen(true);
+		refs.current.focus();
 	};
 	const showEditModal = (row) => {
 		setIsModalOpen(true);
 		setIsEdit(true);
 		setSelectedId(row.id)
 		form.setFieldsValue({
-			name: row.name,
-			code: row.code,
-			detail: row.detail
+			percent: row.percent,
+			name: row.name
 		})
+	};
+	const handleOk = () => {
+		setIsModalOpen(false);
 	};
 	const handleCancel = () => {
 		setIsModalOpen(false);
@@ -55,13 +59,13 @@ const Hns = () => {
 
 	function handleEnter(event) {
 		const form = event?.target?.form;
-        console.log(event?.key, form?.elements, 'key===')
+        console.log(event?.key, 'key===')
         const index = Array.prototype.indexOf.call(form, event.target);
         if (event.keyCode === 13) {
             if ((index + 1) < form.elements.length) {
                 form.elements[index + 1]?.focus();
+				event.preventDefault();
             }
-            event.preventDefault();
         } else if (event.keyCode === 27) {            
             if ((index - 1) > 0) {
                 form.elements[index - 1]?.focus();
@@ -69,38 +73,33 @@ const Hns = () => {
             event.preventDefault();
         }
     }
-
-	// add gst******
 	const [form] = Form.useForm()
 	const onFinish = async (values) => {
 		try {
-			const { name, detail, code } = values
-		setSubmitLoading(true)
-		if (isEdit && selectedId) {
-			const response = await updateHsn(selectedId, name, detail, code)
-			if (response.success === true) {
-				message.success(response.message)
+			const { name, percent } = values;
+			setSubmitLoading(true)
+			if (isEdit && selectedId) {
+				const response = await updateGST(selectedId, name, percent);
+				if (response.success === true) {
+					message.success(response.message)
+				}
+			} else {
+				const response = await createGST(name, percent);
+				if (response.success === true) {
+					message.success(response.message)
+				}
 			}
-			
-		} else {
-			// setSubmitLoading(true)
-			const response = await createHsn(name, detail, code);
-			if (response.success === true) {
-				
-			}
-			
-		}
+			setSubmitLoading(false)
+			init()
+			setIsModalOpen(false);
+			setIsEdit(false);
+			setSelectedId("")
+			form.resetFields();
 		} catch (error) {
 			message.error(message)
-
+			submitLoading(false)
+			return
 		}
-		setSubmitLoading(false)
-		init()
-		setIsModalOpen(false);
-		setIsEdit(false);
-		setSelectedId("")
-		form.resetFields();
-
 	};
 
 	const onFinishFailed = errorInfo => {
@@ -110,17 +109,18 @@ const Hns = () => {
 	async function init() {
 		try {
 			setInitialLoading(true)
-		const response = await getHsn();
-		if (response.data?.length) {
-			setHsnList(response.data)
-			setIsModalOpen(false);
-			// message.success(response.message)
-		} else {
-			setHsnList([])
-		}
-		setInitialLoading(false)
+			const response = await getGST();
+			if (response.data?.length) {
+				setVoucherTypeList(response.data)
+				setIsModalOpen(false);
+				// message.success(response.message)
+			} else {
+				setVoucherTypeList([])
+			}
+			setInitialLoading(false)
 		} catch (error) {
 			message.error(message)
+			setInitialLoading(false)
 		}
 	}
 
@@ -140,19 +140,19 @@ const Hns = () => {
 			<Menu.Item onClick={() => setOpenDeleteModal({ open: true, id: row.id, name: row.name })}>
 				<Flex alignItems="center">
 					<DeleteOutlined />
-					<span className="ml-2">{selectedRows.length > 0 ? `Delete (${selectedRows.length})` : 'Delete'} </span>
+					<span className="ml-2">{selectedRows.length > 0 ? `Delete (${selectedRows.length})` : 'Delete'}</span>
 				</Flex>
 			</Menu.Item>
 		</Menu>
 	);
 
-	// delete gst***********
 	const deleteRow = async (id) => {
-		if(!id) return;
+		if (!id) return;
 		setSubmitLoading(true)
-		const response = await deleteHsn(id)
+		const response = await deleteGst(id)
 		setSubmitLoading(false)
-		if (response.success === true) {
+		init()
+		if (response?.success === true) {
 			message.success(response.message)
 			init()
 		}
@@ -169,7 +169,7 @@ const Hns = () => {
 			dataIndex: 'id'
 		},
 		{
-			title: 'Hsn',
+			title: 'Voucher Type',
 			dataIndex: 'name',
 			render: (_, record) => (
 				<div className="d-flex">
@@ -181,31 +181,16 @@ const Hns = () => {
 			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
 		},
 		{
-			title: 'Code',
-			dataIndex: 'code',
-			render: (_, record) => (
-				<div className="d-flex">
-					{/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
-					{/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
-					{record.code}
-				</div>
-			),
-			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
-		},
-
-		{
 			title: 'Details',
-			dataIndex: 'details',
-			render: (_, record) => (
-				<div className="d-flex">
-					{/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
-					{/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
-					{record.detail}
+			dataIndex: 'percent',
+			render: percent => (
+				<div>
+					{percent}
+
 				</div>
 			),
-			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
+			sorter: (a, b) => utils.antdTableSorter(a, b, 'price')
 		},
-
 
 		{
 			title: 'Created Date',
@@ -232,39 +217,6 @@ const Hns = () => {
 			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
 		},
 
-		// {
-		// 	title: 'Category',
-		// 	dataIndex: 'category',
-		// 	sorter: (a, b) => utils.antdTableSorter(a, b, 'category')
-		// },
-		// {
-		// 	title: 'Price',
-		// 	dataIndex: 'price',
-		// 	render: price => (
-		// 		<div>
-		// 			<NumberFormat
-		// 				displayType={'text'}
-		// 				value={(Math.round(price * 100) / 100).toFixed(2)}
-		// 				prefix={'$'}
-		// 				thousandSeparator={true}
-		// 			/>
-		// 		</div>
-		// 	),
-		// 	sorter: (a, b) => utils.antdTableSorter(a, b, 'price')
-		// },
-		// {
-		// 	title: 'Stock',
-		// 	dataIndex: 'stock',
-		// 	sorter: (a, b) => utils.antdTableSorter(a, b, 'stock')
-		// },
-		// {
-		// 	title: 'Status',
-		// 	dataIndex: 'stock',
-		// 	render: stock => (
-		// 		<Flex alignItems="center">{getStockStatus(stock)}</Flex>
-		// 	),
-		// 	sorter: (a, b) => utils.antdTableSorter(a, b, 'stock')
-		// },
 		{
 			title: 'Action',
 			dataIndex: 'actions',
@@ -327,36 +279,29 @@ const Hns = () => {
 						</div> */}
 					</Flex>
 					<div>
-						<Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Add Hsn</Button>
+						<Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Voucher Type</Button>
 					</div>
 				</Flex>
 				<div className="table-responsive">
 					<Table
 						columns={tableColumns}
-						dataSource={hsnList}
+						dataSource={voucherTypeList}
 						rowKey='id'
 						rowSelection={{
 							selectedRowKeys: selectedRowKeys,
 							type: 'checkbox',
 							preserveSelectedRowKeys: false,
 							...rowSelection,
+
 						}}
 						loading={initialLoading}
 					/>
 				</div>
 			</Card>
 
-			{/* add gst************************************************************************ */}
 
 			<Modal
-				title={isEdit ? "Edit Hsn" : "Add Hsn"} open={isModalOpen} onCancel={handleCancel} footer={[
-					// <Button type="primary" htmlType="submit"  onClick={onFinish}>
-					// 	Submit
-					// </Button>,
-					// <Button type="primary" onClick={handleCancel}	>
-					// 			Cancel
-					// 		</Button>
-				]}>
+				title={isEdit ? "Edit Voucher Type" : " Add Voucher Type"} open={isModalOpen} onCancel={handleCancel} footer={[]}>
 				<Form
 					form={form}
 					style={{ width: '85%' }}
@@ -367,41 +312,44 @@ const Hns = () => {
 					onFinish={onFinish}
 					onFinishFailed={onFinishFailed}
 				>
+
 					<Form.Item
 						// style={{width:"35%"}}
-						label="Name"
+						label="Voucher Type Name"
 						name="name"
+						rules={[{ required: true, message: ' Group create is required!' }]}
 						onKeyDown={handleEnter}
-						rules={[{ required: true, message: ' Name field is required!' }]}
+						ref={refs}
 					>
-						<Input />
+						<Input  placeholder="Voucher Type" />
 					</Form.Item>
+
 					<Form.Item
 						// style={{width:"35%"}}
-						placeholder="Enter Gst"
+						ref={refs}
 						label="Details"
 						name="detail"
 						onKeyDown={handleEnter}
-						rules={[{ required: true, message: 'Details field  is required' }]}
+						rules={[{ required: true, message: 'Percent is required' }]}
 					>
-						<Input />
+						<Input placeholder="Details"/>
 					</Form.Item>
+
 					<Form.Item
-						// style={{width:"35%"}}
-						placeholder="Enter Gst"
-						label="Code"
-						name="code"
-						onKeyDown={handleEnter}
-						rules={[{ required: true, message: 'Code field is required' }]}
+						{...tailLayout}
+						style={{
+							display: 'flex',
+							justifyContent: 'center'
+						}}
 					>
-						<Input />
-					</Form.Item>
-					<Form.Item {...tailLayout}  >
-						<div style={{
-							width: '82%',
-							marginLeft: "50px"
-						}}>
-							<Button  type="primary" htmlType="submit" loading={submitLoading}>
+						<div
+							style={{
+								width: 'fit-content',
+								display: "flex",
+								justifyContent: "center"
+							}}
+						>
+							<Button type="primary" htmlType="submit" loading={submitLoading}>
 								{isEdit ? "Save" : "Submit"}
 							</Button>
 							<Button type="primary" onClick={handleCancel} style={{ marginLeft: '20px' }}	>
@@ -409,11 +357,12 @@ const Hns = () => {
 							</Button>
 						</div>
 					</Form.Item>
+
 				</Form>
 			</Modal>
 			{/* Delete confirmation popup */}
 			<Modal
-				title={"Delete HSN"}
+				title={"Delete Voucher Type"}
 				open={openDeleteModal.open}
 				onCancel={() => setOpenDeleteModal({
 					open: false,
@@ -421,34 +370,30 @@ const Hns = () => {
 					name: ''
 				})}
 				footer={[
-					<Button 
-						type="primary" 
-						loading={submitLoading} 
+					<Button
+						type="primary"
+						loading={submitLoading}
 						htmlType="submit"
 						onClick={() => deleteRow(openDeleteModal.id)}
 					>
 						Delete
 					</Button>,
 					<Button type="primary" onClick={() => setOpenDeleteModal({
-							open: false,
-							id: '',
-							name: ''
-						})}
+						open: false,
+						id: '',
+						name: ''
+					})}
 					>
 						Cancel
 					</Button>
 				]}
 			>
 				<div>
-					<h2>{`Are you sure you want to delete ${openDeleteModal.name} HSN?`}</h2>
+					<h2>{`Are you sure you want to delete ${openDeleteModal.name} Voucher Type?`}</h2>
 				</div>
 			</Modal>
 		</>
 	)
-
-
-
-
 }
 
-export default Hns
+export default TypeOfVoucher

@@ -5,10 +5,13 @@ import { EditOutlined, DeleteOutlined, SearchOutlined, PlusCircleOutlined } from
 import EllipsisDropdown from 'components/shared-components/EllipsisDropdown';
 import Flex from 'components/shared-components/Flex'
 import utils from 'utils'
+import { getUniqueOuqantityCode, createUniqueOuqantityCode, updateUniqueOuqantityCode, deleteUniqueOuqantityCode } from 'utils/api/uniqueQuantityCode';
+
+ 
 
 // import { Form, Input, Checkbox } from 'antd';
 import { useEffect } from 'react';
-import { getHsn, updateHsn, createHsn, deleteHsn } from 'utils/api/hsn';
+import { createGST, getGST, deleteGst, updateGST } from 'utils/api/gst';
 
 const layout = {
 	labelCol: { span: 8 },
@@ -18,21 +21,24 @@ const tailLayout = {
 	wrapperCol: { offset: 8, span: 16 },
 };
 
-const Hns = () => {
+
+const Gst = () => {
+
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [submitLoading, setSubmitLoading] = useState(false)
+	const [isEdit, setIsEdit] = useState(false)
+	const [selectedId, setSelectedId] = useState("")
 	const [list, setList] = useState(ProductListData)
 	const [selectedRows, setSelectedRows] = useState([])
 	const [selectedRowKeys, setSelectedRowKeys] = useState([])
-	const [hsnList, setHsnList] = useState([])
-	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [isEdit, setIsEdit] = useState(false)
-	const [selectedId, setSelectedId] = useState("")
-	const [submitLoading, setSubmitLoading] = useState(false);
-	const [initialLoading, setInitialLoading]=useState(false)
+  const [uniqueList, setUnilqueList] = useState([]);
+	const [initialLoading, setInitialLoading] = useState(false)
 	const [openDeleteModal, setOpenDeleteModal] = useState({
 		open: false,
 		id: '',
 		name: ''
 	})
+
 	const showModal = () => {
 		setIsModalOpen(true);
 	};
@@ -41,10 +47,12 @@ const Hns = () => {
 		setIsEdit(true);
 		setSelectedId(row.id)
 		form.setFieldsValue({
-			name: row.name,
-			code: row.code,
-			detail: row.detail
+			detail: row.detail,
+			name: row.name
 		})
+	};
+	const handleOk = () => {
+		setIsModalOpen(false);
 	};
 	const handleCancel = () => {
 		setIsModalOpen(false);
@@ -69,38 +77,38 @@ const Hns = () => {
             event.preventDefault();
         }
     }
-
-	// add gst******
 	const [form] = Form.useForm()
 	const onFinish = async (values) => {
 		try {
-			const { name, detail, code } = values
-		setSubmitLoading(true)
-		if (isEdit && selectedId) {
-			const response = await updateHsn(selectedId, name, detail, code)
-			if (response.success === true) {
-				message.success(response.message)
+      let response
+			const { name, detail } = values;
+			setSubmitLoading(true)
+			if (isEdit && selectedId) {
+				 response = await updateUniqueOuqantityCode(selectedId, name, detail);
+			} else {
+				 response = await createUniqueOuqantityCode(name, detail);
 			}
-			
-		} else {
-			// setSubmitLoading(true)
-			const response = await createHsn(name, detail, code);
-			if (response.success === true) {
-				
+      if (response.success === true) {
+        message.success(response.message)
+      }
+      else if (response?.success === false) {
+				Object.keys(response.data).map(item => {
+					message.warning(response.data[item][0])
+				})
+				setSubmitLoading(false)
+				return
 			}
-			
-		}
+			setSubmitLoading(false)
+			init()
+			setIsModalOpen(false);
+			setIsEdit(false);
+			setSelectedId("")
+			form.resetFields();
 		} catch (error) {
 			message.error(message)
-
+			submitLoading(false)
+			return
 		}
-		setSubmitLoading(false)
-		init()
-		setIsModalOpen(false);
-		setIsEdit(false);
-		setSelectedId("")
-		form.resetFields();
-
 	};
 
 	const onFinishFailed = errorInfo => {
@@ -110,17 +118,18 @@ const Hns = () => {
 	async function init() {
 		try {
 			setInitialLoading(true)
-		const response = await getHsn();
-		if (response.data?.length) {
-			setHsnList(response.data)
-			setIsModalOpen(false);
-			// message.success(response.message)
-		} else {
-			setHsnList([])
-		}
-		setInitialLoading(false)
+			const response = await getUniqueOuqantityCode();
+			if (response.data?.length) {
+				setUnilqueList(response.data)
+				setIsModalOpen(false);
+				// message.success(response.message)
+			} else {
+				setUnilqueList([])
+			}
+			setInitialLoading(false)
 		} catch (error) {
 			message.error(message)
+			setInitialLoading(false)
 		}
 	}
 
@@ -140,19 +149,19 @@ const Hns = () => {
 			<Menu.Item onClick={() => setOpenDeleteModal({ open: true, id: row.id, name: row.name })}>
 				<Flex alignItems="center">
 					<DeleteOutlined />
-					<span className="ml-2">{selectedRows.length > 0 ? `Delete (${selectedRows.length})` : 'Delete'} </span>
+					<span className="ml-2">{selectedRows.length > 0 ? `Delete (${selectedRows.length})` : 'Delete'}</span>
 				</Flex>
 			</Menu.Item>
 		</Menu>
 	);
 
-	// delete gst***********
 	const deleteRow = async (id) => {
-		if(!id) return;
+		if (!id) return;
 		setSubmitLoading(true)
-		const response = await deleteHsn(id)
+		const response = await deleteUniqueOuqantityCode(id)
 		setSubmitLoading(false)
-		if (response.success === true) {
+		init()
+		if (response?.success === true) {
 			message.success(response.message)
 			init()
 		}
@@ -164,117 +173,72 @@ const Hns = () => {
 	}
 
 	const tableColumns = [
-		{
-			title: 'ID',
-			dataIndex: 'id'
-		},
-		{
-			title: 'Hsn',
-			dataIndex: 'name',
-			render: (_, record) => (
-				<div className="d-flex">
-					{/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
-					{/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
-					{record.name}
-				</div>
-			),
-			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
-		},
-		{
-			title: 'Code',
-			dataIndex: 'code',
-			render: (_, record) => (
-				<div className="d-flex">
-					{/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
-					{/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
-					{record.code}
-				</div>
-			),
-			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
-		},
-
-		{
-			title: 'Details',
-			dataIndex: 'details',
-			render: (_, record) => (
-				<div className="d-flex">
-					{/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
-					{/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
-					{record.detail}
-				</div>
-			),
-			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
-		},
+    {
+      title: 'ID',
+      dataIndex: 'id'
+    },
+    {
+      title: 'Unique quantity code',
+      dataIndex: 'uniq',
+      render: (_, record) => (
+        <div className="d-flex">
+          {/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
+          {/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
+          {record.name}
+        </div>
+      ),
+      sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
+    },
+    {
+      title: 'Detail',
+      dataIndex: 'name',
+      render: (_, record) => (
+        <div className="d-flex">
+          {/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
+          {/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
+          {record.detail}
+        </div>
+      ),
+      sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
+    },
 
 
-		{
-			title: 'Created Date',
-			dataIndex: 'name',
-			render: (_, record) => (
-				<div className="d-flex">
-					{/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
-					{/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
-					{record.created_at}
-				</div>
-			),
-			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
-		},
-		{
-			title: 'Updated Date',
-			dataIndex: 'name',
-			render: (_, record) => (
-				<div className="d-flex">
-					{/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
-					{/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
-					{record.updated_at}
-				</div>
-			),
-			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
-		},
+    {
+      title: 'Created Date',
+      dataIndex: 'name',
+      render: (_, record) => (
+        <div className="d-flex">
+          {/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
+          {/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
+          {record.created_at}
+        </div>
+      ),
+      sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
+    },
+    {
+      title: 'Updated Date',
+      dataIndex: 'name',
+      render: (_, record) => (
+        <div className="d-flex">
+          {/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
+          {/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
+          {record.updated_at}
+        </div>
+      ),
+      sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
+    },
 
-		// {
-		// 	title: 'Category',
-		// 	dataIndex: 'category',
-		// 	sorter: (a, b) => utils.antdTableSorter(a, b, 'category')
-		// },
-		// {
-		// 	title: 'Price',
-		// 	dataIndex: 'price',
-		// 	render: price => (
-		// 		<div>
-		// 			<NumberFormat
-		// 				displayType={'text'}
-		// 				value={(Math.round(price * 100) / 100).toFixed(2)}
-		// 				prefix={'$'}
-		// 				thousandSeparator={true}
-		// 			/>
-		// 		</div>
-		// 	),
-		// 	sorter: (a, b) => utils.antdTableSorter(a, b, 'price')
-		// },
-		// {
-		// 	title: 'Stock',
-		// 	dataIndex: 'stock',
-		// 	sorter: (a, b) => utils.antdTableSorter(a, b, 'stock')
-		// },
-		// {
-		// 	title: 'Status',
-		// 	dataIndex: 'stock',
-		// 	render: stock => (
-		// 		<Flex alignItems="center">{getStockStatus(stock)}</Flex>
-		// 	),
-		// 	sorter: (a, b) => utils.antdTableSorter(a, b, 'stock')
-		// },
-		{
-			title: 'Action',
-			dataIndex: 'actions',
-			render: (_, elm) => (
-				<div className="text-right">
-					<EllipsisDropdown menu={dropdownMenu(elm)} />
-				</div>
-			)
-		}
-	];
+    {
+      title: 'Action',
+      dataIndex: 'actions',
+      render: (_, elm) => (
+        <div className="text-right">
+          <EllipsisDropdown menu={dropdownMenu(elm)} />
+        </div>
+      )
+    }
+  ];
+
 
 	const rowSelection = {
 		onChange: (key, rows) => {
@@ -327,29 +291,28 @@ const Hns = () => {
 						</div> */}
 					</Flex>
 					<div>
-						<Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Add Hsn</Button>
+						<Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Add Unique Quantity </Button>
 					</div>
 				</Flex>
 				<div className="table-responsive">
 					<Table
 						columns={tableColumns}
-						dataSource={hsnList}
+						dataSource={uniqueList}
 						rowKey='id'
 						rowSelection={{
 							selectedRowKeys: selectedRowKeys,
 							type: 'checkbox',
 							preserveSelectedRowKeys: false,
 							...rowSelection,
+
 						}}
 						loading={initialLoading}
 					/>
 				</div>
 			</Card>
 
-			{/* add gst************************************************************************ */}
-
 			<Modal
-				title={isEdit ? "Edit Hsn" : "Add Hsn"} open={isModalOpen} onCancel={handleCancel} footer={[
+				title={isEdit ? "Edit Unique Quantity " : "Add Unique Quantity "} open={isModalOpen} onCancel={handleCancel} footer={[
 					// <Button type="primary" htmlType="submit"  onClick={onFinish}>
 					// 	Submit
 					// </Button>,
@@ -367,41 +330,43 @@ const Hns = () => {
 					onFinish={onFinish}
 					onFinishFailed={onFinishFailed}
 				>
+
 					<Form.Item
 						// style={{width:"35%"}}
-						label="Name"
+						label="Unique quantity"
 						name="name"
+						rules={[{ required: true, message: ' Gst is required!' }]}
 						onKeyDown={handleEnter}
-						rules={[{ required: true, message: ' Name field is required!' }]}
 					>
-						<Input />
+						<Input placeholder="Unique quantity"/>
 					</Form.Item>
+
 					<Form.Item
 						// style={{width:"35%"}}
 						placeholder="Enter Gst"
-						label="Details"
+						label="Detail"
 						name="detail"
 						onKeyDown={handleEnter}
-						rules={[{ required: true, message: 'Details field  is required' }]}
+						rules={[{ required: true, message: 'Percent is required' }]}
 					>
-						<Input />
+						<Input placeholder="Detail"/>
 					</Form.Item>
+
 					<Form.Item
-						// style={{width:"35%"}}
-						placeholder="Enter Gst"
-						label="Code"
-						name="code"
-						onKeyDown={handleEnter}
-						rules={[{ required: true, message: 'Code field is required' }]}
+						{...tailLayout}
+						style={{
+							display: 'flex',
+							justifyContent: 'center'
+						}}
 					>
-						<Input />
-					</Form.Item>
-					<Form.Item {...tailLayout}  >
-						<div style={{
-							width: '82%',
-							marginLeft: "50px"
-						}}>
-							<Button  type="primary" htmlType="submit" loading={submitLoading}>
+						<div
+							style={{
+								width: 'fit-content',
+								display: "flex",
+								justifyContent: "center"
+							}}
+						>
+							<Button type="primary" htmlType="submit" loading={submitLoading}>
 								{isEdit ? "Save" : "Submit"}
 							</Button>
 							<Button type="primary" onClick={handleCancel} style={{ marginLeft: '20px' }}	>
@@ -409,11 +374,12 @@ const Hns = () => {
 							</Button>
 						</div>
 					</Form.Item>
+
 				</Form>
 			</Modal>
 			{/* Delete confirmation popup */}
 			<Modal
-				title={"Delete HSN"}
+				title={"Delete Unique Quantity "}
 				open={openDeleteModal.open}
 				onCancel={() => setOpenDeleteModal({
 					open: false,
@@ -421,34 +387,30 @@ const Hns = () => {
 					name: ''
 				})}
 				footer={[
-					<Button 
-						type="primary" 
-						loading={submitLoading} 
+					<Button
+						type="primary"
+						loading={submitLoading}
 						htmlType="submit"
 						onClick={() => deleteRow(openDeleteModal.id)}
 					>
 						Delete
 					</Button>,
 					<Button type="primary" onClick={() => setOpenDeleteModal({
-							open: false,
-							id: '',
-							name: ''
-						})}
+						open: false,
+						id: '',
+						name: ''
+					})}
 					>
 						Cancel
 					</Button>
 				]}
 			>
 				<div>
-					<h2>{`Are you sure you want to delete ${openDeleteModal.name} HSN?`}</h2>
+					<h2>{`Are you sure you want to delete ${openDeleteModal.name} GST?`}</h2>
 				</div>
 			</Modal>
 		</>
 	)
-
-
-
-
 }
 
-export default Hns
+export default Gst

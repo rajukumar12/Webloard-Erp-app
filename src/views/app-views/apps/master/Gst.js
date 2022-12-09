@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { Card, Table, Select, Input, Button, Badge, Menu, Modal, Form, message } from 'antd';
 import ProductListData from "assets/data/product-list.data.json"
 import { EditOutlined, DeleteOutlined, SearchOutlined, PlusCircleOutlined } from '@ant-design/icons';
@@ -6,9 +6,11 @@ import EllipsisDropdown from 'components/shared-components/EllipsisDropdown';
 import Flex from 'components/shared-components/Flex'
 import utils from 'utils'
 
+ 
+
 // import { Form, Input, Checkbox } from 'antd';
 import { useEffect } from 'react';
-import { createGST, getGST,deleteGst, updateGST } from 'utils/api/gst';
+import { createGST, getGST, deleteGst, updateGST } from 'utils/api/gst';
 
 const layout = {
 	labelCol: { span: 8 },
@@ -35,9 +37,12 @@ const Gst = () => {
 		id: '',
 		name: ''
 	})
-
+	const addButtonRef = useRef(null)
+	const ref = useRef(null);
 	const showModal = () => {
 		setIsModalOpen(true);
+		// console.log(ref?.current)
+		// ref.current?.focus();
 	};
 	const showEditModal = (row) => {
 		setIsModalOpen(true);
@@ -56,31 +61,48 @@ const Gst = () => {
 		setIsEdit(false);
 		setSelectedId("")
 		form.resetFields();
+		console.log(addButtonRef.current, "current==")
+		addButtonRef.current.focus()
 	};
-	
-	
+
+	function handleEnter(event) {
+		const form = event?.target?.form;
+        console.log(event?.key, 'key===')
+        const index = Array.prototype.indexOf.call(form, event.target);
+        if (event.keyCode === 13) {
+            if ((index + 1) < form.elements.length) {
+                form.elements[index + 1]?.focus();
+				event.preventDefault();
+            }
+        } else if (event.keyCode === 27) {            
+            if ((index - 1) > 0) {
+                form.elements[index - 1]?.focus();
+            }
+            event.preventDefault();
+        }
+    }
 	const [form] = Form.useForm()
 	const onFinish = async (values) => {
 		try {
 			const { name, percent } = values;
-		setSubmitLoading(true)
-		if(isEdit && selectedId) {
-			const response = await updateGST(selectedId, name, percent);
-			if (response.success === true) {
-				message.success(response.message)
+			setSubmitLoading(true)
+			if (isEdit && selectedId) {
+				const response = await updateGST(selectedId, name, percent);
+				if (response.success === true) {
+					message.success(response.message)
+				}
+			} else {
+				const response = await createGST(name, percent);
+				if (response.success === true) {
+					message.success(response.message)
+				}
 			}
-		} else {
-			const response = await createGST(name, percent);
-			if (response.success === true) {
-				message.success(response.message)
-			}
-		}
-		setSubmitLoading(false)
-		init()
-		setIsModalOpen(false);
-		setIsEdit(false);
-		setSelectedId("")
-		form.resetFields();
+			setSubmitLoading(false)
+			init()
+			setIsModalOpen(false);
+			setIsEdit(false);
+			setSelectedId("")
+			form.resetFields();
 		} catch (error) {
 			message.error(message)
 			submitLoading(false)
@@ -95,15 +117,15 @@ const Gst = () => {
 	async function init() {
 		try {
 			setInitialLoading(true)
-		const response = await getGST();
-		if (response.data?.length) {
-			setGstList(response.data)
-			setIsModalOpen(false);
-			// message.success(response.message)
-		} else {
-			setGstList([])
-		}
-		setInitialLoading(false)
+			const response = await getGST();
+			if (response.data?.length) {
+				setGstList(response.data)
+				setIsModalOpen(false);
+				// message.success(response.message)
+			} else {
+				setGstList([])
+			}
+			setInitialLoading(false)
 		} catch (error) {
 			message.error(message)
 			setInitialLoading(false)
@@ -132,9 +154,8 @@ const Gst = () => {
 		</Menu>
 	);
 
-	// delete gst***********
 	const deleteRow = async (id) => {
-		if(!id) return;
+		if (!id) return;
 		setSubmitLoading(true)
 		const response = await deleteGst(id)
 		setSubmitLoading(false)
@@ -204,7 +225,7 @@ const Gst = () => {
 			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
 		},
 
-				{
+		{
 			title: 'Action',
 			dataIndex: 'actions',
 			render: (_, elm) => (
@@ -266,7 +287,7 @@ const Gst = () => {
 						</div> */}
 					</Flex>
 					<div>
-						<Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Add GST</Button>
+						<Button onClick={showModal} ref={addButtonRef} autoFocus type="primary" icon={<PlusCircleOutlined />} block>Add GST</Button>
 					</div>
 				</Flex>
 				<div className="table-responsive">
@@ -279,7 +300,7 @@ const Gst = () => {
 							type: 'checkbox',
 							preserveSelectedRowKeys: false,
 							...rowSelection,
-							
+
 						}}
 						loading={initialLoading}
 					/>
@@ -313,8 +334,10 @@ const Gst = () => {
 						label="Gst"
 						name="name"
 						rules={[{ required: true, message: ' Gst is required!' }]}
+						onKeyDown={handleEnter}
+						// ref={ref}
 					>
-						<Input />
+						<Input ref={ref} autoFocus />
 					</Form.Item>
 
 					<Form.Item
@@ -322,25 +345,27 @@ const Gst = () => {
 						placeholder="Enter Gst"
 						label="Percent"
 						name="percent"
+						onKeyDown={handleEnter}
 						rules={[{ required: true, message: 'Percent is required' }]}
 					>
 						<Input />
 					</Form.Item>
-					<Form.Item 
-						{...tailLayout} 
-						style={{ 
-							display:'flex', 
-							justifyContent: 'center' 
+
+					<Form.Item
+						{...tailLayout}
+						style={{
+							display: 'flex',
+							justifyContent: 'center'
 						}}
 					>
-						<div 
+						<div
 							style={{
 								width: 'fit-content',
 								display: "flex",
 								justifyContent: "center"
 							}}
 						>
-							<Button  type="primary" htmlType="submit" loading={submitLoading}>
+							<Button type="primary" htmlType="submit" loading={submitLoading}>
 								{isEdit ? "Save" : "Submit"}
 							</Button>
 							<Button type="primary" onClick={handleCancel} style={{ marginLeft: '20px' }}	>
@@ -348,6 +373,7 @@ const Gst = () => {
 							</Button>
 						</div>
 					</Form.Item>
+
 				</Form>
 			</Modal>
 			{/* Delete confirmation popup */}
@@ -360,19 +386,19 @@ const Gst = () => {
 					name: ''
 				})}
 				footer={[
-					<Button 
-						type="primary" 
-						loading={submitLoading} 
+					<Button
+						type="primary"
+						loading={submitLoading}
 						htmlType="submit"
 						onClick={() => deleteRow(openDeleteModal.id)}
 					>
 						Delete
 					</Button>,
 					<Button type="primary" onClick={() => setOpenDeleteModal({
-							open: false,
-							id: '',
-							name: ''
-						})}
+						open: false,
+						id: '',
+						name: ''
+					})}
 					>
 						Cancel
 					</Button>

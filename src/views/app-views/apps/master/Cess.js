@@ -55,7 +55,22 @@ const Cess = () => {
 		form.resetFields();
 	};
 	
-
+	function handleEnter(event) {
+        const form = event?.target?.form;
+        console.log(event?.key, form?.elements, 'key===')
+        const index = Array.prototype.indexOf.call(form, event.target);
+        if (event.keyCode === 13) {
+            if ((index + 1) < form.elements.length) {
+                form.elements[index + 1]?.focus();
+            }
+            event.preventDefault();
+        } else if (event.keyCode === 27) {
+            if ((index - 1) > 0) {
+                form.elements[index - 1]?.focus();
+            }
+            event.preventDefault();
+        }
+    }
 	// add and update hsn******
 	const [form] = Form.useForm()
 	const onFinish = async (values) => {
@@ -341,6 +356,7 @@ const Cess = () => {
 
 					<Form.Item
 						// style={{width:"35%"}}
+						onKeyDown={handleEnter}
 						label="Name"
 						name="name"
 						rules={[{ required: true, message: ' Gst is required!' }]}
@@ -352,6 +368,7 @@ const Cess = () => {
 						// style={{width:"35%"}}
 						placeholder="Enter Gst"
 						label="Percent"
+						onKeyDown={handleEnter}
 						name="percent"
 						rules={[{ required: true, message: 'Percent is required' }]}
 					>

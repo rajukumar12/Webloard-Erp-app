@@ -64,10 +64,10 @@ const Godown = () => {
     const [submitLoading, setSubmitLoading] = useState(false)
     const [initialLoading, setInitialLoading] = useState(false)
     const [openDeleteModal, setOpenDeleteModal] = useState({
-		open: false,
-		id: '',
-		name: ''
-	})
+        open: false,
+        id: '',
+        name: ''
+    })
     const showModal = () => {
         setIsModalOpen(true);
     };
@@ -103,6 +103,22 @@ const Godown = () => {
         setCityList([])
     };
 
+    function handleEnter(event) {
+        const form = event?.target?.form;
+        console.log(event?.key, form?.elements, 'key===')
+        const index = Array.prototype.indexOf.call(form, event.target);
+        if (event.keyCode === 13) {
+            if ((index + 1) < form.elements.length) {
+                form.elements[index + 1]?.focus();
+            }
+            event.preventDefault();
+        } else if (event.keyCode === 27) {
+            if ((index - 1) > 0) {
+                form.elements[index - 1]?.focus();
+            }
+            event.preventDefault();
+        }
+    }
 
     const [form] = Form.useForm()
     const onFinish = async (values) => {
@@ -221,7 +237,7 @@ const Godown = () => {
                     <span className="ml-2">Edit</span>
                 </Flex>
             </Menu.Item>
-            <Menu.Item onClick={() => setOpenDeleteModal({ open: true, id: row.id, name: row.name })}loading={submitLoading}>
+            <Menu.Item onClick={() => setOpenDeleteModal({ open: true, id: row.id, name: row.name })} loading={submitLoading}>
                 <Flex alignItems="center">
                     <DeleteOutlined />
                     <span className="ml-2">{selectedRows.length > 0 ? `Delete (${selectedRows.length})` : 'Delete'}</span>
@@ -232,7 +248,7 @@ const Godown = () => {
 
 
     const deleteRow = async (id) => {
-        if(!id) return;
+        if (!id) return;
         setSubmitLoading(true)
         const response = await deleteGodow(id)
         setSubmitLoading(false)
@@ -241,10 +257,10 @@ const Godown = () => {
             init()
         }
         setOpenDeleteModal({
-			open: false,
-			id: '',
-			name: ''
-		})
+            open: false,
+            id: '',
+            name: ''
+        })
 
     }
 
@@ -402,7 +418,7 @@ const Godown = () => {
 
     const handleCountryChange = (val, isEdit) => {
         setStateList(stateListOgn.filter(elm => elm.Country_id === val))
-        if(!isEdit){
+        if (!isEdit) {
             form.setFieldValue('state_id', '')
             form.setFieldValue('district_id', '')
             form.setFieldValue('city_id', '')
@@ -411,7 +427,7 @@ const Godown = () => {
 
     const handleStateChange = (val, isEdit) => {
         setDistrictList(districtListOgn.filter(elm => elm.State_id === val))
-        if(!isEdit){
+        if (!isEdit) {
             form.setFieldValue('district_id', '')
         }
     }
@@ -419,10 +435,10 @@ const Godown = () => {
     const handleDistrictChange = (val, isEdit) => {
 
         setCityList(cityListOgn.filter(elm => elm.District_id === val))
-        if(!isEdit){
+        if (!isEdit) {
             form.setFieldValue('city_id', '')
         }
-       
+
     }
 
 
@@ -497,15 +513,15 @@ const Godown = () => {
                 >
 
                     <Form.Item
-
+                        onKeyDown={handleEnter}
                         label="Godown Name"
                         name="name"
                         rules={[{ required: true, message: 'Godown Name field is required!' }]}
                     >
                         <Input />
                     </Form.Item>
-                    <Form.Item name="country_id" label="Country" rules={[{ required: true, message: 'Country  select is required' }]} >
-                        <Select className="w-100" placeholder="Select Country" onChange={(val)=>handleCountryChange(val, false)}>
+                    <Form.Item onKeyDown={handleEnter} name="country_id" label="Country" rules={[{ required: true, message: 'Country  select is required' }]} >
+                        <Select className="w-100" placeholder="Select Country" onChange={(val) => handleCountryChange(val, false)}>
                             {
                                 countryList?.length > 0 ?
                                     countryList.map((elm) => {
@@ -516,8 +532,8 @@ const Godown = () => {
                             }
                         </Select>
                     </Form.Item>
-                    <Form.Item name="state_id" label="State" rules={[{ required: true, message: 'State  select is required' }]} >
-                        <Select className="w-100" placeholder="Select State" onChange={(val)=>handleStateChange(val, false)}>
+                    <Form.Item onKeyDown={handleEnter} name="state_id" label="State" rules={[{ required: true, message: 'State  select is required' }]} >
+                        <Select className="w-100" placeholder="Select State" onChange={(val) => handleStateChange(val, false)}>
                             {
                                 stateList?.length > 0 ?
                                     stateList.map((elm) => {
@@ -529,8 +545,8 @@ const Godown = () => {
                             }
                         </Select>
                     </Form.Item>
-                    <Form.Item name="district_id" label="District" rules={[{ required: true, message: 'District  select is required' }]} >
-                        <Select className="w-100" placeholder="Select District" onChange={(val)=>handleDistrictChange(val, false)}>
+                    <Form.Item onKeyDown={handleEnter} name="district_id" label="District" rules={[{ required: true, message: 'District  select is required' }]} >
+                        <Select className="w-100" placeholder="Select District" onChange={(val) => handleDistrictChange(val, false)}>
                             {
                                 districtList?.length > 0 ?
                                     districtList.map((elm) => {
@@ -541,7 +557,7 @@ const Godown = () => {
                             }
                         </Select>
                     </Form.Item>
-                    <Form.Item name="city_id" label="City" rules={[{ required: true, message: 'City  select is required' }]} >
+                    <Form.Item onKeyDown={handleEnter} name="city_id" label="City" rules={[{ required: true, message: 'City  select is required' }]} >
                         <Select className="w-100" placeholder="Select City" >
                             {
                                 cityList?.length > 0 ?
@@ -555,7 +571,7 @@ const Godown = () => {
                     </Form.Item>
 
                     <Form.Item
-
+                        onKeyDown={handleEnter}
                         label="Address"
                         name="address"
                         rules={[{ required: true, message: 'address field is required!' }]}
@@ -564,7 +580,7 @@ const Godown = () => {
                     </Form.Item>
 
                     <Form.Item
-
+                        onKeyDown={handleEnter}
                         label="Pin code"
                         name="pincode"
                         rules={[
@@ -601,37 +617,37 @@ const Godown = () => {
                 </Form>
             </Modal>
             {/* Delete confirmation popup */}
-			<Modal
-				title={"Delete Godown"}
-				open={openDeleteModal.open}
-				onCancel={() => setOpenDeleteModal({
-					open: false,
-					id: '',
-					name: ''
-				})}
-				footer={[
-					<Button 
-						type="primary" 
-						loading={submitLoading} 
-						htmlType="submit"
-						onClick={() => deleteRow(openDeleteModal.id)}
-					>
-						Delete
-					</Button>,
-					<Button type="primary" onClick={() => setOpenDeleteModal({
-							open: false,
-							id: '',
-							name: ''
-						})}
-					>
-						Cancel
-					</Button>
-				]}
-			>
-				<div>
-					<h2>{`Are you sure you want to delete ${openDeleteModal.name} Godown?`}</h2>
-				</div>
-			</Modal>
+            <Modal
+                title={"Delete Godown"}
+                open={openDeleteModal.open}
+                onCancel={() => setOpenDeleteModal({
+                    open: false,
+                    id: '',
+                    name: ''
+                })}
+                footer={[
+                    <Button
+                        type="primary"
+                        loading={submitLoading}
+                        htmlType="submit"
+                        onClick={() => deleteRow(openDeleteModal.id)}
+                    >
+                        Delete
+                    </Button>,
+                    <Button type="primary" onClick={() => setOpenDeleteModal({
+                        open: false,
+                        id: '',
+                        name: ''
+                    })}
+                    >
+                        Cancel
+                    </Button>
+                ]}
+            >
+                <div>
+                    <h2>{`Are you sure you want to delete ${openDeleteModal.name} Godown?`}</h2>
+                </div>
+            </Modal>
 
         </>
     )

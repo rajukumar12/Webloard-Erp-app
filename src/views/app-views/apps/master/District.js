@@ -34,12 +34,12 @@ const District = () => {
     const [isEdit, setIsEdit] = useState(false)
     const [selectedId, setSelectedId] = useState("")
     const [submitLoading, setSubmitLoading] = useState(false)
-    const [initialLoadin, setInitalLoading]=useState(false)
+    const [initialLoadin, setInitalLoading] = useState(false)
     const [openDeleteModal, setOpenDeleteModal] = useState({
-		open: false,
-		id: '',
-		name: ''
-	})
+        open: false,
+        id: '',
+        name: ''
+    })
     const showModal = () => {
         setIsModalOpen(true);
     };
@@ -68,6 +68,22 @@ const District = () => {
         setStateList([])
     };
 
+    function handleEnter(event) {
+        const form = event?.target?.form;
+        console.log(event?.key, form?.elements, 'key===')
+        const index = Array.prototype.indexOf.call(form, event.target);
+        if (event.keyCode === 13) {
+            if ((index + 1) < form.elements.length) {
+                form.elements[index + 1]?.focus();
+            }
+            event.preventDefault();
+        } else if (event.keyCode === 27) {
+            if ((index - 1) > 0) {
+                form.elements[index - 1]?.focus();
+            }
+            event.preventDefault();
+        }
+    }
 
     const [form] = Form.useForm()
     const onFinish = async (values) => {
@@ -83,14 +99,14 @@ const District = () => {
             if (response?.success === true) {
                 message.success(response.message)
             }
-            else if(response?.success === false){
-                Object.keys(response.data).map(item=>{
+            else if (response?.success === false) {
+                Object.keys(response.data).map(item => {
                     message.warning(response.data[item][0])
                 })
                 setSubmitLoading(false);
                 return;
             }
-            
+
             setSubmitLoading(false)
             init()
             setIsModalOpen(false);
@@ -98,7 +114,7 @@ const District = () => {
             setSelectedId("")
             form.resetFields();
         } catch (error) {
-           message.error(message)
+            message.error(message)
         }
     };
 
@@ -108,13 +124,13 @@ const District = () => {
     async function init() {
         try {
             const response = await getDistrict();
-        if (response.data?.length) {
-            setHsnList(response.data)
-            setIsModalOpen(false);
-            // message.success(response.message)
-        } else {
-            setHsnList([])
-        }
+            if (response.data?.length) {
+                setHsnList(response.data)
+                setIsModalOpen(false);
+                // message.success(response.message)
+            } else {
+                setHsnList([])
+            }
         } catch (error) {
             message.error(message)
         }
@@ -152,7 +168,7 @@ const District = () => {
     }, [])
 
     const dropdownMenu = row => (
-        
+
         <Menu>
             <Menu.Item onClick={() => showEditModal(row)}>
                 <Flex alignItems="center">
@@ -171,7 +187,7 @@ const District = () => {
 
     // delete gst***********
     const deleteRow = async (id) => {
-        if(!id) return;
+        if (!id) return;
         setSubmitLoading(true)
         const response = await deleteDistrict(id)
         setSubmitLoading(false)
@@ -180,10 +196,10 @@ const District = () => {
             init()
         }
         setOpenDeleteModal({
-			open: false,
-			id: '',
-			name: ''
-		})
+            open: false,
+            id: '',
+            name: ''
+        })
     }
 
     const tableColumns = [
@@ -215,7 +231,7 @@ const District = () => {
             ),
             sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
         },
-        
+
         {
             title: 'Country Name',
             dataIndex: 'counter_name',
@@ -337,12 +353,12 @@ const District = () => {
         }
     }
 
-    const handleCountryChange =(val, isEdit) =>{
-		setStateList(stateListOgn.filter(ele=>ele.Country_id == val))
-       if(!isEdit){
-        form.setFieldValue('state_id', '')
-       }
-	}
+    const handleCountryChange = (val, isEdit) => {
+        setStateList(stateListOgn.filter(ele => ele.Country_id == val))
+        if (!isEdit) {
+            form.setFieldValue('state_id', '')
+        }
+    }
 
 
     return (
@@ -410,7 +426,7 @@ const District = () => {
                 >
 
                     <Form.Item
-
+                        onKeyDown={handleEnter}
                         label="District Name"
                         name="name"
                         rules={[{ required: true, message: 'District Name field is required!' }]}
@@ -420,7 +436,7 @@ const District = () => {
 
 
                     <Form.Item
-
+                        onKeyDown={handleEnter}
 
                         label="Sort Code"
                         name="short_code"
@@ -430,8 +446,8 @@ const District = () => {
                         <Input />
                     </Form.Item>
 
-                    <Form.Item name="country_id" label="Country" rules={[{ required: true, message: 'Country  field is required' }]} >
-                        <Select className="w-100" placeholder="Select Country" onChange={(val)=>handleCountryChange(val, false)}>
+                    <Form.Item onKeyDown={handleEnter} name="country_id" label="Country" rules={[{ required: true, message: 'Country  field is required' }]} >
+                        <Select className="w-100" placeholder="Select Country" onChange={(val) => handleCountryChange(val, false)}>
                             {
                                 countryList.length > 0 ?
                                     countryList.map((elm) => {
@@ -442,7 +458,7 @@ const District = () => {
                             }
                         </Select>
                     </Form.Item>
-                    <Form.Item name="state_id" label="State" rules={[{ required: true, message: 'State  select is required' }]} >
+                    <Form.Item onKeyDown={handleEnter} name="state_id" label="State" rules={[{ required: true, message: 'State  select is required' }]} >
                         <Select className="w-100" placeholder="Select State">
                             {
                                 stateList.length > 0 ?
@@ -477,37 +493,37 @@ const District = () => {
                 </Form>
             </Modal>
             {/* Delete confirmation popup */}
-			<Modal
-				title={"Delete District"}
-				open={openDeleteModal.open}
-				onCancel={() => setOpenDeleteModal({
-					open: false,
-					id: '',
-					name: ''
-				})}
-				footer={[
-					<Button 
-						type="primary" 
-						loading={submitLoading} 
-						htmlType="submit"
-						onClick={() => deleteRow(openDeleteModal.id)}
-					>
-						Delete
-					</Button>,
-					<Button type="primary" onClick={() => setOpenDeleteModal({
-							open: false,
-							id: '',
-							name: ''
-						})}
-					>
-						Cancel
-					</Button>
-				]}
-			>
-				<div>
-					<h2>{`Are you sure you want to delete ${openDeleteModal.name} District?`}</h2>
-				</div>
-			</Modal>
+            <Modal
+                title={"Delete District"}
+                open={openDeleteModal.open}
+                onCancel={() => setOpenDeleteModal({
+                    open: false,
+                    id: '',
+                    name: ''
+                })}
+                footer={[
+                    <Button
+                        type="primary"
+                        loading={submitLoading}
+                        htmlType="submit"
+                        onClick={() => deleteRow(openDeleteModal.id)}
+                    >
+                        Delete
+                    </Button>,
+                    <Button type="primary" onClick={() => setOpenDeleteModal({
+                        open: false,
+                        id: '',
+                        name: ''
+                    })}
+                    >
+                        Cancel
+                    </Button>
+                ]}
+            >
+                <div>
+                    <h2>{`Are you sure you want to delete ${openDeleteModal.name} District?`}</h2>
+                </div>
+            </Modal>
         </>
     )
 

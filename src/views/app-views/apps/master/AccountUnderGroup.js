@@ -58,8 +58,23 @@ const AccountUnderGroup = () => {
 		form.resetFields();
 	};
 	
-
-	// add gst******
+	function handleEnter(event) {
+        const form = event?.target?.form;
+        console.log(event?.key, form?.elements, 'key===')
+        const index = Array.prototype.indexOf.call(form, event.target);
+        if (event.keyCode === 13) {
+            if ((index + 1) < form.elements.length) {
+                form.elements[index + 1]?.focus();
+            }
+            event.preventDefault();
+        } else if (event.keyCode === 27) {
+            if ((index - 1) > 0) {
+                form.elements[index - 1]?.focus();
+            }
+            event.preventDefault();
+        }
+    }
+	
 	const [form] = Form.useForm()
 	const onFinish = async (values) => {
 		try {
@@ -343,6 +358,7 @@ const AccountUnderGroup = () => {
 				>
 
 					<Form.Item
+					onKeyDown={handleEnter}
 						// style={{width:"35%"}}
 						label="Account Group"
 						name="name"
@@ -352,6 +368,7 @@ const AccountUnderGroup = () => {
 					</Form.Item>
 
 					<Form.Item
+					onKeyDown={handleEnter}
 						// style={{width:"35%"}}
 						label="Detail"
 						name="detail"

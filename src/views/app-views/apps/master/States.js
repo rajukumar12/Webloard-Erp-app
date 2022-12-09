@@ -65,6 +65,23 @@ const State = () => {
 		setSubmitLoading(false)
 	};
 
+	function handleEnter(event) {
+        const form = event?.target?.form;
+        console.log(event?.key, form?.elements, 'key===')
+        const index = Array.prototype.indexOf.call(form, event.target);
+        if (event.keyCode === 13) {
+            if ((index + 1) < form.elements.length) {
+                form.elements[index + 1]?.focus();
+            }
+            event.preventDefault();
+        } else if (event.keyCode === 27) {
+            if ((index - 1) > 0) {
+                form.elements[index - 1]?.focus();
+            }
+            event.preventDefault();
+        }
+    }
+
 	const [form] = Form.useForm()
 	const onFinish = async (values) => {
 		try {
@@ -391,6 +408,7 @@ const State = () => {
 						// style={{width:"35%"}}
 						label="State Name"
 						name="name"
+						onKeyDown={handleEnter}
 						rules={[{ required: true, message: 'State Name field is required!' }]}
 					>
 						<Input />
@@ -399,7 +417,7 @@ const State = () => {
 
 					<Form.Item
 						// style={{width:"35%"}}
-
+						onKeyDown={handleEnter}
 						label="Sort Code"
 						name="short_code"
 						rules={[{ required: true, message: 'Shor code field  is required' }]}
@@ -410,6 +428,7 @@ const State = () => {
 
 					<Form.Item
 						// style={{width:"35%"}}
+						onKeyDown={handleEnter}
 						label="State Code"
 						name="state_code"
 						rules={[{ required: true, message: 'State code field is required' }]}
@@ -417,7 +436,7 @@ const State = () => {
 						<Input />
 					</Form.Item>
 
-					<Form.Item name="country_id" label="Country" rules={[{ required: true, message: 'Country  select is required' }]} >
+					<Form.Item onKeyDown={handleEnter} name="country_id" label="Country" rules={[{ required: true, message: 'Country  select is required' }]} >
 						<Select className="w-100" placeholder="Select Country">
 							{
 								countryList.length > 0 ?

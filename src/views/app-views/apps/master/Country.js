@@ -57,7 +57,23 @@ const Country = () => {
 		form.resetFields();
 	};
 
-	// add gst******
+	function handleEnter(event) {
+        const form = event?.target?.form;
+        console.log(event?.key, form?.elements, 'key===')
+        const index = Array.prototype.indexOf.call(form, event.target);
+        if (event.keyCode === 13) {
+            if ((index + 1) < form.elements.length) {
+                form.elements[index + 1]?.focus();
+            }
+            event.preventDefault();
+        } else if (event.keyCode === 27) {
+            if ((index - 1) > 0) {
+                form.elements[index - 1]?.focus();
+            }
+            event.preventDefault();
+        }
+    }
+
 	const [form] = Form.useForm()
 	const onFinish = async (values) => {
 		try {
@@ -369,9 +385,11 @@ const Country = () => {
 					onFinishFailed={onFinishFailed}
 				>
 					<Form.Item
+					// labelCol={{ span: 24 }}
 						// style={{width:"35%"}}
 						label="Country Name"
 						name="name"
+						onKeyDown={handleEnter}
 						rules={[{ required: true, message: 'Country Name field is required!' }]}
 					>
 						<Input />
@@ -380,6 +398,7 @@ const Country = () => {
 						// style={{width:"35%"}}
 						label="Country Currency Code"
 						name="short_code"
+						onKeyDown={handleEnter}
 						rules={[{ required: true, message: 'Countery code field  is required' }]}
 					>
 						<Input />
@@ -387,6 +406,7 @@ const Country = () => {
 					<Form.Item
 						// style={{width:"35%"}}
 						label="Country Code"
+						onKeyDown={handleEnter}
 						name="mobile_no_ext"
 						rules={[{ required: true, message: 'Mobile no field is required' }]}
 					>
@@ -396,6 +416,7 @@ const Country = () => {
 						// style={{width:"35%"}}
 						label="Currency"
 						name="currency"
+						onKeyDown={handleEnter}
 						rules={[{ required: true, message: 'Currency  field is required' }]}
 					>
 						<Input />

@@ -1,14 +1,12 @@
 import React, { useState } from 'react'
-import { Card, Table, Select, Input, Button, Badge, Menu, Modal, Form, message } from 'antd';
+import { Card, Table, Select, Input, Button, Badge, Menu, Modal, Form, message, } from 'antd';
 import ProductListData from "assets/data/product-list.data.json"
 import { EditOutlined, DeleteOutlined, SearchOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import EllipsisDropdown from 'components/shared-components/EllipsisDropdown';
 import Flex from 'components/shared-components/Flex'
 import utils from 'utils'
-
-// import { Form, Input, Checkbox } from 'antd';
 import { useEffect } from 'react';
-import { createUnitType, deleteUnitTypet, getUnitType, updateUnitType } from 'utils/api/typeOfUnit';
+import { getCountry, updateCountry, createCountry, deleteCountry } from 'utils/api/country';
 
 const layout = {
     labelCol: { span: 8 },
@@ -18,24 +16,21 @@ const tailLayout = {
     wrapperCol: { offset: 8, span: 16 },
 };
 
-
-const UnitOfType = () => {
-
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [submitLoading, setSubmitLoading] = useState(false)
-    const [isEdit, setIsEdit] = useState(false)
-    const [selectedId, setSelectedId] = useState("")
+const VoucherTypeCreation = () => {
     const [list, setList] = useState(ProductListData)
     const [selectedRows, setSelectedRows] = useState([])
     const [selectedRowKeys, setSelectedRowKeys] = useState([])
-    const [unitTypeList, setUnitTypeList] = useState([]);
+    const [voucherCereationList, setVoucherCreation] = useState([])
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isEdit, setIsEdit] = useState(false)
+    const [selectedId, setSelectedId] = useState("")
+    const [submitLoading, setSubmitLoading] = useState(false);
     const [initialLoading, setInitialLoading] = useState(false)
     const [openDeleteModal, setOpenDeleteModal] = useState({
         open: false,
         id: '',
         name: ''
     })
-
     const showModal = () => {
         setIsModalOpen(true);
     };
@@ -45,7 +40,9 @@ const UnitOfType = () => {
         setSelectedId(row.id)
         form.setFieldsValue({
             name: row.name,
-            detail: row.detail
+            short_code: row.short_code,
+            mobile_no_ext: row.mobile_no_ext,
+            currency: row.currency
         })
     };
     const handleOk = () => {
@@ -74,27 +71,28 @@ const UnitOfType = () => {
             event.preventDefault();
         }
     }
+
     const [form] = Form.useForm()
     const onFinish = async (values) => {
         try {
             let response
-            const { name, detail } = values;
+            const { name, short_code, mobile_no_ext, currency } = values
+
             setSubmitLoading(true)
             if (isEdit && selectedId) {
-                response = await updateUnitType(selectedId, name, detail);
+                response = await updateCountry(selectedId, name, short_code, mobile_no_ext, currency)
             } else {
-                response = await createUnitType(name, detail);
+                response = await createCountry(name, short_code, mobile_no_ext, currency);
             }
-
-            if (response.success === true) {
+            if (response?.success === true) {
                 message.success(response.message)
             }
-            else if(response.success=== false){
-                Object.keys(response.data).map(item=>{
+            else if (response?.success === false) {
+                Object.keys(response.data).map(item => {
                     message.warning(response.data[item][0])
                 })
-                setSubmitLoading(false);
-                return;
+                setSubmitLoading(false)
+                return
             }
             setSubmitLoading(false)
             init()
@@ -103,30 +101,32 @@ const UnitOfType = () => {
             setSelectedId("")
             form.resetFields();
 
-        } catch (error) {
-           message.error(message)
-        }
-    };
-    const onFinishFailed = errorInfo => {
-        // console.log('Failed:', errorInfo);
-    };
 
+        } catch (error) {
+            setSubmitLoading(false)
+
+        }
+
+    }
+
+    const onFinishFailed = errorInfo => {
+    };
 
     async function init() {
-       try {
-        setInitialLoading(true)
-        const response = await getUnitType();
-        if (response.data?.length) {
-            setUnitTypeList(response.data)
-            setIsModalOpen(false);
-            // message.success(response.message)
-        } else {
-            setUnitTypeList([])
+        try {
+            setInitialLoading(true)
+            const response = await getCountry();
+            if (response.data?.length) {
+                setVoucherCreation(response.data)
+                setIsModalOpen(false);
+                // message.success(response.message)
+            } else {
+                setVoucherCreation([])
+            }
+            setInitialLoading(false)
+        } catch (error) {
+            message.error(message)
         }
-        setInitialLoading(false)
-       } catch (error) {
-        message.error(message)
-       }
     }
 
     useEffect(() => {
@@ -134,7 +134,6 @@ const UnitOfType = () => {
     }, [])
 
     const dropdownMenu = row => (
-
         <Menu>
             <Menu.Item onClick={() => showEditModal(row)}>
                 <Flex alignItems="center">
@@ -151,14 +150,12 @@ const UnitOfType = () => {
         </Menu>
     );
 
-    // delete gst***********
     const deleteRow = async (id) => {
         if (!id) return;
         setSubmitLoading(true)
-        const response = await deleteUnitTypet(id)
+        const response = await deleteCountry(id)
         setSubmitLoading(false)
-        init()
-        if (response?.success === true) {
+        if (response.success === true) {
             message.success(response.message)
             init()
         }
@@ -175,7 +172,7 @@ const UnitOfType = () => {
             dataIndex: 'id'
         },
         {
-            title: 'Type Of Unit',
+            title: 'Country Name',
             dataIndex: 'name',
             render: (_, record) => (
                 <div className="d-flex">
@@ -187,17 +184,43 @@ const UnitOfType = () => {
             sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
         },
         {
-            title: 'Details',
-            dataIndex: 'detail',
+            title: 'Country Currency Code',
+            dataIndex: 'short_code',
             render: (_, record) => (
                 <div className="d-flex">
                     {/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
                     {/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
-                    {record.detail}
+                    {record.short_code}
                 </div>
             ),
             sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
         },
+
+        {
+            title: 'Country code',
+            dataIndex: 'mobile_no_ext',
+            render: (_, record) => (
+                <div className="d-flex">
+                    {/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
+                    {/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
+                    {record.mobile_no_ext}
+                </div>
+            ),
+            sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
+        },
+        {
+            title: 'Currency',
+            dataIndex: 'currency',
+            render: (_, record) => (
+                <div className="d-flex">
+                    {/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
+                    {/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
+                    {record.currency}
+                </div>
+            ),
+            sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
+        },
+
 
         {
             title: 'Created Date',
@@ -223,7 +246,6 @@ const UnitOfType = () => {
             ),
             sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
         },
-
         {
             title: 'Action',
             dataIndex: 'actions',
@@ -286,38 +308,31 @@ const UnitOfType = () => {
 						</div> */}
                     </Flex>
                     <div>
-                        <Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Add Unit Type</Button>
+                        <Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Voucher Creation</Button>
                     </div>
                 </Flex>
                 <div className="table-responsive">
                     <Table
                         columns={tableColumns}
-                        dataSource={unitTypeList}
+                        dataSource={voucherCereationList}
                         rowKey='id'
                         rowSelection={{
                             selectedRowKeys: selectedRowKeys,
                             type: 'checkbox',
                             preserveSelectedRowKeys: false,
                             ...rowSelection,
-
                         }}
                         loading={initialLoading}
                     />
                 </div>
             </Card>
 
+
             <Modal
-                title={isEdit ? "Edit Unit Type" : "Add Unit Type"} open={isModalOpen} onCancel={handleCancel} footer={[
-                    // <Button type="primary" htmlType="submit"  onClick={onFinish}>
-                    // 	Submit
-                    // </Button>,
-                    // <Button type="primary" onClick={handleCancel}	>
-                    // 			Cancel
-                    // 		</Button>
-                ]}>
+                title={isEdit ? "Edit voucher creation" : "Add voucher cretion"} open={isModalOpen} onCancel={handleCancel} footer={[]}>
                 <Form
                     form={form}
-                    style={{ width: '85%' }}
+                    // style={{ width: '95%' }}
                     // style={{boxShadow: '2px 5px 15px -10px rgb(0,0,0,0.5)',  padding:'10px', width:'50%'}}
                     {...layout}
                     name="basic"
@@ -325,39 +340,109 @@ const UnitOfType = () => {
                     onFinish={onFinish}
                     onFinishFailed={onFinishFailed}
                 >
-
                     <Form.Item
-                    onKeyDown={handleEnter}
                         // style={{width:"35%"}}
-                        label="Unit Type"
+                        label="Name"
                         name="name"
+                        onKeyDown={handleEnter}
                         rules={[{ required: true, message: ' Name field is required!' }]}
                     >
-                        <Input />
+                        <Input placeholder='Name' />
+                    </Form.Item>
+                    <Form.Item
+                        // style={{width:"35%"}}
+                        onKeyDown={handleEnter}
+                        label="Abbreviation"
+                        name="short_code"
+                        rules={[{ required: true, message: ' Abbreviation field  is required' }]}
+                    >
+                        <Input placeholder='Abbreviation' />
+                    </Form.Item>
+                    <Form.Item
+                        // style={{width:"35%"}}
+                        label="Activate this voucher numbering"
+                        onKeyDown={handleEnter}
+                        name="mobile_no_ext"
+                        rules={[{ required: true, message: ' Activate this voucher numbering field is required' }]}
+                    >
+                        <Input placeholder='Activate this voucher numbering' />
+                    </Form.Item>
+                    <Form.Item
+                        // style={{width:"35%"}}
+                        label="Method of voucher numbering"
+                        name="currency"
+                        onKeyDown={handleEnter}
+                        rules={[{ required: true, message: 'Method of voucher numbering  field is required' }]}
+                    >
+                        <Input placeholder='Method of voucher numbering' />
+                    </Form.Item>
+                    <Form.Item
+                        // style={{width:"35%"}}
+                        label="Use effective dates for voucher"
+                        name="currency"
+                        onKeyDown={handleEnter}
+                        rules={[{ required: true, message: 'Use effective dates for voucher  field is required' }]}
+                    >
+                        <Input placeholder='Use effective dates for voucher' />
+                    </Form.Item>
+                    <Form.Item
+                        // style={{width:"35%"}}
+                        label="Allow zero-value transation"
+                        name="currency"
+                        onKeyDown={handleEnter}
+                        rules={[{ required: true, message: 'Allow zero-value transation  field is required' }]}
+                    >
+                        <Input placeholder='Allow zero-value transation' />
+                    </Form.Item>
+                    <Form.Item
+                        // style={{width:"35%"}}
+                        label="Make this voucher type as Optional by default"
+                        name="currency"
+                        onKeyDown={handleEnter}
+                        rules={[{ required: true, message: 'Make this voucher type as Optional by default  field is required' }]}
+                    >
+                        <Input placeholder='Make this voucher type as Optional by default' />
+                    </Form.Item>
+                    <Form.Item
+                        // style={{width:"35%"}}
+                        label="Allaw narration in vaucher"
+                        name="currency"
+                        onKeyDown={handleEnter}
+                        rules={[{ required: true, message: 'Allaw narration in vaucher  field is required' }]}
+                    >
+                        <Input placeholder='Allaw narration in vaucher' />
+                    </Form.Item>
+                    <Form.Item
+                        // style={{width:"35%"}}
+                        label="Print voucher after saving"
+                        name="currency"
+                        onKeyDown={handleEnter}
+                        rules={[{ required: true, message: 'Print voucher after saving  field is required' }]}
+                    >
+                        <Input placeholder='Print voucher after saving' />
+                    </Form.Item>
+                    <Form.Item
+                        // style={{width:"35%"}}
+                        label="Provide narrations for each ledger in voucher"
+                        name="currency"
+                        onKeyDown={handleEnter}
+                        rules={[{ required: true, message: 'Provide narrations for each ledger in voucher  field is required' }]}
+                    >
+                        <Input placeholder='Provide narrations for each ledger in voucher' />
                     </Form.Item>
 
-                    <Form.Item
-                    onKeyDown={handleEnter}
-                        label="Detail"
-                        name="detail"
-                        rules={[{ required: true, message: 'Unit Type field is required' }]}
-                    >
-                        <Input />
+                    <Form.Item onKeyDown={handleEnter} name="country_id" label="Country" rules={[{ required: true, message: 'Country  field is required' }]} >
+                        <Select className="w-100" placeholder="select type of voucher">
+                            {/* <Option value="All">All</Option> */}
+                        </Select>
                     </Form.Item>
-                    <Form.Item
-                        {...tailLayout}
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'center'
-                        }}
-                    >
-                        <div
-                            style={{
-                                width: 'fit-content',
-                                display: "flex",
-                                justifyContent: "center"
-                            }}
-                        >
+
+
+                    <Form.Item {...tailLayout}  >
+                        <div style={{
+                            width: '82%',
+                            marginLeft: "50px"
+                        }}>
                             <Button type="primary" htmlType="submit" loading={submitLoading}>
                                 {isEdit ? "Save" : "Submit"}
                             </Button>
@@ -366,11 +451,12 @@ const UnitOfType = () => {
                             </Button>
                         </div>
                     </Form.Item>
+
                 </Form>
             </Modal>
             {/* Delete confirmation popup */}
             <Modal
-                title={"Delete Unit Type"}
+                title={"Delete voucher creation"}
                 open={openDeleteModal.open}
                 onCancel={() => setOpenDeleteModal({
                     open: false,
@@ -397,11 +483,11 @@ const UnitOfType = () => {
                 ]}
             >
                 <div>
-                    <h2>{`Are you sure you want to delete ${openDeleteModal.name}  Type of Unit?`}</h2>
+                    <h2>{`Are you sure you want to delete ${openDeleteModal.name} voucher creation?`}</h2>
                 </div>
             </Modal>
         </>
     )
 }
 
-export default UnitOfType
+export default VoucherTypeCreation

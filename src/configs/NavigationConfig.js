@@ -10,6 +10,7 @@ import {
   AntDesignOutlined,
   SafetyOutlined,
   StopOutlined,
+  ShopOutlined,
   DotChartOutlined,
   MailOutlined,
   MessageOutlined,
@@ -30,7 +31,6 @@ import {
   ProfileOutlined
 } from '@ant-design/icons';
 import { APP_PREFIX_PATH, AUTH_PREFIX_PATH } from 'configs/AppConfig'
-
 const extraNavTree = [
   {
     key: 'extra',
@@ -308,7 +308,8 @@ const appsNavTree = [{
         }
       ]
     }
-    ,{
+    ,
+    {
       key: 'apps-master',
       path: `${APP_PREFIX_PATH}/apps/master`,
       title: 'sidenav.apps.master',
@@ -371,6 +372,7 @@ const appsNavTree = [{
           breadcrumb: false,
           submenu: []
         },
+       
         {
           key: 'apps-master-accountUnderGroup',
           path: `${APP_PREFIX_PATH}/apps/master/accountUnderGroup`,
@@ -395,11 +397,78 @@ const appsNavTree = [{
           breadcrumb: false,
           submenu: []
         },
+        {
+          key: 'apps-master-unit_of_measure',
+          path: `${APP_PREFIX_PATH}/apps/master/unit_of_measure`,
+          title: 'sidenav.apps.master.unit_of_measure',
+          icon: '',
+          breadcrumb: false,
+          submenu: []
+        },
+        {
+          key: 'apps-master-uniqur_quantity_code',
+          path: `${APP_PREFIX_PATH}/apps/master/uniqur_quantity_code`,
+          title: 'sidenav.apps.master.uniqur_quantity_code',
+          icon: '',
+          breadcrumb: false,
+          submenu: []
+        },
+        {
+          key: 'apps-master-group_creation',
+          path: `${APP_PREFIX_PATH}/apps/master/group_creation`,
+          title: 'sidenav.apps.master.group_creation',
+          icon: '',
+          breadcrumb: false,
+          submenu: []
+        },
+        {
+          key: 'apps-master-voucher_Type_Creation',
+          path: `${APP_PREFIX_PATH}/apps/master/voucher_Type_Creation`,
+          title: 'sidenav.apps.master.voucher_Type_Creation',
+          icon: '',
+          breadcrumb: false,
+          submenu: []
+        },
         
+        {
+          key: 'apps-master-type_of_Voucher',
+          path: `${APP_PREFIX_PATH}/apps/master/type_of_Voucher`,
+          title: 'sidenav.apps.master.type_of_Voucher',
+          icon: '',
+          breadcrumb: false,
+          submenu: []
+        },
  
       ]
-    }
+    },
 
+    {
+      key: 'apps-company',
+      path: `${APP_PREFIX_PATH}/apps/company`,
+      title: 'sidenav.apps.company',
+      icon: ShopOutlined ,
+      breadcrumb: true,
+      submenu: [
+        {
+          key: 'apps-company-create_comapny',
+          path: `${APP_PREFIX_PATH}/apps/company/create_comapny`,
+          title: 'sidenav.apps.company.create_comapny',
+          icon: '',
+          breadcrumb: true,
+          submenu: []
+        },
+        {
+          key: 'apps-company-view_comapny',
+          path: `${APP_PREFIX_PATH}/apps/company/view_comapny`,
+          title: 'sidenav.apps.company.view_comapny',
+          icon: '',
+          breadcrumb: true,
+          submenu: []
+        },
+        
+        
+      ]
+    }
   ]
 }]
 

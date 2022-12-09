@@ -95,11 +95,32 @@ export const protectedRoutes = [
         path: `${APP_PREFIX_PATH}/apps/project/scrumboard`,
         component: React.lazy(() => import('views/app-views/apps/project/scrumboard')),
     },
+
+    {
+        key: 'apps.company',
+        path: `${APP_PREFIX_PATH}/apps/company`,
+        component: React.lazy(() => import('views/app-views/apps/company/CreateCompany')),
+    },
+   
+    {
+        
+        key: 'apps.company.view_comapny',
+        path: `${APP_PREFIX_PATH}/apps/company/view_comapny`,
+        component: React.lazy(() => import('views/app-views/apps/company/ViewCompany')),
+    },
+    {
+        
+        key: 'apps.company.create_comapny',
+        path: `${APP_PREFIX_PATH}/apps/company/create_comapny`,
+        component: React.lazy(() => import('views/app-views/apps/company/CreateCompany')),
+    },
+
     {
         key: 'apps.master',
         path: `${APP_PREFIX_PATH}/apps/master`,
         component: React.lazy(() => import('views/app-views/apps/master/Gst')),
     },
+
     {
         key: 'apps.master.gst',
         path: `${APP_PREFIX_PATH}/apps/master/gst`,
@@ -126,7 +147,7 @@ export const protectedRoutes = [
         path: `${APP_PREFIX_PATH}/apps/master/district`,
         component: React.lazy(() => import('views/app-views/apps/master/District')),
     },
-    
+
     {
         key: 'apps.master.city',
         path: `${APP_PREFIX_PATH}/apps/master/city`,
@@ -152,8 +173,32 @@ export const protectedRoutes = [
         path: `${APP_PREFIX_PATH}/apps/master/typeOfUnit`,
         component: React.lazy(() => import('views/app-views/apps/master/TypeOfUnit')),
     },
-    
-    
+    {
+        key: 'apps.master.unit_of_measure',
+        path: `${APP_PREFIX_PATH}/apps/master/unit_of_measure`,
+        component: React.lazy(() => import('views/app-views/apps/master/UnitOfMeasure')),
+    },
+    {
+        key: 'apps.master.uniqur_quantity_code',
+        path: `${APP_PREFIX_PATH}/apps/master/uniqur_quantity_code`,
+        component: React.lazy(() => import('views/app-views/apps/master/UniqueQuantityCode')),
+    },
+   
+    {
+        key: 'apps.master.group_creation',
+        path: `${APP_PREFIX_PATH}/apps/master/group_creation`,
+        component: React.lazy(() => import('views/app-views/apps/master/GroupCreation')),
+    },
+    {
+        key: 'apps.master.voucher_Type_Creation',
+        path: `${APP_PREFIX_PATH}/apps/master/voucher_Type_Creation`,
+        component: React.lazy(() => import('views/app-views/apps/master/VoucherTypeCreation')),
+    },
+    {
+        key: 'apps.master.type_of_Voucher',
+        path: `${APP_PREFIX_PATH}/apps/master/type_of_Voucher`,
+        component: React.lazy(() => import('views/app-views/apps/master/TypeOfVoucher')),
+    },
     {
         key: 'apps.ecommerce',
         path: `${APP_PREFIX_PATH}/apps/ecommerce`,
