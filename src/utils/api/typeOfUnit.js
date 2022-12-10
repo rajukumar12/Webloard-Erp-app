@@ -1,6 +1,6 @@
 import { del, get, post, put,} from "utils/HttpUtil"
 // UnitType 
-// Get gst
+// Get  type of unit
 export const getUnitType = async () => {
     try {
         const url = `${process.env.REACT_APP_BASEURL}/type_of_unit`;
@@ -12,7 +12,7 @@ export const getUnitType = async () => {
         console.log("Error with getUnitType: ", error);
     }
 }
-// Create gst
+// Create  type of unit
 export const createUnitType = async (name, detail) => {
     try {
         const url = `${process.env.REACT_APP_BASEURL}/type_of_unit`;
@@ -27,7 +27,7 @@ export const createUnitType = async (name, detail) => {
         console.log("Error with createUnitType: ", error);
     }
 }
-// update gst
+// update  type of unit
 export const updateUnitType = async (id, name, detail) => {
     try {
         const url = `${process.env.REACT_APP_BASEURL}/type_of_unit/${id}?name=${name}&detail=${detail}`;
@@ -43,7 +43,7 @@ export const updateUnitType = async (id, name, detail) => {
     }
 }
 
-// delete gst
+// delete  type of unit
 export const deleteUnitTypet = async (id) => {
     try {
         const url = `${process.env.REACT_APP_BASEURL}/type_of_unit/${id}`;

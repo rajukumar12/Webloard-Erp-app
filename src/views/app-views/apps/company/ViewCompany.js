@@ -34,7 +34,6 @@ const CreateCompany = () => {
     }
 
     function handleEnter(event) {
-        console.log(event.key, event.keyCode, 'key===')
         const form = event.target.form;
         const index = Array.prototype.indexOf.call(form, event.target);
         if (event.keyCode === 13) {

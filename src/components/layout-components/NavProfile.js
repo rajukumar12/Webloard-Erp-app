@@ -26,6 +26,7 @@ const MenuItemSignOut = (props) => (
 )
 
 export const NavProfile = () => {
+	const data = JSON.parse(localStorage.getItem("auth_data") ?? "")
 
 	const dispatch = useDispatch();
 
@@ -75,7 +76,7 @@ export const NavProfile = () => {
 				<div className="d-flex align-items-center">
 					<Avatar src="/img/avatars/thumb-1.jpg" />
 					<div className="pl-2 d-none d-sm-block profile-text">
-						<div className="font-size-base font-weight-bold">Charlie Howard</div>
+						<div className="font-size-base font-weight-bold">{data ? data?.name : "Name"}</div>
 						<span className="opacity-0-8">Frontend Developer</span>
 					</div>
 				</div>

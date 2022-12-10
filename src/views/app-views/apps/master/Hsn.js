@@ -34,7 +34,8 @@ const Hns = () => {
 		name: ''
 	})
 
-	const myref=useRef( null)
+	const addButtonRef=useRef( null)
+	const formInputRef = useRef(null)
 	const showModal = () => {
 		setIsModalOpen(true);
 	};
@@ -43,8 +44,8 @@ const Hns = () => {
 		setIsEdit(true);
 		setSelectedId(row.id)
 		form.setFieldsValue({
-			name: row.name,
-			code: row.code,
+			name:row.name,
+			code:row.code,
 			detail: row.detail
 		})
 	};
@@ -53,12 +54,20 @@ const Hns = () => {
 		setIsEdit(false);
 		setSelectedId("")
 		form.resetFields();
-		myref.current.focus()
 	};
+
+	useEffect(() => {
+		if(!isModalOpen) {
+			addButtonRef?.current?.focus()
+		} else {
+			console.log(formInputRef.current,'ref===')
+			formInputRef?.current?.focus()
+		}
+	},[isModalOpen])
 
 	function handleEnter(event) {
 		const form = event?.target?.form;
-        console.log(event?.key, form?.elements, 'key===')
+        
         const index = Array.prototype.indexOf.call(form, event.target);
         if (event.keyCode === 13) {
             if ((index + 1) < form.elements.length) {
@@ -73,7 +82,6 @@ const Hns = () => {
         }
     }
 
-	// add gst******
 	const [form] = Form.useForm()
 	const onFinish = async (values) => {
 		try {
@@ -330,7 +338,7 @@ const Hns = () => {
 						</div> */}
 					</Flex>
 					<div>
-						<Button onClick={showModal} ref={myref} autoFocus type="primary" icon={<PlusCircleOutlined />} block>Add Hsn</Button>
+						<Button onClick={showModal} ref={addButtonRef} autoFocus type="primary" icon={<PlusCircleOutlined />} block>Add Hsn</Button>
 					</div>
 				</Flex>
 				<div className="table-responsive">
@@ -348,8 +356,6 @@ const Hns = () => {
 					/>
 				</div>
 			</Card>
-
-			{/* add gst************************************************************************ */}
 
 			<Modal
 				title={isEdit ? "Edit Hsn" : "Add Hsn"} open={isModalOpen} onCancel={handleCancel} footer={[
@@ -374,11 +380,10 @@ const Hns = () => {
 						// style={{width:"35%"}}
 						label="Name"
 						name="name"
-						
 						onKeyDown={handleEnter}
 						rules={[{ required: true, message: ' Name field is required!' }]}
 					>
-						<Input autoFocus/>
+						<Input autoFocus ref={formInputRef} />
 					</Form.Item>
 					<Form.Item
 						// style={{width:"35%"}}

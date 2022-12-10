@@ -25,15 +25,15 @@ const tailLayout = {
 const { Option } = Select
 
 const State = () => {
-	const [list, setList] = useState(ProductListData)
-	const [selectedRows, setSelectedRows] = useState([])
-	const [selectedRowKeys, setSelectedRowKeys] = useState([])
+	const [list, setList] = useState(ProductListData);
+	const [selectedRows, setSelectedRows] = useState([]);
+	const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 	const [hsnList, setHsnList] = useState([])
-	const [countryList, setCountryList] = useState([])
+	const [countryList, setCountryList] = useState([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isEdit, setIsEdit] = useState(false)
-	const [selectedId, setSelectedId] = useState("")
-	const [initialLoading, setInitialLoading]=useState(false)
+	const [selectedId, setSelectedId] = useState("");
+	const [initialLoading, setInitialLoading]=useState(false);
 	const [submitLoading, setSubmitLoading] = useState(false);
 	const [openDeleteModal, setOpenDeleteModal] = useState({
 		open: false,
@@ -67,7 +67,7 @@ const State = () => {
 
 	function handleEnter(event) {
         const form = event?.target?.form;
-        console.log(event?.key, form?.elements, 'key===')
+        
         const index = Array.prototype.indexOf.call(form, event.target);
         if (event.keyCode === 13) {
             if ((index + 1) < form.elements.length) {

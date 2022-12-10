@@ -1,6 +1,6 @@
 import { del, get, post, put,} from "utils/HttpUtil"
 // UniqueOuqantityCode 
-// Get gst
+// Get UniqueOuqantityCode
 export const getUniqueOuqantityCode = async () => {
     try {
         const url = `${process.env.REACT_APP_BASEURL}/uqc`;
@@ -12,7 +12,7 @@ export const getUniqueOuqantityCode = async () => {
         console.log("Error with getUniqueOuqantityCode: ", error);
     }
 }
-// Create gst
+// Create UniqueOuqantityCode
 export const createUniqueOuqantityCode = async (name, detail) => {
     try {
         const url = `${process.env.REACT_APP_BASEURL}/uqc`;
@@ -27,7 +27,7 @@ export const createUniqueOuqantityCode = async (name, detail) => {
         console.log("Error with createUniqueOuqantityCode: ", error);
     }
 }
-// update gst
+// update UniqueOuqantityCode
 export const updateUniqueOuqantityCode = async (id, name, detail) => {
     try {
         const url = `${process.env.REACT_APP_BASEURL}/uqc/${id}?name=${name}&detail=${detail}`;
@@ -44,7 +44,7 @@ export const updateUniqueOuqantityCode = async (id, name, detail) => {
     }
 }
 
-// delete gst
+// delete UniqueOuqantityCode
 export const deleteUniqueOuqantityCode = async (id) => {
     try {
         const url = `${process.env.REACT_APP_BASEURL}/uqc/${id}`;

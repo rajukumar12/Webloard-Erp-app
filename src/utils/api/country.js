@@ -9,7 +9,7 @@ export const getCountry= async () => {
             return json
         }
     } catch (error) {
-        console.log("Error with getGST: ", error);
+        console.log("Error with get country: ", error);
     }
 }
 // Create country
@@ -26,7 +26,7 @@ export const createCountry = async (name, short_code,mobile_no_ext,currency) => 
             return json
         }
     } catch (error) {
-        console.log("Error with createGST: ", error);
+        console.log("Error with create country: ", error);
     }
 }
 
@@ -45,7 +45,7 @@ export const updateCountry = async (id, name, short_code,mobile_no_ext,currency)
             return json
         }
     } catch (error) {
-        console.log("Error with updateGST: ", error);
+        console.log("Error with update country: ", error);
     }
 }
 
@@ -62,6 +62,6 @@ export const deleteCountry = async (id) => {
             return json
         }
     } catch (error) {
-        console.log("Error with deleteGst: ", error);
+        console.log("Error with delete country: ", error);
     }
 }

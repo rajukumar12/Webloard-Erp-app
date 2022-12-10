@@ -9,7 +9,7 @@ export const getHsn = async () => {
             return json
         }
     } catch (error) {
-        console.log("Error with getGST: ", error);
+        console.log("Error with get hsn: ", error);
     }
 }
 // Create hsn
@@ -25,7 +25,7 @@ export const createHsn = async (name, detail,code) => {
             return json
         }
     } catch (error) {
-        console.log("Error with createGST: ", error);
+        console.log("Error with create hsn: ", error);
     }
 }
 
@@ -43,7 +43,7 @@ export const updateHsn = async (id, name, detail,code) => {
             return json
         }
     } catch (error) {
-        console.log("Error with updateGST: ", error);
+        console.log("Error with update hsn: ", error);
     }
 }
 
@@ -60,6 +60,6 @@ export const deleteHsn = async (id) => {
             return json
         }
     } catch (error) {
-        console.log("Error with deleteGst: ", error);
+        console.log("Error with delete hsn: ", error);
     }
 }

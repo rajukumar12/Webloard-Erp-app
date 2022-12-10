@@ -63,7 +63,7 @@ const Gst = () => {
 
 	function handleEnter(event) {
 		const form = event?.target?.form;
-        console.log(event?.key, form?.elements, 'key===')
+        
         const index = Array.prototype.indexOf.call(form, event.target);
         if (event.keyCode === 13) {
             if ((index + 1) < form.elements.length) {

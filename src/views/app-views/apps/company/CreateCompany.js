@@ -20,10 +20,8 @@ const CreateCompany = () => {
   function handleEnter(event) {
 
     if (event.keyCode === 13) {
-      console.log(event.target.form.elements, 'key====')
       const form = event.target.form;
       const index = Array.prototype.indexOf.call(form, event.target);
-      console.log(index, form.elements.length, 'index===')
       if ((index + 2) < form.elements.length) {
         form.elements[index + 2]?.focus();
       } else {

@@ -42,7 +42,7 @@ export const signIn = createAsyncThunk('auth/signIn',async (data, { rejectWithVa
 		if (response.data) {
 			const token = response.data.data.token; 
 			localStorage.setItem(AUTH_TOKEN, response.data.data.token);
-			localStorage.setItem(AUTH_DATA, JSON.stringify({name: response.data.data?.name}));
+			const data=localStorage.setItem(AUTH_DATA, response.data.data?.name);
 			return response.data.data;
 		} else {
 			return rejectWithValue(response.data.message);

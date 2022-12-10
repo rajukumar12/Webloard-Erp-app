@@ -1,6 +1,6 @@
 import { del, get, post, put,} from "utils/HttpUtil"
 // UnitMeasure 
-// Get gst
+// Get UnitMeasure
 export const getUnitMeasure = async () => {
     try {
         const url = `${process.env.REACT_APP_BASEURL}/uom`;
@@ -12,7 +12,7 @@ export const getUnitMeasure = async () => {
         console.log("Error with getUnitMeasure: ", error);
     }
 }
-// Create gst
+// Create UnitMeasure
 export const createUnitMeasure = async (type_of_unit_id, symbol, formal_name,No_of_decimal_places, u_q_c_id) => {
     try {
         const url = `${process.env.REACT_APP_BASEURL}/uom`;
@@ -30,7 +30,7 @@ export const createUnitMeasure = async (type_of_unit_id, symbol, formal_name,No_
         console.log("Error with createUnitMeasure: ", error);
     }
 }
-// update gst
+// update UnitMeasure
 export const updateUnitMeasure = async (id, type_of_unit_id, symbol, formal_name,No_of_decimal_places, u_q_c_id) => {
     try {
         const url = `${process.env.REACT_APP_BASEURL}/uom/${id}`;
@@ -51,7 +51,7 @@ export const updateUnitMeasure = async (id, type_of_unit_id, symbol, formal_name
     }
 }
 
-// delete gst
+// delete UnitMeasure
 export const deleteUnitMeasure = async (id) => {
     try {
         const url = `${process.env.REACT_APP_BASEURL}/uom/${id}`;

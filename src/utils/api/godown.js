@@ -10,7 +10,7 @@ export const getGodown = async () => {
             return json
         }
     } catch (error) {
-        console.log("Error with getGST: ", error);
+        console.log("Error with get godown: ", error);
     }
 }
 // Create Godow
@@ -30,7 +30,7 @@ export const createGodow = async (name, city_id, district_id, state_id, country_
             return json
         }
     } catch (error) {
-        console.log("Error with createGST: ", error);
+        console.log("Error with create godown: ", error);
     }
 }
 
@@ -53,7 +53,7 @@ export const updateGodow = async (id, name, city_id, district_id, state_id, coun
             return json
         }
     } catch (error) {
-        console.log("Error with updateGST: ", error);
+        console.log("Error with update godown: ", error);
     }
 }
 
@@ -70,6 +70,6 @@ export const deleteGodow = async (id) => {
             return json
         }
     } catch (error) {
-        console.log("Error with deleteGst: ", error);
+        console.log("Error with delete godown: ", error);
     }
 }

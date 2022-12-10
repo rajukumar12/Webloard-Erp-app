@@ -59,7 +59,7 @@ const Country = () => {
 
 	function handleEnter(event) {
         const form = event?.target?.form;
-        console.log(event?.key, form?.elements, 'key===')
+        
         const index = Array.prototype.indexOf.call(form, event.target);
         if (event.keyCode === 13) {
             if ((index + 1) < form.elements.length) {
@@ -152,7 +152,7 @@ const Country = () => {
 		</Menu>
 	);
 
-	// delete gst***********
+	
 	const deleteRow = async (id) => {
 		if (!id) return;
 		setSubmitLoading(true)
@@ -364,7 +364,7 @@ const Country = () => {
 				</div>
 			</Card>
 
-			{/* add gst************************************************************************ */}
+			
 			<Modal
 				title={isEdit ? "Edit Country" : "Add Country"} open={isModalOpen} onCancel={handleCancel} footer={[
 					// <Button type="primary" htmlType="submit"  onClick={onFinish}>

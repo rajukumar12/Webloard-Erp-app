@@ -10,7 +10,7 @@ export const getState= async () => {
             return json
         }
     } catch (error) {
-        console.log("Error with getGST: ", error);
+        console.log("Error with get state: ", error);
     }
 }
 // Create State
@@ -27,7 +27,7 @@ export const createState= async (name, short_code, state_code, country_id) => {
             return json
         }
     } catch (error) {
-        console.log("Error with createGST: ", error);
+        console.log("Error with create state: ", error);
     }
 }
 
@@ -46,7 +46,7 @@ export const updateState= async (id, name, short_code, state_code, country_id) =
             return json
         }
     } catch (error) {
-        console.log("Error with updateGST: ", error);
+        console.log("Error with update state: ", error);
     }
 }
 
@@ -63,6 +63,6 @@ export const deleteState= async (id) => {
             return json
         }
     } catch (error) {
-        console.log("Error with deleteGst: ", error);
+        console.log("Error with delete state: ", error);
     }
 }

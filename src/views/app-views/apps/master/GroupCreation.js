@@ -1,12 +1,15 @@
 import React, { useState, useRef } from 'react'
 import { Card, Table, Select, Input, Button, Badge, Menu, Modal, Form, message } from 'antd';
+import { Option } from 'antd/lib/mentions';
 import ProductListData from "assets/data/product-list.data.json"
 import { EditOutlined, DeleteOutlined, SearchOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import EllipsisDropdown from 'components/shared-components/EllipsisDropdown';
 import Flex from 'components/shared-components/Flex'
 import utils from 'utils'
 import { useEffect } from 'react';
-import { createGST, getGST, deleteGst, updateGST } from 'utils/api/gst'; 
+import { getAccountUnderGroup } from 'utils/api/accountUnderGroup';
+import { getGroupCreation, updateGroupCreation, createGroupCreation, deleteGroupCreation, getMethodAllocate } from 'utils/api/groupCreation';
+
 
 const layout = {
 	labelCol: { span: 8 },
@@ -26,6 +29,8 @@ const GroupCreation = () => {
 	const [list, setList] = useState(ProductListData)
 	const [selectedRows, setSelectedRows] = useState([])
 	const [selectedRowKeys, setSelectedRowKeys] = useState([])
+	const [accountUnderGroupList, setAccountUnderGroupList] = useState([])
+	const [methodAlocateList, setMethodAlocateList] = useState([]);
 	const [groupcreationList, setGroupCreationList] = useState([]);
 	const [initialLoading, setInitialLoading] = useState(false)
 	const [openDeleteModal, setOpenDeleteModal] = useState({
@@ -43,8 +48,12 @@ const GroupCreation = () => {
 		setIsEdit(true);
 		setSelectedId(row.id)
 		form.setFieldsValue({
-			percent: row.percent,
-			name: row.name
+			name:row.name,
+			account_under_group_id:row.account_under_group_id,
+			group_behaves:row.group_behaves,
+			net_cr_cr:row.net_cr_cr,
+			used_for_calculation:row.used_for_calculation,
+			method_allocate_id:row.method_allocate_id
 		})
 	};
 	const handleOk = () => {
@@ -59,32 +68,32 @@ const GroupCreation = () => {
 
 	function handleEnter(event) {
 		const form = event?.target?.form;
-        console.log(event?.key, 'key===')
-        const index = Array.prototype.indexOf.call(form, event.target);
-        if (event.keyCode === 13) {
-            if ((index + 1) < form.elements.length) {
-                form.elements[index + 1]?.focus();
+		console.log(event?.key, 'key===')
+		const index = Array.prototype.indexOf.call(form, event.target);
+		if (event.keyCode === 13) {
+			if ((index + 1) < form.elements.length) {
+				form.elements[index + 1]?.focus();
 				event.preventDefault();
-            }
-        } else if (event.keyCode === 27) {            
-            if ((index - 1) > 0) {
-                form.elements[index - 1]?.focus();
-            }
-            event.preventDefault();
-        }
-    }
+			}
+		} else if (event.keyCode === 27) {
+			if ((index - 1) > 0) {
+				form.elements[index - 1]?.focus();
+			}
+			event.preventDefault();
+		}
+	}
 	const [form] = Form.useForm()
 	const onFinish = async (values) => {
 		try {
-			const { name, percent } = values;
+			const { name, account_under_group_id, group_behaves, net_cr_cr, used_for_calculation, method_allocate_id } = values;
 			setSubmitLoading(true)
 			if (isEdit && selectedId) {
-				const response = await updateGST(selectedId, name, percent);
+				const response = await updateGroupCreation(selectedId, name, account_under_group_id, group_behaves, net_cr_cr, used_for_calculation, method_allocate_id);
 				if (response.success === true) {
 					message.success(response.message)
 				}
 			} else {
-				const response = await createGST(name, percent);
+				const response = await createGroupCreation(name, account_under_group_id, group_behaves, net_cr_cr, used_for_calculation, method_allocate_id);
 				if (response.success === true) {
 					message.success(response.message)
 				}
@@ -109,7 +118,7 @@ const GroupCreation = () => {
 	async function init() {
 		try {
 			setInitialLoading(true)
-			const response = await getGST();
+			const response = await getGroupCreation();
 			if (response.data?.length) {
 				setGroupCreationList(response.data)
 				setIsModalOpen(false);
@@ -123,9 +132,29 @@ const GroupCreation = () => {
 			setInitialLoading(false)
 		}
 	}
+const getAccountUnderGroupData=async()=>{
+    const response = await getAccountUnderGroup();
+        if (response.data?.length) {
+            setAccountUnderGroupList(response.data)
+            setIsModalOpen(false);
+        } else {
+            setAccountUnderGroupList([])
+        }
+}
+const getMethodAllcateData=async()=>{
+    const response = await getMethodAllocate();
+        if (response.data?.length) {
+            setMethodAlocateList(response.data)
+            setIsModalOpen(false);
+        } else {
+            setMethodAlocateList([])
+        }
+}
 
 	useEffect(() => {
 		init()
+		getAccountUnderGroupData()
+		getMethodAllcateData()
 	}, [])
 
 	const dropdownMenu = row => (
@@ -149,7 +178,7 @@ const GroupCreation = () => {
 	const deleteRow = async (id) => {
 		if (!id) return;
 		setSubmitLoading(true)
-		const response = await deleteGst(id)
+		const response = await deleteGroupCreation(id)
 		setSubmitLoading(false)
 		init()
 		if (response?.success === true) {
@@ -181,16 +210,67 @@ const GroupCreation = () => {
 			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
 		},
 		{
-			title: 'Details',
-			dataIndex: 'percent',
-			render: percent => (
-				<div>
-					{percent}
-
+			title: 'A/c Under group',
+			dataIndex: 'aug',
+			render: (_, record) => (
+				<div className="d-flex">
+					{/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
+					{/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
+					{record.account_under_group }
 				</div>
 			),
-			sorter: (a, b) => utils.antdTableSorter(a, b, 'price')
+			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
 		},
+		{
+			title: 'Group behaves',
+			dataIndex: 'gb',
+			render: (_, record) => (
+				<div className="d-flex">
+					{/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
+					{/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
+					{record.group_behaves }
+				</div>
+			),
+			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
+		},
+		{
+			title: 'Net Credit/Debit',
+			dataIndex: 'ncd',
+			render: (_, record) => (
+				<div className="d-flex">
+					{/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
+					{/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
+					{record.net_cr_cr  }
+				</div>
+			),
+			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
+		},
+		{
+			title: 'Use for Calulation',
+			dataIndex: 'ufc',
+			render: (_, record) => (
+				<div className="d-flex">
+					{/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
+					{/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
+					{record.used_for_calculation}
+				</div>
+			),
+			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
+		},
+		
+		{
+			title: 'Method allocate',
+			dataIndex: 'ma',	
+			render: (_, record) => (
+				<div className="d-flex">
+					{/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
+					{/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
+					{record.method_allocate_name}
+				</div>
+			),
+			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
+		},
+		
 
 		{
 			title: 'Created Date',
@@ -325,53 +405,60 @@ const GroupCreation = () => {
 						onKeyDown={handleEnter}
 						ref={refs}
 					>
-						<Input  placeholder="Group Name"  autoFocus/>
+						<Input placeholder="Group Name" autoFocus />
 					</Form.Item>
 
-					
 					<Form.Item
-						// style={{width:"35%"}
-						label="Under"
-						name="under"
-						onKeyDown={handleEnter}
-						rules={[{ required: true, message: 'Under is required' }]}
-					>
-						<Input placeholder="Under"/> 
-					</Form.Item>
-					<Form.Item
-						label="Groups behaves like a sub-ledger"
-						name="under"
+						label="Groups behaves like a sub-ledger:"
+						name="group_behaves"
 						onKeyDown={handleEnter}
 						rules={[{ required: true, message: 'Groups behaves like a sub-ledger is required' }]}
 					>
-						<Input placeholder="Groups behaves like a sub-ledger"/>
+						<Input placeholder="Groups behaves like a sub-ledger" />
 					</Form.Item>
 					<Form.Item
 						// style={{width:"35%"}
-						label="Nelt Debit/Credit blances for reporting"
-						name="under"
+						label="Net Debit/Credit blances for reporting:"
+						name="net_cr_cr"
 						onKeyDown={handleEnter}
-						rules={[{ required: true, message: 'Nelt Debit/Credit blances for reporting is required' }]}
+						rules={[{ required: true, message: 'Net Debit/Credit blances for reporting is required' }]}
 					>
-						<Input placeholder="Nelt Debit/Credit blances for reporting"/> 
+						<Input placeholder="Net Debit/Credit blances for reporting" />
 					</Form.Item>
 					<Form.Item
 						// style={{width:"35%"}
-						label="Used for calculation(for exm: taxes,discount"
-						name="under"
+						label="Used for calculation(for exm: taxes,discount):"
+						name="used_for_calculation"
 						onKeyDown={handleEnter}
 						rules={[{ required: true, message: 'Used for calculation(for exm: taxes,discount is required' }]}
 					>
-						<Input placeholder="Used for calculation(for exm: taxes,discount"/> 
+						<Input placeholder="Used for calculation(for exm: taxes,discount" />
 					</Form.Item>
-					<Form.Item
-						// style={{width:"35%"}
-						label="Method to allocate when used in purchase invoice"
-						name="under"
-						onKeyDown={handleEnter}
-						rules={[{ required: true, message: 'Method to allocate when used in purchase invoice is required' }]}
-					>
-						<Input placeholder="Method to allocate when used in purchase invoice"/> 
+
+
+					<Form.Item onKeyDown={handleEnter} name="account_under_group_id" label="Select Account under group:" rules={[{ required: true, message: 'Account under group  select is required' }]} >
+						<Select className="w-100" placeholder="Select Account under group ">
+							{
+								accountUnderGroupList.length > 0 ?
+									accountUnderGroupList.map((elm) => {
+										return <Option key={elm.id} value={elm.id}>{elm.name}</Option>
+									})
+									:
+									"No Data"
+							}
+						</Select>
+					</Form.Item>
+					<Form.Item onKeyDown={handleEnter} name="method_allocate_id" label="Method Allocate when used in purchase:" rules={[{ required: true, message: ' Method Allocate when used in purchase select is required' }]} >
+						<Select className="w-100" placeholder="Select Method Allocate when used in purchase invoice">
+							{
+								methodAlocateList.length > 0 ?
+									methodAlocateList.map((elm) => {
+										return <Option key={elm.id} value={elm.id}>{elm.name}</Option>
+									})
+									:
+									"No Data"
+							}
+						</Select>
 					</Form.Item>
 
 					<Form.Item

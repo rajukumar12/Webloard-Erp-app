@@ -10,7 +10,7 @@ export const getDistrict = async () => {
             return json
         }
     } catch (error) {
-        console.log("Error with getGST: ", error);
+        console.log("Error with get district: ", error);
     }
 }
 // Create District
@@ -27,7 +27,7 @@ export const createDistrict= async (name, short_code, state_id, country_id) => {
             return json
         }
     } catch (error) {
-        console.log("Error with createGST: ", error);
+        console.log("Error with create district: ", error);
     }
 }
 
@@ -46,7 +46,7 @@ export const updateDistrict= async (id, name, short_code, state_id, country_id) 
             return json
         }
     } catch (error) {
-        console.log("Error with updateGST: ", error);
+        console.log("Error with update district: ", error);
     }
 }
 
@@ -63,6 +63,6 @@ export const deleteDistrict= async (id) => {
             return json
         }
     } catch (error) {
-        console.log("Error with deleteGst: ", error);
+        console.log("Error with delete district: ", error);
     }
 }

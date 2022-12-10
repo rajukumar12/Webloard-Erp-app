@@ -33,6 +33,8 @@ const Gst = () => {
 		id: '',
 		name: ''
 	})
+	
+
 	const addButtonRef = useRef(null)
 	const ref = useRef(null);
 	const showModal = () => {
@@ -57,14 +59,10 @@ const Gst = () => {
 		setIsEdit(false);
 		setSelectedId("")
 		form.resetFields();
-		console.log(addButtonRef.current, "current==")
-		addButtonRef.current.focus()
-		console.log(addButtonRef.current)
 	};
 
 	function handleEnter(event) {
 		const form = event?.target?.form;
-        console.log(event?.key, 'key===')
         const index = Array.prototype.indexOf.call(form, event.target);
         if (event.keyCode === 13) {
             if ((index + 1) < form.elements.length) {

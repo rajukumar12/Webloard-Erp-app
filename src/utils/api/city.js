@@ -10,7 +10,7 @@ export const getCity = async () => {
             return json
         }
     } catch (error) {
-        console.log("Error with getGST: ", error);
+        console.log("Error with get  city: ", error);
     }
 }
 // Create City
@@ -27,7 +27,7 @@ export const createCity= async (name, district_id, state_id, country_id) => {
             return json
         }
     } catch (error) {
-        console.log("Error with createGST: ", error);
+        console.log("Error with create  city: ", error);
     }
 }
 
@@ -46,7 +46,7 @@ export const updateCity= async (id, name, district_id, state_id, country_id) => 
             return json
         }
     } catch (error) {
-        console.log("Error with updateGST: ", error);
+        console.log("Error with update  city: ", error);
     }
 }
 
@@ -63,6 +63,6 @@ export const deleteCity= async (id) => {
             return json
         }
     } catch (error) {
-        console.log("Error with deleteGst: ", error);
+        console.log("Error with delete  city: ", error);
     }
 }
