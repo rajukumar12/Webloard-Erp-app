@@ -5,10 +5,6 @@ import { EditOutlined, DeleteOutlined, SearchOutlined, PlusCircleOutlined } from
 import EllipsisDropdown from 'components/shared-components/EllipsisDropdown';
 import Flex from 'components/shared-components/Flex'
 import utils from 'utils'
-
- 
-
-// import { Form, Input, Checkbox } from 'antd';
 import { useEffect } from 'react';
 import { createGST, getGST, deleteGst, updateGST } from 'utils/api/gst';
 
@@ -63,6 +59,7 @@ const Gst = () => {
 		form.resetFields();
 		console.log(addButtonRef.current, "current==")
 		addButtonRef.current.focus()
+		console.log(addButtonRef.current)
 	};
 
 	function handleEnter(event) {
@@ -337,7 +334,7 @@ const Gst = () => {
 						onKeyDown={handleEnter}
 						// ref={ref}
 					>
-						<Input ref={ref} autoFocus />
+						<Input ref={addButtonRef} autoFocus />
 					</Form.Item>
 
 					<Form.Item

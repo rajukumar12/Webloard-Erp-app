@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { Card, Table, Select, Input, Button, Badge, Menu, Modal, Form, message } from 'antd';
 import ProductListData from "assets/data/product-list.data.json"
 import { EditOutlined, DeleteOutlined, SearchOutlined, PlusCircleOutlined } from '@ant-design/icons';
@@ -33,6 +33,8 @@ const Hns = () => {
 		id: '',
 		name: ''
 	})
+
+	const myref=useRef( null)
 	const showModal = () => {
 		setIsModalOpen(true);
 	};
@@ -51,6 +53,7 @@ const Hns = () => {
 		setIsEdit(false);
 		setSelectedId("")
 		form.resetFields();
+		myref.current.focus()
 	};
 
 	function handleEnter(event) {
@@ -327,7 +330,7 @@ const Hns = () => {
 						</div> */}
 					</Flex>
 					<div>
-						<Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Add Hsn</Button>
+						<Button onClick={showModal} ref={myref} autoFocus type="primary" icon={<PlusCircleOutlined />} block>Add Hsn</Button>
 					</div>
 				</Flex>
 				<div className="table-responsive">
@@ -371,10 +374,11 @@ const Hns = () => {
 						// style={{width:"35%"}}
 						label="Name"
 						name="name"
+						
 						onKeyDown={handleEnter}
 						rules={[{ required: true, message: ' Name field is required!' }]}
 					>
-						<Input />
+						<Input autoFocus/>
 					</Form.Item>
 					<Form.Item
 						// style={{width:"35%"}}

@@ -36,7 +36,7 @@ const GroupCreation = () => {
 	const refs = useRef(null);
 	const showModal = () => {
 		setIsModalOpen(true);
-		refs.current.focus();
+		refs?.current?.focus();
 	};
 	const showEditModal = (row) => {
 		setIsModalOpen(true);
@@ -279,7 +279,7 @@ const GroupCreation = () => {
 						</div> */}
 					</Flex>
 					<div>
-						<Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Group create</Button>
+						<Button onClick={showModal} type="primary" autoFocus icon={<PlusCircleOutlined />} block>Group create</Button>
 					</div>
 				</Flex>
 				<div className="table-responsive">
@@ -300,10 +300,15 @@ const GroupCreation = () => {
 			</Card>
 
 			<Modal
-				title={isEdit ? "Edit Group create" : "Group create"} open={isModalOpen} onCancel={handleCancel} footer={[]}>
+				className='addGroupCreation'
+				title={isEdit ? "Edit Group create" : "Group create"}
+				open={isModalOpen}
+				onCancel={handleCancel}
+				footer={[]}
+			>
 				<Form
 					form={form}
-					style={{ width: '85%' }}
+					style={{ width: '100%' }}
 					// style={{boxShadow: '2px 5px 15px -10px rgb(0,0,0,0.5)',  padding:'10px', width:'50%'}}
 					{...layout}
 					name="basic"
@@ -320,7 +325,7 @@ const GroupCreation = () => {
 						onKeyDown={handleEnter}
 						ref={refs}
 					>
-						<Input  placeholder="Group Name" />
+						<Input  placeholder="Group Name"  autoFocus/>
 					</Form.Item>
 
 					

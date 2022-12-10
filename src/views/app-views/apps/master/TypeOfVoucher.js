@@ -279,7 +279,7 @@ const TypeOfVoucher = () => {
 						</div> */}
 					</Flex>
 					<div>
-						<Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Voucher Type</Button>
+						<Button onClick={showModal} type="primary" autoFocus icon={<PlusCircleOutlined />} block>Voucher Type</Button>
 					</div>
 				</Flex>
 				<div className="table-responsive">
@@ -315,7 +315,7 @@ const TypeOfVoucher = () => {
 
 					<Form.Item
 						// style={{width:"35%"}}
-						label="Voucher Type Name"
+						label="Voucher Type"
 						name="name"
 						rules={[{ required: true, message: ' Group create is required!' }]}
 						onKeyDown={handleEnter}

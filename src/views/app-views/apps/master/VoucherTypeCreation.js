@@ -308,7 +308,7 @@ const VoucherTypeCreation = () => {
 						</div> */}
                     </Flex>
                     <div>
-                        <Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Voucher Creation</Button>
+                        <Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} autoFocus  block>Voucher Creation</Button>
                     </div>
                 </Flex>
                 <div className="table-responsive">
@@ -327,9 +327,13 @@ const VoucherTypeCreation = () => {
                 </div>
             </Card>
 
-
             <Modal
-                title={isEdit ? "Edit voucher creation" : "Add voucher cretion"} open={isModalOpen} onCancel={handleCancel} footer={[]}>
+                title={isEdit ? "Edit voucher creation" : "Add voucher cretion"} 
+                className='addVoucherType'
+                open={isModalOpen} 
+                onCancel={handleCancel} 
+                footer={[]}
+            >
                 <Form
                     form={form}
                     // style={{ width: '95%' }}
@@ -347,7 +351,7 @@ const VoucherTypeCreation = () => {
                         onKeyDown={handleEnter}
                         rules={[{ required: true, message: ' Name field is required!' }]}
                     >
-                        <Input placeholder='Name' />
+                        <Input placeholder='Name' autoFocus />
                     </Form.Item>
                     <Form.Item
                         // style={{width:"35%"}}
@@ -431,7 +435,7 @@ const VoucherTypeCreation = () => {
                         <Input placeholder='Provide narrations for each ledger in voucher' />
                     </Form.Item>
 
-                    <Form.Item onKeyDown={handleEnter} name="country_id" label="Country" rules={[{ required: true, message: 'Country  field is required' }]} >
+                    <Form.Item onKeyDown={handleEnter} name="country_id" label="Select type of voucher" rules={[{ required: true, message: 'Country  field is required' }]} >
                         <Select className="w-100" placeholder="select type of voucher">
                             {/* <Option value="All">All</Option> */}
                         </Select>
