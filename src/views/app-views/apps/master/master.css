@@ -6,3 +6,16 @@
     width: 970px !important;
     top: 38px;
 }
+
+.ant-form-item.hide-label .ant-form-item-label {
+    display: none;
+}
+
+.ant-form-item.hide-label .ant-form-item-row {
+    justify-content: center;
+}
+
+.ant-form-item.center-button .ant-form-item-control {
+    margin-left: 0px !important;
+    max-width: 100%;
+}

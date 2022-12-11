@@ -34,7 +34,7 @@ const Gst = () => {
 		name: ''
 	})
 	
-
+	const [ showTitle, setShowTitle ] = useState(false)
 	const addButtonRef = useRef(null)
 	const ref = useRef(null);
 	const showModal = () => {
@@ -63,6 +63,7 @@ const Gst = () => {
 
 	function handleEnter(event) {
 		const form = event?.target?.form;
+        console.log(form.elements, 'key===')
         const index = Array.prototype.indexOf.call(form, event.target);
         if (event.keyCode === 13) {
             if ((index + 1) < form.elements.length) {
@@ -282,7 +283,14 @@ const Gst = () => {
 						</div> */}
 					</Flex>
 					<div>
-						<Button onClick={showModal} ref={addButtonRef} autoFocus type="primary" icon={<PlusCircleOutlined />} block>Add GST</Button>
+						<Button 
+							onClick={showModal}
+							ref={addButtonRef}
+							autoFocus
+							type="primary"
+							icon={<PlusCircleOutlined />}
+							block
+						>Add GST</Button>
 					</div>
 				</Flex>
 				<div className="table-responsive">
@@ -315,7 +323,7 @@ const Gst = () => {
 				]}>
 				<Form
 					form={form}
-					style={{ width: '85%' }}
+					style={{ width: showTitle ? '85%' : '100%' }}
 					// style={{boxShadow: '2px 5px 15px -10px rgb(0,0,0,0.5)',  padding:'10px', width:'50%'}}
 					{...layout}
 					name="basic"
@@ -326,28 +334,31 @@ const Gst = () => {
 
 					<Form.Item
 						// style={{width:"35%"}}
+						className={`${showTitle ? '' : 'hide-label'}`}
 						label="Gst"
 						name="name"
 						rules={[{ required: true, message: ' Gst is required!' }]}
 						onKeyDown={handleEnter}
 						// ref={ref}
 					>
-						<Input ref={addButtonRef} autoFocus />
+						<Input ref={addButtonRef} autoFocus placeholder='Gst' />
 					</Form.Item>
 
 					<Form.Item
 						// style={{width:"35%"}}
+						className={showTitle ? '' : 'hide-label'}
 						placeholder="Enter Gst"
 						label="Percent"
 						name="percent"
 						onKeyDown={handleEnter}
 						rules={[{ required: true, message: 'Percent is required' }]}
 					>
-						<Input />
+						<Input placeholder='Percent' />
 					</Form.Item>
 
 					<Form.Item
 						{...tailLayout}
+						className={showTitle ? '' : 'center-button'}
 						style={{
 							display: 'flex',
 							justifyContent: 'center'
