@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useContext, useRef } from 'react'
+import { AppContext } from 'components/ContextApi';
 import { Card, Table, Select, Input, Button, Badge, Menu, Modal, Form, message } from 'antd';
 import ProductListData from "assets/data/product-list.data.json"
 import { EditOutlined, DeleteOutlined, SearchOutlined, PlusCircleOutlined } from '@ant-design/icons';
@@ -9,8 +10,6 @@ import { useEffect } from 'react';
 import { createUnitMeasure, getUnitMeasure, updateUnitMeasure, deleteUnitMeasure } from 'utils/api/unitOfMeasure';
 import { getUniqueOuqantityCode } from 'utils/api/uniqueQuantityCode';
 import { createUnitType, getUnitType } from 'utils/api/typeOfUnit';
-
-
 
 const layout = {
     labelCol: { span: 8 },
@@ -23,6 +22,7 @@ const tailLayout = {
 const { Option } = Select
 
 const District = () => {
+    const { showTitle } = useContext(AppContext)
     const [list, setList] = useState(ProductListData)
     const [selectedRows, setSelectedRows] = useState([])
     const [selectedRowKeys, setSelectedRowKeys] = useState([])
@@ -39,6 +39,9 @@ const District = () => {
         id: '',
         name: ''
     })
+    const addButtonRef = useRef(null)
+    const formInputRef = useRef(null)
+
     const showModal = () => {
         setIsModalOpen(true);
     };
@@ -61,7 +64,7 @@ const District = () => {
 
     function handleEnter(event) {
         const form = event?.target?.form;
-        
+
         const index = Array.prototype.indexOf.call(form, event.target);
         if (event.keyCode === 13) {
             if ((index + 1) < form.elements.length) {
@@ -160,6 +163,13 @@ const District = () => {
         setInitalLoading(false)
     }
 
+    useEffect(() => {
+        if (!isModalOpen) {
+            addButtonRef?.current?.focus()
+        } else {
+            formInputRef?.current?.focus()
+        }
+    }, [isModalOpen])
     useEffect(() => {
 
         init()
@@ -365,7 +375,7 @@ const District = () => {
 						</div> */}
                     </Flex>
                     <div>
-                        <Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Add Unit measure</Button>
+                        <Button onClick={showModal} autoFocus ref={addButtonRef} type="primary" icon={<PlusCircleOutlined />} block> Unit measure</Button>
                     </div>
                 </Flex>
                 <div className="table-responsive">
@@ -394,7 +404,7 @@ const District = () => {
                 ]}>
                 <Form
                     form={form}
-                    style={{ width: '85%' }}
+                    style={{ width: showTitle ? '85%' : '100%' }}
                     // style={{boxShadow: '2px 5px 15px -10px rgb(0,0,0,0.5)',  padding:'10px', width:'50%'}}
                     {...layout}
                     name="basic"
@@ -404,37 +414,42 @@ const District = () => {
                 >
 
                     <Form.Item
+                        className={`${showTitle ? '' : 'hide-label'}`}
                         onKeyDown={handleEnter}
-                        label="symbol"
+                        label="Symbol"
                         name="symbol"
                         rules={[{ required: true, message: 'Symbol  field is required!' }]}
                     >
-                        <Input placeholder="symbol" />
+                        <Input placeholder="Symbol" autoFocus ref={formInputRef} />
                     </Form.Item>
-
-
                     <Form.Item
-
+                        className={`${showTitle ? '' : 'hide-label'}`}
                         onKeyDown={handleEnter}
-                        label="Formal Name"
+                        label="Formal name"
                         name="formal_name"
                         rules={[{ required: true, message: ' Formal name field  is required' }]}
                     >
 
-                        <Input placeholder="Formal Name" />
+                        <Input placeholder="Formal name" />
                     </Form.Item>
                     <Form.Item
-
+                        className={`${showTitle ? '' : 'hide-label'}`}
                         onKeyDown={handleEnter}
                         label="No of decimal "
                         name="No_of_decimal_places"
                         rules={[{ required: true, message: ' No of decimal places field  is required' }]}
                     >
 
-                        <Input placeholder="No of decimal"/>
+                        <Input placeholder="No of decimal" />
                     </Form.Item>
 
-                    <Form.Item onKeyDown={handleEnter} name="u_q_c_id" label="Unique quantity " rules={[{ required: true, message: ' Unique quantity Code  Select is required' }]} >
+                    <Form.Item
+                        className={`${showTitle ? '' : 'hide-label'}`}
+                        onKeyDown={handleEnter}
+                        name="u_q_c_id"
+                        label="Unique quantity "
+                        rules={[{ required: true, message: ' Unique quantity Code  Select is required' }]}
+                    >
                         <Select className="w-100" placeholder="Select Unique quantity Code " >
                             {
                                 uniqurQuntityList.length > 0 ?
@@ -446,8 +461,14 @@ const District = () => {
                             }
                         </Select>
                     </Form.Item>
-                    <Form.Item onKeyDown={handleEnter} name="type_of_unit_id" label="Select Unit type" rules={[{ required: true, message: 'Unit type  select is required' }]} >
-                        <Select className="w-100" placeholder="Select Unit type ">
+                    <Form.Item 
+                    className={`${showTitle ? '' : 'hide-label'}`}
+                    onKeyDown={handleEnter} 
+                    name="type_of_unit_id" 
+                    label="Select unit type" 
+                    rules={[{ required: true, message: 'Unit type  select is required' }]} 
+                    >
+                        <Select className="w-100" placeholder="Select unit type ">
                             {
                                 unitTypeList.length > 0 ?
                                     unitTypeList.map((elm) => {
@@ -463,8 +484,9 @@ const District = () => {
                     <Form.Item {...tailLayout}  >
 
                         <div style={{
-                            width: '82%',
-                            marginLeft: "50px"
+                            width: 'fit-content',
+                            display: "flex",
+                            justifyContent: "center"
                         }}>
                             <Button type="primary" htmlType="submit" loading={submitLoading}>
                                 {isEdit ? "Save" : "Submit"}

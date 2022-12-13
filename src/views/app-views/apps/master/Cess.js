@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useContext, useRef } from 'react'
+import { AppContext } from 'components/ContextApi';
 import { Card, Table, Select, Input, Button, Badge, Menu, Modal, Form, message } from 'antd';
 import ProductListData from "assets/data/product-list.data.json"
 import { EditOutlined, DeleteOutlined, SearchOutlined, PlusCircleOutlined } from '@ant-design/icons';
@@ -17,7 +18,7 @@ const tailLayout = {
 };
 
 const Cess = () => {
-
+	const { showTitle } = useContext(AppContext)
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isEdit, setIsEdit] = useState(false)
 	const [selectedId, setSelectedId] = useState("")
@@ -25,13 +26,17 @@ const Cess = () => {
 	const [list, setList] = useState(ProductListData)
 	const [selectedRows, setSelectedRows] = useState([])
 	const [selectedRowKeys, setSelectedRowKeys] = useState([])
-	const [initialLoading, setInitialLoading]=useState(false)
+	const [initialLoading, setInitialLoading] = useState(false)
 	// const [cessList, setCessList] = useState([])
 	const [openDeleteModal, setOpenDeleteModal] = useState({
 		open: false,
 		id: '',
 		name: ''
 	})
+
+
+	const addButtonRef = useRef(null)
+	const formInputRef = useRef(null)
 	const [cessList, setCessList] = useState([])
 	const showModal = () => {
 		setIsModalOpen(true);
@@ -54,47 +59,47 @@ const Cess = () => {
 		setSelectedId("")
 		form.resetFields();
 	};
-	
+
 	function handleEnter(event) {
-        const form = event?.target?.form;
-        
-        const index = Array.prototype.indexOf.call(form, event.target);
-        if (event.keyCode === 13) {
-            if ((index + 1) < form.elements.length) {
-                form.elements[index + 1]?.focus();
-            }
-            event.preventDefault();
-        } else if (event.keyCode === 27) {
-            if ((index - 1) > 0) {
-                form.elements[index - 1]?.focus();
-            }
-            event.preventDefault();
-        }
-    }
+		const form = event?.target?.form;
+
+		const index = Array.prototype.indexOf.call(form, event.target);
+		if (event.keyCode === 13) {
+			if ((index + 1) < form.elements.length) {
+				form.elements[index + 1]?.focus();
+			}
+			event.preventDefault();
+		} else if (event.keyCode === 27) {
+			if ((index - 1) > 0) {
+				form.elements[index - 1]?.focus();
+			}
+			event.preventDefault();
+		}
+	}
 	// add and update hsn******
 	const [form] = Form.useForm()
 	const onFinish = async (values) => {
 		try {
 			const { name, percent } = values
-		setSubmitLoading(true)
-		if (isEdit && selectedId) {
+			setSubmitLoading(true)
+			if (isEdit && selectedId) {
 
-			const response = await updateCess(selectedId, name, percent)
-			if (response.success === true) {
-				message.success(response.message)
+				const response = await updateCess(selectedId, name, percent)
+				if (response.success === true) {
+					message.success(response.message)
+				}
+			} else {
+				const response = await createCess(name, percent);
+				if (response.success === true) {
+					message.success(response.message)
+				}
 			}
-		} else {
-			const response = await createCess(name, percent);
-			if (response.success === true) {
-				message.success(response.message)
-			}
-		}
-		setSubmitLoading(false)
-		init()
-		setIsModalOpen(false);
-		setIsEdit(false);
-		setSelectedId("")
-		form.resetFields();
+			setSubmitLoading(false)
+			init()
+			setIsModalOpen(false);
+			setIsEdit(false);
+			setSelectedId("")
+			form.resetFields();
 		} catch (error) {
 			message.error(message)
 		}
@@ -108,20 +113,28 @@ const Cess = () => {
 	async function init() {
 		try {
 			setInitialLoading(true)
-		const response = await getCess();
-		if (response.data?.length) {
-			setCessList(response.data)
-			setIsModalOpen(false);
-			// message.success(response.message)
-		} else {
-			setCessList([])
-		}
-		setInitialLoading(false)
+			const response = await getCess();
+			if (response.data?.length) {
+				setCessList(response.data)
+				setIsModalOpen(false);
+				// message.success(response.message)
+			} else {
+				setCessList([])
+			}
+			setInitialLoading(false)
 		} catch (error) {
 			message.error(message)
 		}
 	}
 
+
+	useEffect(() => {
+		if(!isModalOpen) {
+			addButtonRef?.current?.focus()
+		} else {
+			formInputRef?.current?.focus()
+		}
+	},[isModalOpen])
 	useEffect(() => {
 
 		init()
@@ -147,7 +160,7 @@ const Cess = () => {
 
 	// delete gst***********
 	const deleteRow = async (id) => {
-		if(!id) return;
+		if (!id) return;
 		setSubmitLoading(true)
 		const response = await deleteCess(id)
 		setSubmitLoading(false)
@@ -217,39 +230,6 @@ const Cess = () => {
 			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
 		},
 
-		// {
-		// 	title: 'Category',
-		// 	dataIndex: 'category',
-		// 	sorter: (a, b) => utils.antdTableSorter(a, b, 'category')
-		// },
-		// {
-		// 	title: 'Price',
-		// 	dataIndex: 'price',
-		// 	render: price => (
-		// 		<div>
-		// 			<NumberFormat
-		// 				displayType={'text'}
-		// 				value={(Math.round(price * 100) / 100).toFixed(2)}
-		// 				prefix={'$'}
-		// 				thousandSeparator={true}
-		// 			/>
-		// 		</div>
-		// 	),
-		// 	sorter: (a, b) => utils.antdTableSorter(a, b, 'price')
-		// },
-		// {
-		// 	title: 'Stock',
-		// 	dataIndex: 'stock',
-		// 	sorter: (a, b) => utils.antdTableSorter(a, b, 'stock')
-		// },
-		// {
-		// 	title: 'Status',
-		// 	dataIndex: 'stock',
-		// 	render: stock => (
-		// 		<Flex alignItems="center">{getStockStatus(stock)}</Flex>
-		// 	),
-		// 	sorter: (a, b) => utils.antdTableSorter(a, b, 'stock')
-		// },
 		{
 			title: 'Action',
 			dataIndex: 'actions',
@@ -312,7 +292,7 @@ const Cess = () => {
 						</div> */}
 					</Flex>
 					<div>
-						<Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Add Cess</Button>
+						<Button onClick={showModal} ref={addButtonRef} type="primary" icon={<PlusCircleOutlined />} block> Cess</Button>
 					</div>
 				</Flex>
 				<div className="table-responsive">
@@ -331,8 +311,7 @@ const Cess = () => {
 				</div>
 			</Card>
 
-			{/* add gst************************************************************************ */}
-
+			
 			<Modal
 
 				title={isEdit ? "Edit CESS" : "Add CESS"} open={isModalOpen} onCancel={handleCancel} footer={[
@@ -345,42 +324,42 @@ const Cess = () => {
 				]}>
 				<Form
 					form={form}
-					style={{ width: '85%' }}
+					style={{ width: showTitle ? '85%' : '100%' }}
 					// style={{boxShadow: '2px 5px 15px -10px rgb(0,0,0,0.5)',  padding:'10px', width:'50%'}}
 					{...layout}
 					name="basic"
-					initialValues={{ remember: true }}
+					initialValues={{ remember: true}}
 					onFinish={onFinish}
 					onFinishFailed={onFinishFailed}
 				>
 
 					<Form.Item
-						// style={{width:"35%"}}
+						className={`${showTitle ? '' : 'hide-label'}`}
 						onKeyDown={handleEnter}
 						label="Name"
 						name="name"
 						rules={[{ required: true, message: ' Gst is required!' }]}
 					>
-						<Input />
+						<Input placeholder='Name'/>
 					</Form.Item>
 
 					<Form.Item
-						// style={{width:"35%"}}
-						placeholder="Enter Gst"
+						className={`${showTitle ? '' : 'hide-label'}`}
 						label="Percent"
 						onKeyDown={handleEnter}
 						name="percent"
 						rules={[{ required: true, message: 'Percent is required' }]}
 					>
-						<Input />
+						<Input type='number' placeholder='Percent' autoFocus ref={formInputRef}/>
 					</Form.Item>
 					<Form.Item {...tailLayout}  >
 
 						<div style={{
-							width: '82%',
-							marginLeft: "50px"
-						}}>
-							<Button type="primary" htmlType="submit"  loading={submitLoading}>
+								width: 'fit-content',
+								display: "flex",
+								justifyContent: "center"
+							   }}>
+							<Button type="primary" htmlType="submit" loading={submitLoading}>
 								{isEdit ? "Save" : "Submit"}
 							</Button>
 							<Button type="primary" onClick={handleCancel} style={{ marginLeft: '20px' }}	>
@@ -402,19 +381,19 @@ const Cess = () => {
 					name: ''
 				})}
 				footer={[
-					<Button 
-						type="primary" 
-						loading={submitLoading} 
+					<Button
+						type="primary"
+						loading={submitLoading}
 						htmlType="submit"
 						onClick={() => deleteRow(openDeleteModal.id)}
 					>
 						Delete
 					</Button>,
 					<Button type="primary" onClick={() => setOpenDeleteModal({
-							open: false,
-							id: '',
-							name: ''
-						})}
+						open: false,
+						id: '',
+						name: ''
+					})}
 					>
 						Cancel
 					</Button>

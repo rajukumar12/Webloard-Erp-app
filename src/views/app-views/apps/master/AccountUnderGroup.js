@@ -1,12 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useContext } from 'react'
+import { AppContext } from 'components/ContextApi';
 import { Card, Table, Select, Input, Button, Badge, Menu, Modal, Form, message } from 'antd';
 import ProductListData from "assets/data/product-list.data.json"
 import { EditOutlined, DeleteOutlined, SearchOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import EllipsisDropdown from 'components/shared-components/EllipsisDropdown';
 import Flex from 'components/shared-components/Flex'
 import utils from 'utils'
-
-// import { Form, Input, Checkbox } from 'antd';
 import { useEffect } from 'react';
 import { createGST, getGST,deleteGst, updateGST } from 'utils/api/gst';
 import { getAccountUnderGroup, createAccountUnderGroup, updateAccountUnderGroup, deleteAccountUnderGroup } from 'utils/api/accountUnderGroup';
@@ -20,7 +19,7 @@ const tailLayout = {
 };
 
 const AccountUnderGroup = () => {
-
+	const {showTitle}=useContext(AppContext)
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [submitLoading, setSubmitLoading] = useState(false)
 	const [isEdit, setIsEdit] = useState(false)
@@ -35,6 +34,8 @@ const AccountUnderGroup = () => {
 		id: '',
 		name: ''
 	})
+	const addButtonRef = useRef(null)
+const formInputRef = useRef(null)
 
 	const showModal = () => {
 		setIsModalOpen(true);
@@ -124,6 +125,13 @@ const AccountUnderGroup = () => {
 		}
 	}
 
+	useEffect(() => {
+		if(!isModalOpen) {
+			addButtonRef?.current?.focus()
+		} else {
+			formInputRef?.current?.focus()
+		}
+	},[isModalOpen])
 	useEffect(() => {
 
 		init()
@@ -221,39 +229,6 @@ const AccountUnderGroup = () => {
 			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
 		},
 
-		// {
-		// 	title: 'Category',
-		// 	dataIndex: 'category',
-		// 	sorter: (a, b) => utils.antdTableSorter(a, b, 'category')
-		// },
-		// {
-		// 	title: 'Price',
-		// 	dataIndex: 'price',
-		// 	render: price => (
-		// 		<div>
-		// 			<NumberFormat
-		// 				displayType={'text'}
-		// 				value={(Math.round(price * 100) / 100).toFixed(2)}
-		// 				prefix={'$'}
-		// 				thousandSeparator={true}
-		// 			/>
-		// 		</div>
-		// 	),
-		// 	sorter: (a, b) => utils.antdTableSorter(a, b, 'price')
-		// },
-		// {
-		// 	title: 'Stock',
-		// 	dataIndex: 'stock',
-		// 	sorter: (a, b) => utils.antdTableSorter(a, b, 'stock')
-		// },
-		// {
-		// 	title: 'Status',
-		// 	dataIndex: 'stock',
-		// 	render: stock => (
-		// 		<Flex alignItems="center">{getStockStatus(stock)}</Flex>
-		// 	),
-		// 	sorter: (a, b) => utils.antdTableSorter(a, b, 'stock')
-		// },
 		{
 			title: 'Action',
 			dataIndex: 'actions',
@@ -298,25 +273,9 @@ const AccountUnderGroup = () => {
 						<div className="mr-md-3 mb-3">
 							<Input placeholder="Search" prefix={<SearchOutlined />} onChange={e => onSearch(e)} />
 						</div>
-						{/* <div className="mb-3">
-							<Select
-								defaultValue="All"
-								className="w-100"
-								style={{ minWidth: 180 }}
-								onChange={handleShowCategory}
-								placeholder="Category"
-							>
-								<Option value="All">All</Option>
-								{
-									categories.map(elm => (
-										<Option key={elm} value={elm}>{elm}</Option>
-									))
-								}
-							</Select>
-						</div> */}
 					</Flex>
 					<div>
-						<Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Add Account Group</Button>
+						<Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block autoFocus ref={addButtonRef }> Account Group</Button>
 					</div>
 				</Flex>
 				<div className="table-responsive">
@@ -335,21 +294,12 @@ const AccountUnderGroup = () => {
 				</div>
 			</Card>
 
-			{/* add gst************************************************************************ */}
-
 			<Modal
 
-				title={isEdit ? "Edit Account" : "Add Account"} open={isModalOpen} onCancel={handleCancel} footer={[
-					// <Button type="primary" htmlType="submit"  onClick={onFinish}>
-					// 	Submit
-					// </Button>,
-					// <Button type="primary" onClick={handleCancel}	>
-					// 			Cancel
-					// 		</Button>
-				]}>
+				title={isEdit ? "Edit Account" : "Add Account"} open={isModalOpen} onCancel={handleCancel} footer={[]}>
 				<Form
 					form={form}
-					style={{ width: '85%' }}
+					style={{ width: showTitle ? '85%' : '100%' }}
 					{...layout}
 					name="basic"
 					initialValues={{ remember: true }}
@@ -359,22 +309,22 @@ const AccountUnderGroup = () => {
 
 					<Form.Item
 					onKeyDown={handleEnter}
-						// style={{width:"35%"}}
-						label="Account Group"
+						className={`${showTitle ? '' : 'hide-label'}`}
+						label="Account group"
 						name="name"
 						rules={[{ required: true, message: ' Account group is required!' }]}
 					>
-						<Input />
+						<Input  placeholder='Account group' autoFocus ref={formInputRef }/>
 					</Form.Item>
 
 					<Form.Item
 					onKeyDown={handleEnter}
-						// style={{width:"35%"}}
+						className={`${showTitle ? '' : 'hide-label'}`}
 						label="Detail"
 						name="detail"
 						rules={[{ required: true, message: 'Detail is required' }]}
 					>
-						<Input />
+						<Input placeholder='Detail'/>
 					</Form.Item>
 
 
@@ -382,8 +332,10 @@ const AccountUnderGroup = () => {
 					<Form.Item {...tailLayout}  >
 
 						<div style={{
-							width: '82%',
-							marginLeft: "50px"}}>
+								width: 'fit-content',
+								display: "flex",
+								justifyContent: "center"
+							   }}>
 						<Button type="primary" htmlType="submit" loading={submitLoading}>
 							{isEdit ? "Save" : "Submit"}
 						</Button>

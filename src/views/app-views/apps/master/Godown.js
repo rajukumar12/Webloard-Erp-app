@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useContext } from 'react'
+import { AppContext } from 'components/ContextApi';
 import { Card, Table, Select, Input, Button, Badge, Menu, Modal, Form, message } from 'antd';
 import ProductListData from "assets/data/product-list.data.json"
 import { EditOutlined, DeleteOutlined, SearchOutlined, PlusCircleOutlined } from '@ant-design/icons';
@@ -14,9 +15,6 @@ import { getDistrict } from 'utils/api/district';
 import { getCountry } from 'utils/api/country';
 import { getState } from 'utils/api/state';
 import { getGodown, createGodow, updateGodow, deleteGodow } from 'utils/api/godown';
-
-import Loading from 'views/app-views/components/feedback/message/Loading';
-import { useDebugValue } from 'react';
 
 
 const layout = {
@@ -46,6 +44,7 @@ const getStockStatus = stockCount => {
 const categories = ['Cloths', 'Bags', 'Shoes', 'Watches', 'Devices']
 
 const Godown = () => {
+    const { showTitle } = useContext(AppContext)
     const navigate = useNavigate();
     const [list, setList] = useState(ProductListData)
     const [selectedRows, setSelectedRows] = useState([])
@@ -68,6 +67,9 @@ const Godown = () => {
         id: '',
         name: ''
     })
+
+    const addButtonRef = useRef(null)
+    const formInputRef = useRef(null)
     const showModal = () => {
         setIsModalOpen(true);
     };
@@ -105,7 +107,7 @@ const Godown = () => {
 
     function handleEnter(event) {
         const form = event?.target?.form;
-        
+
         const index = Array.prototype.indexOf.call(form, event.target);
         if (event.keyCode === 13) {
             if ((index + 1) < form.elements.length) {
@@ -217,6 +219,13 @@ const Godown = () => {
 
     }
 
+    useEffect(() => {
+        if (!isModalOpen) {
+            addButtonRef?.current?.focus()
+        } else {
+            formInputRef?.current?.focus()
+        }
+    }, [isModalOpen])
 
     useEffect(() => {
 
@@ -470,7 +479,7 @@ const Godown = () => {
 						</div> */}
                     </Flex>
                     <div>
-                        <Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Add Godown</Button>
+                        <Button onClick={showModal} autoFocus ref={addButtonRef} type="primary" icon={<PlusCircleOutlined />} block>Godown</Button>
                     </div>
                 </Flex>
                 <div className="table-responsive">
@@ -503,7 +512,7 @@ const Godown = () => {
                 ]}>
                 <Form
                     form={form}
-                    style={{ width: '85%' }}
+                    style={{ width: showTitle ? '85%' : '100%' }}
                     // style={{boxShadow: '2px 5px 15px -10px rgb(0,0,0,0.5)',  padding:'10px', width:'50%'}}
                     {...layout}
                     name="basic"
@@ -513,14 +522,21 @@ const Godown = () => {
                 >
 
                     <Form.Item
+                        className={`${showTitle ? '' : 'hide-label'}`}
                         onKeyDown={handleEnter}
-                        label="Godown Name"
+                        label="Godown name"
                         name="name"
-                        rules={[{ required: true, message: 'Godown Name field is required!' }]}
+                        rules={[{ required: true, message: 'Godown name field is required!' }]}
                     >
-                        <Input />
+                        <Input ref={formInputRef} autoFocus placeholder='Godown name' />
                     </Form.Item>
-                    <Form.Item onKeyDown={handleEnter} name="country_id" label="Country" rules={[{ required: true, message: 'Country  select is required' }]} >
+                    <Form.Item
+                        onKeyDown={handleEnter}
+                        name="country_id"
+                        label="Country"
+                        rules={[{ required: true, message: 'Country  select is required' }]}
+                        className={`${showTitle ? '' : 'hide-label'}`}
+                    >
                         <Select className="w-100" placeholder="Select Country" onChange={(val) => handleCountryChange(val, false)}>
                             {
                                 countryList?.length > 0 ?
@@ -532,7 +548,13 @@ const Godown = () => {
                             }
                         </Select>
                     </Form.Item>
-                    <Form.Item onKeyDown={handleEnter} name="state_id" label="State" rules={[{ required: true, message: 'State  select is required' }]} >
+                    <Form.Item
+                        className={`${showTitle ? '' : 'hide-label'}`}
+                        onKeyDown={handleEnter}
+                        name="state_id"
+                        label="State"
+                        rules={[{ required: true, message: 'State  select is required' }]}
+                    >
                         <Select className="w-100" placeholder="Select State" onChange={(val) => handleStateChange(val, false)}>
                             {
                                 stateList?.length > 0 ?
@@ -545,7 +567,13 @@ const Godown = () => {
                             }
                         </Select>
                     </Form.Item>
-                    <Form.Item onKeyDown={handleEnter} name="district_id" label="District" rules={[{ required: true, message: 'District  select is required' }]} >
+                    <Form.Item
+                       className={`${showTitle ? '' : 'hide-label'}`}
+                        onKeyDown={handleEnter}
+                        name="district_id"
+                        label="District"
+                        rules={[{ required: true, message: 'District  select is required' }]}
+                    >
                         <Select className="w-100" placeholder="Select District" onChange={(val) => handleDistrictChange(val, false)}>
                             {
                                 districtList?.length > 0 ?
@@ -557,7 +585,13 @@ const Godown = () => {
                             }
                         </Select>
                     </Form.Item>
-                    <Form.Item onKeyDown={handleEnter} name="city_id" label="City" rules={[{ required: true, message: 'City  select is required' }]} >
+                    <Form.Item
+                        className={`${showTitle ? '' : 'hide-label'}`}
+                        onKeyDown={handleEnter}
+                        name="city_id"
+                        label="City"
+                        rules={[{ required: true, message: 'City  select is required' }]}
+                    >
                         <Select className="w-100" placeholder="Select City" >
                             {
                                 cityList?.length > 0 ?
@@ -571,15 +605,17 @@ const Godown = () => {
                     </Form.Item>
 
                     <Form.Item
+                        className={`${showTitle ? '' : 'hide-label'}`}
                         onKeyDown={handleEnter}
                         label="Address"
                         name="address"
                         rules={[{ required: true, message: 'address field is required!' }]}
                     >
-                        <Input />
+                        <Input placeholder='Address' />
                     </Form.Item>
 
                     <Form.Item
+                        className={`${showTitle ? '' : 'hide-label'}`}
                         onKeyDown={handleEnter}
                         label="Pin code"
                         name="pincode"
@@ -592,15 +628,16 @@ const Godown = () => {
                                 min: 6, message: 'Pin code should be 6 digit'
                             }]}
                     >
-                        <Input />
+                        <Input placeholder='Pin code' />
                     </Form.Item>
 
 
                     <Form.Item {...tailLayout}  >
 
-                        <div style={{
-                            width: '82%',
-                            marginLeft: "50px"
+                        <div tyle={{
+                            width: 'fit-content',
+                            display: "flex",
+                            justifyContent: "center"
                         }}>
                             <Button type="primary" htmlType="submit" loading={submitLoading}>
                                 {isEdit ? "Save" : "Submit"}

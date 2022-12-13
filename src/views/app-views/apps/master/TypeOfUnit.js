@@ -1,12 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useContext, useRef } from 'react'
+import { AppContext } from 'components/ContextApi';
 import { Card, Table, Select, Input, Button, Badge, Menu, Modal, Form, message } from 'antd';
 import ProductListData from "assets/data/product-list.data.json"
 import { EditOutlined, DeleteOutlined, SearchOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import EllipsisDropdown from 'components/shared-components/EllipsisDropdown';
 import Flex from 'components/shared-components/Flex'
 import utils from 'utils'
-
-// import { Form, Input, Checkbox } from 'antd';
 import { useEffect } from 'react';
 import { createUnitType, deleteUnitTypet, getUnitType, updateUnitType } from 'utils/api/typeOfUnit';
 
@@ -20,7 +19,7 @@ const tailLayout = {
 
 
 const UnitOfType = () => {
-
+    const {showTitle}=useContext(AppContext)
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [submitLoading, setSubmitLoading] = useState(false)
     const [isEdit, setIsEdit] = useState(false)
@@ -35,7 +34,8 @@ const UnitOfType = () => {
         id: '',
         name: ''
     })
-
+    const addButtonRef = useRef(null)
+    const formInputRef = useRef(null)
     const showModal = () => {
         setIsModalOpen(true);
     };
@@ -128,6 +128,13 @@ const UnitOfType = () => {
         message.error(message)
        }
     }
+    useEffect(() => {
+		if(!isModalOpen) {
+			addButtonRef?.current?.focus()
+		} else {
+			formInputRef?.current?.focus()
+		}
+	},[isModalOpen])
 
     useEffect(() => {
         init()
@@ -286,7 +293,7 @@ const UnitOfType = () => {
 						</div> */}
                     </Flex>
                     <div>
-                        <Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Add Unit Type</Button>
+                        <Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block autoFocus ref={addButtonRef }> Unit Type</Button>
                     </div>
                 </Flex>
                 <div className="table-responsive">
@@ -317,7 +324,7 @@ const UnitOfType = () => {
                 ]}>
                 <Form
                     form={form}
-                    style={{ width: '85%' }}
+                    style={{ width: showTitle ? '85%' : '100%' }}
                     // style={{boxShadow: '2px 5px 15px -10px rgb(0,0,0,0.5)',  padding:'10px', width:'50%'}}
                     {...layout}
                     name="basic"
@@ -328,35 +335,33 @@ const UnitOfType = () => {
 
                     <Form.Item
                     onKeyDown={handleEnter}
-                        // style={{width:"35%"}}
-                        label="Unit Type"
+                    className={`${showTitle ? '' : 'hide-label'}`}
+                        label="Unit type"
                         name="name"
-                        rules={[{ required: true, message: ' Name field is required!' }]}
+                        rules={[{ required: true, message: 'Unit type  field is required!' }]}
                     >
-                        <Input />
+                        <Input autoFocus ref={formInputRef} placeholder='Unit type'/>
                     </Form.Item>
 
                     <Form.Item
+                    className={`${showTitle ? '' : 'hide-label'}`}
                     onKeyDown={handleEnter}
                         label="Detail"
                         name="detail"
-                        rules={[{ required: true, message: 'Unit Type field is required' }]}
+                        rules={[{ required: true, message: 'Detail field is required' }]}
                     >
-                        <Input />
+                        <Input placeholder='Detail'/>
                     </Form.Item>
                     <Form.Item
                         {...tailLayout}
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'center'
-                        }}
+                       
                     >
                         <div
-                            style={{
-                                width: 'fit-content',
-                                display: "flex",
-                                justifyContent: "center"
-                            }}
+                             style={{
+								width: 'fit-content',
+								display: "flex",
+								justifyContent: "center"
+							   }}
                         >
                             <Button type="primary" htmlType="submit" loading={submitLoading}>
                                 {isEdit ? "Save" : "Submit"}

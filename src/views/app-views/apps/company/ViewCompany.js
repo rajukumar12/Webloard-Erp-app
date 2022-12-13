@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
+import { AppContext } from 'components/ContextApi';
 import { Typography, TextField, Stack, Box, Grid, Button, FormHelperText } from '@mui/material'
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -13,9 +14,11 @@ import { useForm } from "react-hook-form";
 const label = { inputProps: { 'aria-label': 'Switch demo' } };
 
 
+
 const CreateCompany = () => {
 
-    const [showTitle, setShowTitle] = useState(false)
+    // const [showTitle, setShowTitle] = useState(false)
+const {showTitle}=useContext(AppContext)
     const [age, setAge] = React.useState({
         country: "",
         state: "",
@@ -53,11 +56,11 @@ const CreateCompany = () => {
         setAge(event.target.value);
     };
     console.log(showTitle)
-    const handelSwitchChange = (e) => {
-        setShowTitle(e.target.checked)
-        console.log(e.target.checked)
+    // const handelSwitchChange = (e) => {
+    //     setShowTitle(e.target.checked)
+    //     console.log(e.target.checked)
 
-    }
+    // }
     return (
         <>
 
@@ -73,20 +76,7 @@ const CreateCompany = () => {
             >
 
 
-                <Stack
-                    direction='row'
-                    justifyContent='end'
-                >
-                    <Box style={{ border: '2px solid black', padding: "5px 8px 5px 5px ", borderRadius: '10px' }}>
-                        <FormControlLabel
-                            value="start"
-                            control={<Switch color="primary" onChange={handelSwitchChange} checked={showTitle} />}
-                            label="Show Title"
-                            labelPlacement="start"
-
-                        />
-                    </Box>
-                </Stack>
+        
 
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <Grid container spacing={2}>

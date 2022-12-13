@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useContext, useRef } from 'react'
+import { AppContext } from 'components/ContextApi';
 import { Card, Table, Select, Input, Button, Badge, Menu, Modal, Form, message } from 'antd';
 import ProductListData from "assets/data/product-list.data.json"
 import { EditOutlined, DeleteOutlined, SearchOutlined, PlusCircleOutlined } from '@ant-design/icons';
@@ -23,6 +24,7 @@ const tailLayout = {
 const { Option } = Select
 
 const District = () => {
+    const { showTitle } = useContext(AppContext)
     const [list, setList] = useState(ProductListData)
     const [selectedRows, setSelectedRows] = useState([])
     const [selectedRowKeys, setSelectedRowKeys] = useState([])
@@ -40,6 +42,9 @@ const District = () => {
         id: '',
         name: ''
     })
+    const addButtonRef = useRef(null)
+    const formInputRef = useRef(null)
+
     const showModal = () => {
         setIsModalOpen(true);
     };
@@ -70,7 +75,7 @@ const District = () => {
 
     function handleEnter(event) {
         const form = event?.target?.form;
-        
+
         const index = Array.prototype.indexOf.call(form, event.target);
         if (event.keyCode === 13) {
             if ((index + 1) < form.elements.length) {
@@ -159,6 +164,13 @@ const District = () => {
         setInitalLoading(false)
     }
 
+    useEffect(() => {
+        if (!isModalOpen) {
+            addButtonRef?.current?.focus()
+        } else {
+            formInputRef?.current?.focus()
+        }
+    }, [isModalOpen])
     useEffect(() => {
 
         init()
@@ -387,7 +399,7 @@ const District = () => {
 						</div> */}
                     </Flex>
                     <div>
-                        <Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Add District</Button>
+                        <Button ref={addButtonRef} onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block autoFocus> District</Button>
                     </div>
                 </Flex>
                 <div className="table-responsive">
@@ -416,7 +428,7 @@ const District = () => {
                 ]}>
                 <Form
                     form={form}
-                    style={{ width: '85%' }}
+                    style={{ width: showTitle ? '85%' : '100%' }}
                     // style={{boxShadow: '2px 5px 15px -10px rgb(0,0,0,0.5)',  padding:'10px', width:'50%'}}
                     {...layout}
                     name="basic"
@@ -426,27 +438,33 @@ const District = () => {
                 >
 
                     <Form.Item
+                        className={`${showTitle ? '' : 'hide-label'}`}
                         onKeyDown={handleEnter}
-                        label="District Name"
+                        label="District name"
                         name="name"
-                        rules={[{ required: true, message: 'District Name field is required!' }]}
+                        rules={[{ required: true, message: 'District name field is required!' }]}
                     >
-                        <Input />
+                        <Input autoFocus ref={formInputRef} placeholder='District name' />
                     </Form.Item>
 
 
                     <Form.Item
                         onKeyDown={handleEnter}
-
-                        label="Sort Code"
+                        className={`${showTitle ? '' : 'hide-label'}`}
+                        label="Sort code"
                         name="short_code"
                         rules={[{ required: true, message: 'Short code field  is required' }]}
                     >
 
-                        <Input />
+                        <Input placeholder='Sort code' />
                     </Form.Item>
 
-                    <Form.Item onKeyDown={handleEnter} name="country_id" label="Country" rules={[{ required: true, message: 'Country  field is required' }]} >
+                    <Form.Item
+                        className={`${showTitle ? '' : 'hide-label'}`}
+                        onKeyDown={handleEnter}
+                        name="country_id" label="Country"
+                        rules={[{ required: true, message: 'Country  field is required' }]}
+                    >
                         <Select className="w-100" placeholder="Select Country" onChange={(val) => handleCountryChange(val, false)}>
                             {
                                 countryList.length > 0 ?
@@ -458,7 +476,12 @@ const District = () => {
                             }
                         </Select>
                     </Form.Item>
-                    <Form.Item onKeyDown={handleEnter} name="state_id" label="State" rules={[{ required: true, message: 'State  select is required' }]} >
+                    <Form.Item
+                        className={`${showTitle ? '' : 'hide-label'}`}
+                        onKeyDown={handleEnter}
+                        name="state_id" label="State"
+                        rules={[{ required: true, message: 'State  select is required' }]}
+                    >
                         <Select className="w-100" placeholder="Select State">
                             {
                                 stateList.length > 0 ?
@@ -475,9 +498,10 @@ const District = () => {
                     <Form.Item {...tailLayout}  >
 
                         <div style={{
-                            width: '82%',
-                            marginLeft: "50px"
-                        }}>
+								width: 'fit-content',
+								display: "flex",
+								justifyContent: "center"
+							   }}>
                             <Button type="primary" htmlType="submit" loading={submitLoading}>
                                 {isEdit ? "Save" : "Submit"}
                             </Button>

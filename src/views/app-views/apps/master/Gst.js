@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react'
-import { Card, Table, Select, Input, Button, Badge, Menu, Modal, Form, message } from 'antd';
+import React, { useState, useRef, useContext } from 'react'
+import { Card, Table, Select, Input, Button, Badge, Menu, Modal, Form, message,Popover  } from 'antd';
 import ProductListData from "assets/data/product-list.data.json"
 import { EditOutlined, DeleteOutlined, SearchOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import EllipsisDropdown from 'components/shared-components/EllipsisDropdown';
@@ -7,7 +7,7 @@ import Flex from 'components/shared-components/Flex'
 import utils from 'utils'
 import { useEffect } from 'react';
 import { createGST, getGST, deleteGst, updateGST } from 'utils/api/gst';
-
+import { AppContext } from 'components/ContextApi';
 const layout = {
 	labelCol: { span: 8 },
 	wrapperCol: { span: 16 },
@@ -18,7 +18,7 @@ const tailLayout = {
 
 
 const Gst = () => {
-
+const {showTitle}=useContext(AppContext)
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [submitLoading, setSubmitLoading] = useState(false)
 	const [isEdit, setIsEdit] = useState(false)
@@ -34,8 +34,9 @@ const Gst = () => {
 		name: ''
 	})
 	
-	const [ showTitle, setShowTitle ] = useState(false)
+	// const [ showTitle, setShowTitle ] = useState(true)
 	const addButtonRef = useRef(null)
+	const formInputRef = useRef(null)
 	const ref = useRef(null);
 	const showModal = () => {
 		setIsModalOpen(true);
@@ -60,6 +61,16 @@ const Gst = () => {
 		setSelectedId("")
 		form.resetFields();
 	};
+
+	
+	
+	useEffect(() => {
+		if(!isModalOpen) {
+			addButtonRef?.current?.focus()
+		} else {
+			formInputRef?.current?.focus()
+		}
+	},[isModalOpen])
 
 	function handleEnter(event) {
 		const form = event?.target?.form;
@@ -283,14 +294,15 @@ const Gst = () => {
 						</div> */}
 					</Flex>
 					<div>
+					
 						<Button 
 							onClick={showModal}
-							ref={addButtonRef}
 							autoFocus
+							ref={addButtonRef}
 							type="primary"
 							icon={<PlusCircleOutlined />}
 							block
-						>Add GST</Button>
+						>GST</Button>
 					</div>
 				</Flex>
 				<div className="table-responsive">
@@ -353,7 +365,7 @@ const Gst = () => {
 						onKeyDown={handleEnter}
 						rules={[{ required: true, message: 'Percent is required' }]}
 					>
-						<Input placeholder='Percent' />
+						<Input type='number' placeholder='Percent' />
 					</Form.Item>
 
 					<Form.Item

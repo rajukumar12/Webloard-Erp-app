@@ -1,12 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useContext, useRef } from 'react'
+import { AppContext } from 'components/ContextApi';
 import { Card, Table, Select, Input, Button, Badge, Menu, Modal, Form, message } from 'antd';
 import ProductListData from "assets/data/product-list.data.json"
 import { EditOutlined, DeleteOutlined, SearchOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import EllipsisDropdown from 'components/shared-components/EllipsisDropdown';
 import Flex from 'components/shared-components/Flex'
 import utils from 'utils'
-
-// import { Form, Input, Checkbox } from 'antd';
 import { useEffect } from 'react';
 import { getCity, createCity, updateCity, deleteCity } from 'utils/api/city';
 import { getCountry } from 'utils/api/country';
@@ -25,6 +24,7 @@ const tailLayout = {
 const { Option } = Select
 
 const City = () => {
+    const { showTitle } = useContext(AppContext)
     const [list, setList] = useState(ProductListData)
     const [selectedRows, setSelectedRows] = useState([])
     const [selectedRowKeys, setSelectedRowKeys] = useState([])
@@ -44,6 +44,8 @@ const City = () => {
         id: '',
         name: ''
     })
+    const addButtonRef = useRef(null)
+    const formInputRef = useRef(null)
     const showModal = () => {
         setIsModalOpen(true);
     };
@@ -77,7 +79,7 @@ const City = () => {
 
     function handleEnter(event) {
         const form = event?.target?.form;
-        
+
         const index = Array.prototype.indexOf.call(form, event.target);
         if (event.keyCode === 13) {
             if ((index + 1) < form.elements.length) {
@@ -382,7 +384,7 @@ const City = () => {
 						</div> */}
                     </Flex>
                     <div>
-                        <Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Add City</Button>
+                        <Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block autoFocus ref={addButtonRef}> City</Button>
                     </div>
                 </Flex>
                 <div className="table-responsive">
@@ -413,7 +415,7 @@ const City = () => {
                 ]}>
                 <Form
                     form={form}
-                    style={{ width: '85%' }}
+                    style={{ width: showTitle ? '85%' : '100%' }}
                     // style={{boxShadow: '2px 5px 15px -10px rgb(0,0,0,0.5)',  padding:'10px', width:'50%'}}
                     {...layout}
                     name="basic"
@@ -423,14 +425,21 @@ const City = () => {
                 >
 
                     <Form.Item
+                        className={`${showTitle ? '' : 'hide-label'}`}
                         onKeyDown={handleEnter}
-                        label="City Name"
+                        label="City name"
                         name="name"
-                        rules={[{ required: true, message: 'City Name field is required!' }]}
+                        rules={[{ required: true, message: 'City name field is required!' }]}
                     >
-                        <Input />
+                        <Input autoFocus ref={formInputRef} placeholder='City name' />
                     </Form.Item>
-                    <Form.Item onKeyDown={handleEnter} name="country_id" label="Country" rules={[{ required: true, message: 'Country  select is required' }]} >
+                    <Form.Item
+                        className={`${showTitle ? '' : 'hide-label'}`}
+                        onKeyDown={handleEnter}
+                        name="country_id"
+                        label="Country"
+                        rules={[{ required: true, message: 'Country  select is required' }]}
+                    >
                         <Select className="w-100" placeholder="Select Country" onChange={(val) => handleCountryChange(val, false)}>
                             {
                                 countryList?.length > 0 ?
@@ -442,7 +451,12 @@ const City = () => {
                             }
                         </Select>
                     </Form.Item>
-                    <Form.Item onKeyDown={handleEnter} name="state_id" label="State" rules={[{ required: true, message: 'State  select is required' }]} >
+                    <Form.Item
+                        className={`${showTitle ? '' : 'hide-label'}`}
+                        onKeyDown={handleEnter}
+                        name="state_id" label="State"
+                        rules={[{ required: true, message: 'State  select is required' }]}
+                    >
                         <Select className="w-100" placeholder="Select State" onChange={(val) => handleStateChange(val, false)}>
                             {
                                 stateList?.length > 0 ?
@@ -455,7 +469,13 @@ const City = () => {
                             }
                         </Select>
                     </Form.Item>
-                    <Form.Item onKeyDown={handleEnter} name="district_id" label="District" rules={[{ required: true, message: 'District  select is required' }]} >
+                    <Form.Item
+                        className={`${showTitle ? '' : 'hide-label'}`}
+                        onKeyDown={handleEnter}
+                        name="district_id"
+                        label="District"
+                        rules={[{ required: true, message: 'District  select is required' }]}
+                    >
                         <Select className="w-100" placeholder="Select District">
                             {
                                 districtList?.length > 0 ?
@@ -470,8 +490,9 @@ const City = () => {
                     <Form.Item {...tailLayout}  >
 
                         <div style={{
-                            width: '82%',
-                            marginLeft: "50px"
+                            width: 'fit-content',
+                            display: "flex",
+                            justifyContent: "center"
                         }}>
                             <Button type="primary" htmlType="submit" loading={submitLoading}>
                                 {isEdit ? "Save" : "Submit"}

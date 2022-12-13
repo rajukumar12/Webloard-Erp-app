@@ -200,6 +200,11 @@ export const protectedRoutes = [
         component: React.lazy(() => import('views/app-views/apps/master/TypeOfVoucher')),
     },
     {
+        key: 'apps.master.metho_allocate',
+        path: `${APP_PREFIX_PATH}/apps/master/metho_allocate`,
+        component: React.lazy(() => import('views/app-views/apps/master/MethodAllocate')),
+    },
+    {
         key: 'apps.ecommerce',
         path: `${APP_PREFIX_PATH}/apps/ecommerce`,
         component: React.lazy(() => import('views/app-views/apps/e-commerce')),

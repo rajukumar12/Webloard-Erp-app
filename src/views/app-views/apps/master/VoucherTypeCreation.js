@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useContext, useRef } from 'react'
+import { AppContext } from 'components/ContextApi';
 import { Card, Table, Select, Input, Button, Badge, Menu, Modal, Form, message, } from 'antd';
 import ProductListData from "assets/data/product-list.data.json"
 import { EditOutlined, DeleteOutlined, SearchOutlined, PlusCircleOutlined } from '@ant-design/icons';
@@ -17,6 +18,7 @@ const tailLayout = {
 };
 
 const VoucherTypeCreation = () => {
+    const { showTitle } = useContext(AppContext)
     const [list, setList] = useState(ProductListData)
     const [selectedRows, setSelectedRows] = useState([])
     const [selectedRowKeys, setSelectedRowKeys] = useState([])
@@ -31,6 +33,8 @@ const VoucherTypeCreation = () => {
         id: '',
         name: ''
     })
+    const addButtonRef = useRef(null)
+    const formInputRef = useRef(null)
     const showModal = () => {
         setIsModalOpen(true);
     };
@@ -57,7 +61,7 @@ const VoucherTypeCreation = () => {
 
     function handleEnter(event) {
         const form = event?.target?.form;
-        
+
         const index = Array.prototype.indexOf.call(form, event.target);
         if (event.keyCode === 13) {
             if ((index + 1) < form.elements.length) {
@@ -129,6 +133,13 @@ const VoucherTypeCreation = () => {
         }
     }
 
+    useEffect(() => {
+        if (!isModalOpen) {
+            addButtonRef?.current?.focus()
+        } else {
+            formInputRef?.current?.focus()
+        }
+    }, [isModalOpen])
     useEffect(() => {
         init()
     }, [])
@@ -290,25 +301,10 @@ const VoucherTypeCreation = () => {
                         <div className="mr-md-3 mb-3">
                             <Input placeholder="Search" prefix={<SearchOutlined />} onChange={e => onSearch(e)} />
                         </div>
-                        {/* <div className="mb-3">
-							<Select
-								defaultValue="All"
-								className="w-100"
-								style={{ minWidth: 180 }}
-								onChange={handleShowCategory}
-								placeholder="Category"
-							>
-								<Option value="All">All</Option>
-								{
-									categories.map(elm => (
-										<Option key={elm} value={elm}>{elm}</Option>
-									))
-								}
-							</Select>
-						</div> */}
+
                     </Flex>
                     <div>
-                        <Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} autoFocus  block>Voucher Creation</Button>
+                        <Button onClick={showModal} autoFocus ref={addButtonRef} type="primary" icon={<PlusCircleOutlined />} autoFocus block>Voucher Creation</Button>
                     </div>
                 </Flex>
                 <div className="table-responsive">
@@ -328,13 +324,15 @@ const VoucherTypeCreation = () => {
             </Card>
 
             <Modal
-                title={isEdit ? "Edit voucher creation" : "Add voucher cretion"} 
-                className='addVoucherType'
-                open={isModalOpen} 
-                onCancel={handleCancel} 
+                title={isEdit ? "Edit voucher creation" : "Add voucher cretion"}
+                className={`${showTitle ? 'VoucherType' : 'addGroupCreation'}`}
+                open={isModalOpen}
+                onCancel={handleCancel}
                 footer={[]}
             >
                 <Form
+                    // style={{ width: showTitle ? '85%' : '100%'}}
+                    // style={{ width: showTitle ? '85%' : '100%' }}
                     form={form}
                     // style={{ width: '95%' }}
                     // style={{boxShadow: '2px 5px 15px -10px rgb(0,0,0,0.5)',  padding:'10px', width:'50%'}}
@@ -345,16 +343,16 @@ const VoucherTypeCreation = () => {
                     onFinishFailed={onFinishFailed}
                 >
                     <Form.Item
-                        // style={{width:"35%"}}
+                        className={`${showTitle ? '' : 'hide-label'}`}
                         label="Name"
                         name="name"
                         onKeyDown={handleEnter}
                         rules={[{ required: true, message: ' Name field is required!' }]}
                     >
-                        <Input placeholder='Name' autoFocus />
+                        <Input placeholder='Name' autoFocus ref={formInputRef} />
                     </Form.Item>
                     <Form.Item
-                        // style={{width:"35%"}}
+                        className={`${showTitle ? '' : 'hide-label'}`}
                         onKeyDown={handleEnter}
                         label="Abbreviation"
                         name="short_code"
@@ -363,7 +361,7 @@ const VoucherTypeCreation = () => {
                         <Input placeholder='Abbreviation' />
                     </Form.Item>
                     <Form.Item
-                        // style={{width:"35%"}}
+                        className={`${showTitle ? '' : 'hide-label'}`}
                         label="Activate this voucher numbering"
                         onKeyDown={handleEnter}
                         name="mobile_no_ext"
@@ -372,7 +370,7 @@ const VoucherTypeCreation = () => {
                         <Input placeholder='Activate this voucher numbering' />
                     </Form.Item>
                     <Form.Item
-                        // style={{width:"35%"}}
+                        className={`${showTitle ? '' : 'hide-label'}`}
                         label="Method of voucher numbering"
                         name="currency"
                         onKeyDown={handleEnter}
@@ -381,7 +379,7 @@ const VoucherTypeCreation = () => {
                         <Input placeholder='Method of voucher numbering' />
                     </Form.Item>
                     <Form.Item
-                        // style={{width:"35%"}}
+                        className={`${showTitle ? '' : 'hide-label'}`}
                         label="Use effective dates for voucher"
                         name="currency"
                         onKeyDown={handleEnter}
@@ -390,7 +388,7 @@ const VoucherTypeCreation = () => {
                         <Input placeholder='Use effective dates for voucher' />
                     </Form.Item>
                     <Form.Item
-                        // style={{width:"35%"}}
+                        className={`${showTitle ? '' : 'hide-label'}`}
                         label="Allow zero-value transation"
                         name="currency"
                         onKeyDown={handleEnter}
@@ -399,7 +397,7 @@ const VoucherTypeCreation = () => {
                         <Input placeholder='Allow zero-value transation' />
                     </Form.Item>
                     <Form.Item
-                        // style={{width:"35%"}}
+                        className={`${showTitle ? '' : 'hide-label'}`}
                         label="Make this voucher type as Optional by default"
                         name="currency"
                         onKeyDown={handleEnter}
@@ -408,7 +406,7 @@ const VoucherTypeCreation = () => {
                         <Input placeholder='Make this voucher type as Optional by default' />
                     </Form.Item>
                     <Form.Item
-                        // style={{width:"35%"}}
+                        className={`${showTitle ? '' : 'hide-label'}`}
                         label="Allaw narration in vaucher"
                         name="currency"
                         onKeyDown={handleEnter}
@@ -417,7 +415,7 @@ const VoucherTypeCreation = () => {
                         <Input placeholder='Allaw narration in vaucher' />
                     </Form.Item>
                     <Form.Item
-                        // style={{width:"35%"}}
+                        className={`${showTitle ? '' : 'hide-label'}`}
                         label="Print voucher after saving"
                         name="currency"
                         onKeyDown={handleEnter}
@@ -426,7 +424,7 @@ const VoucherTypeCreation = () => {
                         <Input placeholder='Print voucher after saving' />
                     </Form.Item>
                     <Form.Item
-                        // style={{width:"35%"}}
+                        className={`${showTitle ? '' : 'hide-label'}`}
                         label="Provide narrations for each ledger in voucher"
                         name="currency"
                         onKeyDown={handleEnter}
@@ -435,7 +433,13 @@ const VoucherTypeCreation = () => {
                         <Input placeholder='Provide narrations for each ledger in voucher' />
                     </Form.Item>
 
-                    <Form.Item onKeyDown={handleEnter} name="country_id" label="Select type of voucher" rules={[{ required: true, message: 'Country  field is required' }]} >
+                    <Form.Item
+                        className={`${showTitle ? '' : 'hide-label'}`}
+                        onKeyDown={handleEnter}
+                        name="country_id"
+                        label="Select type of voucher"
+                        rules={[{ required: true, message: 'Country  field is required' }]}
+                    >
                         <Select className="w-100" placeholder="select type of voucher">
                             {/* <Option value="All">All</Option> */}
                         </Select>
@@ -444,9 +448,10 @@ const VoucherTypeCreation = () => {
 
                     <Form.Item {...tailLayout}  >
                         <div style={{
-                            width: '82%',
-                            marginLeft: "50px"
-                        }}>
+								width: 'fit-content',
+								display: "flex",
+								justifyContent: "center"
+							   }}>
                             <Button type="primary" htmlType="submit" loading={submitLoading}>
                                 {isEdit ? "Save" : "Submit"}
                             </Button>

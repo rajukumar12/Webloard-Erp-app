@@ -8,6 +8,7 @@ import Layouts from './layouts'
 import { THEME_CONFIG } from './configs/AppConfig';
 import './lang'
 import './views/app-views/apps/master/master.css'
+import ContextApi from 'components/ContextApi';
 
 const themes = {
   dark: `${process.env.PUBLIC_URL}/css/dark-theme.css`,
@@ -18,8 +19,9 @@ function App() {
   return (
     <div className="App">
       <Provider store={store}>
+      <ContextApi>
         <BrowserRouter history={history}>
-          <ThemeSwitcherProvider 
+          <ThemeSwitcherProvider
             themeMap={themes} 
             defaultTheme={THEME_CONFIG.currentTheme} 
             insertionPoint="styles-insertion-point"
@@ -27,6 +29,7 @@ function App() {
             <Layouts />
           </ThemeSwitcherProvider>
         </BrowserRouter>  
+        </ContextApi>
       </Provider>
     </div>
   );

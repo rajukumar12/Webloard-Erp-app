@@ -37,9 +37,10 @@
 	"sidenav.apps.master.group_creation": "Group Creation",
 	"sidenav.apps.master.voucher_Type_Creation": "Voucher Type Creation",
 	"sidenav.apps.master.type_of_Voucher": "Type of Voucher",
+	"sidenav.apps.master.metho_allocate": "Method Allocate",
 	
 	
-	"sidenav.apps.company": "Company",
+	"sidenav.apps.company": "Company",	
 	"sidenav.apps.company.create_comapny": "Create Company",
 	"sidenav.apps.company.view_comapny": "View Company",
 

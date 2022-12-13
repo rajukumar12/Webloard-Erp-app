@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useContext } from 'react'
+import { AppContext } from 'components/ContextApi';
 import { Card, Table, Select, Input, Button, Badge, Menu, Modal, Form, message } from 'antd';
 import { Option } from 'antd/lib/mentions';
 import ProductListData from "assets/data/product-list.data.json"
@@ -21,7 +22,7 @@ const tailLayout = {
 
 
 const GroupCreation = () => {
-
+	const {showTitle}=useContext(AppContext)
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [submitLoading, setSubmitLoading] = useState(false)
 	const [isEdit, setIsEdit] = useState(false)
@@ -38,10 +39,11 @@ const GroupCreation = () => {
 		id: '',
 		name: ''
 	})
-	const refs = useRef(null);
+	const addButtonRef = useRef(null)
+const formInputRef = useRef(null)
+
 	const showModal = () => {
 		setIsModalOpen(true);
-		refs?.current?.focus();
 	};
 	const showEditModal = (row) => {
 		setIsModalOpen(true);
@@ -151,6 +153,13 @@ const getMethodAllcateData=async()=>{
         }
 }
 
+useEffect(() => {
+	if(!isModalOpen) {
+		addButtonRef?.current?.focus()
+	} else {
+		formInputRef?.current?.focus()
+	}
+},[isModalOpen])
 	useEffect(() => {
 		init()
 		getAccountUnderGroupData()
@@ -359,7 +368,7 @@ const getMethodAllcateData=async()=>{
 						</div> */}
 					</Flex>
 					<div>
-						<Button onClick={showModal} type="primary" autoFocus icon={<PlusCircleOutlined />} block>Group create</Button>
+						<Button onClick={showModal} type="primary" ref={addButtonRef} autoFocus icon={<PlusCircleOutlined />} block>Group create</Button>
 					</div>
 				</Flex>
 				<div className="table-responsive">
@@ -380,7 +389,7 @@ const getMethodAllcateData=async()=>{
 			</Card>
 
 			<Modal
-				className='addGroupCreation'
+			className={`${showTitle ?  'VoucherType' : 'addGroupCreation'}`}  
 				title={isEdit ? "Edit Group create" : "Group create"}
 				open={isModalOpen}
 				onCancel={handleCancel}
@@ -388,7 +397,8 @@ const getMethodAllcateData=async()=>{
 			>
 				<Form
 					form={form}
-					style={{ width: '100%' }}
+					// style={{ width: '100%' }}
+					style={{ width: showTitle ? '85%' : '100%' }}
 					// style={{boxShadow: '2px 5px 15px -10px rgb(0,0,0,0.5)',  padding:'10px', width:'50%'}}
 					{...layout}
 					name="basic"
@@ -399,16 +409,17 @@ const getMethodAllcateData=async()=>{
 
 					<Form.Item
 						// style={{width:"35%"}}
+						className={`${showTitle ? '' : 'hide-label'}`}
 						label="Group Name"
 						name="name"
 						rules={[{ required: true, message: ' Group create is required!' }]}
 						onKeyDown={handleEnter}
-						ref={refs}
 					>
-						<Input placeholder="Group Name" autoFocus />
+						<Input placeholder="Group Name" autoFocus ref={formInputRef} />
 					</Form.Item>
 
 					<Form.Item
+					className={`${showTitle ? '' : 'hide-label'}`}
 						label="Groups behaves like a sub-ledger:"
 						name="group_behaves"
 						onKeyDown={handleEnter}
@@ -417,7 +428,7 @@ const getMethodAllcateData=async()=>{
 						<Input placeholder="Groups behaves like a sub-ledger" />
 					</Form.Item>
 					<Form.Item
-						// style={{width:"35%"}
+						className={`${showTitle ? '' : 'hide-label'}`}
 						label="Net Debit/Credit blances for reporting:"
 						name="net_cr_cr"
 						onKeyDown={handleEnter}
@@ -426,7 +437,7 @@ const getMethodAllcateData=async()=>{
 						<Input placeholder="Net Debit/Credit blances for reporting" />
 					</Form.Item>
 					<Form.Item
-						// style={{width:"35%"}
+						className={`${showTitle ? '' : 'hide-label'}`}
 						label="Used for calculation(for exm: taxes,discount):"
 						name="used_for_calculation"
 						onKeyDown={handleEnter}
@@ -436,7 +447,13 @@ const getMethodAllcateData=async()=>{
 					</Form.Item>
 
 
-					<Form.Item onKeyDown={handleEnter} name="account_under_group_id" label="Select Account under group:" rules={[{ required: true, message: 'Account under group  select is required' }]} >
+					<Form.Item 
+					className={`${showTitle ? '' : 'hide-label'}`}
+					onKeyDown={handleEnter} 
+					name="account_under_group_id" 
+					label="Select Account under group:" 
+					rules={[{ required: true, message: 'Account under group  select is required' }]}
+					 >
 						<Select className="w-100" placeholder="Select Account under group ">
 							{
 								accountUnderGroupList.length > 0 ?
@@ -448,7 +465,13 @@ const getMethodAllcateData=async()=>{
 							}
 						</Select>
 					</Form.Item>
-					<Form.Item onKeyDown={handleEnter} name="method_allocate_id" label="Method Allocate when used in purchase:" rules={[{ required: true, message: ' Method Allocate when used in purchase select is required' }]} >
+					<Form.Item 
+					className={`${showTitle ? '' : 'hide-label'}`}
+					onKeyDown={handleEnter} 
+					name="method_allocate_id"
+					 label="Method Allocate when used in purchase:" 
+					 rules={[{ required: true, message: ' Method Allocate when used in purchase select is required' }]}
+					  >
 						<Select className="w-100" placeholder="Select Method Allocate when used in purchase invoice">
 							{
 								methodAlocateList.length > 0 ?
@@ -463,17 +486,13 @@ const getMethodAllcateData=async()=>{
 
 					<Form.Item
 						{...tailLayout}
-						style={{
-							display: 'flex',
-							justifyContent: 'center'
-						}}
 					>
 						<div
-							style={{
+							 style={{
 								width: 'fit-content',
 								display: "flex",
 								justifyContent: "center"
-							}}
+							   }}
 						>
 							<Button type="primary" htmlType="submit" loading={submitLoading}>
 								{isEdit ? "Save" : "Submit"}

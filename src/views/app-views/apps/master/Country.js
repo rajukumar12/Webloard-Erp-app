@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useContext, useRef } from 'react'
+import { AppContext } from 'components/ContextApi';
 import { Card, Table, Select, Input, Button, Badge, Menu, Modal, Form, message } from 'antd';
 import ProductListData from "assets/data/product-list.data.json"
 import { EditOutlined, DeleteOutlined, SearchOutlined, PlusCircleOutlined } from '@ant-design/icons';
@@ -19,6 +20,7 @@ const tailLayout = {
 };
 
 const Country = () => {
+	const { showTitle } = useContext(AppContext)
 	const [list, setList] = useState(ProductListData)
 	const [selectedRows, setSelectedRows] = useState([])
 	const [selectedRowKeys, setSelectedRowKeys] = useState([])
@@ -27,12 +29,14 @@ const Country = () => {
 	const [isEdit, setIsEdit] = useState(false)
 	const [selectedId, setSelectedId] = useState("")
 	const [submitLoading, setSubmitLoading] = useState(false);
-	const [initialLoading, setInitialLoading]=useState(false)
+	const [initialLoading, setInitialLoading] = useState(false)
 	const [openDeleteModal, setOpenDeleteModal] = useState({
 		open: false,
 		id: '',
 		name: ''
 	})
+	const addButtonRef = useRef(null)
+	const formInputRef = useRef(null)
 	const showModal = () => {
 		setIsModalOpen(true);
 	};
@@ -58,21 +62,21 @@ const Country = () => {
 	};
 
 	function handleEnter(event) {
-        const form = event?.target?.form;
-        
-        const index = Array.prototype.indexOf.call(form, event.target);
-        if (event.keyCode === 13) {
-            if ((index + 1) < form.elements.length) {
-                form.elements[index + 1]?.focus();
-            }
-            event.preventDefault();
-        } else if (event.keyCode === 27) {
-            if ((index - 1) > 0) {
-                form.elements[index - 1]?.focus();
-            }
-            event.preventDefault();
-        }
-    }
+		const form = event?.target?.form;
+
+		const index = Array.prototype.indexOf.call(form, event.target);
+		if (event.keyCode === 13) {
+			if ((index + 1) < form.elements.length) {
+				form.elements[index + 1]?.focus();
+			}
+			event.preventDefault();
+		} else if (event.keyCode === 27) {
+			if ((index - 1) > 0) {
+				form.elements[index - 1]?.focus();
+			}
+			event.preventDefault();
+		}
+	}
 
 	const [form] = Form.useForm()
 	const onFinish = async (values) => {
@@ -117,19 +121,27 @@ const Country = () => {
 	async function init() {
 		try {
 			setInitialLoading(true)
-		const response = await getCountry();
-		if (response.data?.length) {
-			setHsnList(response.data)
-			setIsModalOpen(false);
-			// message.success(response.message)
-		} else {
-			setHsnList([])
-		}
-		setInitialLoading(false)
+			const response = await getCountry();
+			if (response.data?.length) {
+				setHsnList(response.data)
+				setIsModalOpen(false);
+				// message.success(response.message)
+			} else {
+				setHsnList([])
+			}
+			setInitialLoading(false)
 		} catch (error) {
 			message.error(message)
 		}
 	}
+
+	useEffect(() => {
+		if (!isModalOpen) {
+			addButtonRef?.current?.focus()
+		} else {
+			formInputRef?.current?.focus()
+		}
+	}, [isModalOpen])
 
 	useEffect(() => {
 		init()
@@ -152,7 +164,7 @@ const Country = () => {
 		</Menu>
 	);
 
-	
+
 	const deleteRow = async (id) => {
 		if (!id) return;
 		setSubmitLoading(true)
@@ -250,39 +262,6 @@ const Country = () => {
 			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
 		},
 
-		// {
-		// 	title: 'Category',
-		// 	dataIndex: 'category',
-		// 	sorter: (a, b) => utils.antdTableSorter(a, b, 'category')
-		// },
-		// {
-		// 	title: 'Price',
-		// 	dataIndex: 'price',
-		// 	render: price => (
-		// 		<div>
-		// 			<NumberFormat
-		// 				displayType={'text'}
-		// 				value={(Math.round(price * 100) / 100).toFixed(2)}
-		// 				prefix={'$'}
-		// 				thousandSeparator={true}
-		// 			/>
-		// 		</div>
-		// 	),
-		// 	sorter: (a, b) => utils.antdTableSorter(a, b, 'price')
-		// },
-		// {
-		// 	title: 'Stock',
-		// 	dataIndex: 'stock',
-		// 	sorter: (a, b) => utils.antdTableSorter(a, b, 'stock')
-		// },
-		// {
-		// 	title: 'Status',
-		// 	dataIndex: 'stock',
-		// 	render: stock => (
-		// 		<Flex alignItems="center">{getStockStatus(stock)}</Flex>
-		// 	),
-		// 	sorter: (a, b) => utils.antdTableSorter(a, b, 'stock')
-		// },
 		{
 			title: 'Action',
 			dataIndex: 'actions',
@@ -345,7 +324,7 @@ const Country = () => {
 						</div> */}
 					</Flex>
 					<div>
-						<Button onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block>Add Country</Button>
+						<Button ref={addButtonRef} onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block> Country</Button>
 					</div>
 				</Flex>
 				<div className="table-responsive">
@@ -364,7 +343,7 @@ const Country = () => {
 				</div>
 			</Card>
 
-			
+
 			<Modal
 				title={isEdit ? "Edit Country" : "Add Country"} open={isModalOpen} onCancel={handleCancel} footer={[
 					// <Button type="primary" htmlType="submit"  onClick={onFinish}>
@@ -376,7 +355,7 @@ const Country = () => {
 				]}>
 				<Form
 					form={form}
-					// style={{ width: '95%' }}
+					// style={{ width: showTitle ? '85%' : '100%' }}
 					// style={{boxShadow: '2px 5px 15px -10px rgb(0,0,0,0.5)',  padding:'10px', width:'50%'}}
 					{...layout}
 					name="basic"
@@ -385,47 +364,48 @@ const Country = () => {
 					onFinishFailed={onFinishFailed}
 				>
 					<Form.Item
-					// labelCol={{ span: 24 }}
-						// style={{width:"35%"}}
-						label="Country Name"
+						className={`${showTitle ? '' : 'hide-label'}`}
+						label="Country name"
 						name="name"
 						onKeyDown={handleEnter}
 						rules={[{ required: true, message: 'Country Name field is required!' }]}
 					>
-						<Input />
+						<Input ref={formInputRef} placeholder="Country name" />
 					</Form.Item>
 					<Form.Item
-						// style={{width:"35%"}}
-						label="Country Currency Code"
+						className={`${showTitle ? '' : 'hide-label'}`}
+						label="Country currency code"
 						name="short_code"
 						onKeyDown={handleEnter}
 						rules={[{ required: true, message: 'Countery code field  is required' }]}
 					>
-						<Input />
+						<Input placeholder='Country currency code' />
 					</Form.Item>
 					<Form.Item
-						// style={{width:"35%"}}
-						label="Country Code"
+						className={`${showTitle ? '' : 'hide-label'}`}
+						label="Country code"
 						onKeyDown={handleEnter}
 						name="mobile_no_ext"
 						rules={[{ required: true, message: 'Mobile no field is required' }]}
 					>
-						<Input />
+						<Input placeholder='Country code' />
 					</Form.Item>
 					<Form.Item
-						// style={{width:"35%"}}
+						className={`${showTitle ? '' : 'hide-label'}`}
 						label="Currency"
 						name="currency"
 						onKeyDown={handleEnter}
 						rules={[{ required: true, message: 'Currency  field is required' }]}
 					>
-						<Input />
+						<Input placeholder='Currency' />
 					</Form.Item>
 					<Form.Item {...tailLayout}  >
-						<div style={{
-							width: '82%',
-							marginLeft: "50px"
-						}}>
+						<div
+							style={{
+								width: 'fit-content',
+								display: "flex",
+								justifyContent: "center"
+							}}>
 							<Button type="primary" htmlType="submit" loading={submitLoading}>
 								{isEdit ? "Save" : "Submit"}
 							</Button>

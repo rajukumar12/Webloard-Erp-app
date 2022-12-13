@@ -2,8 +2,13 @@
     width: 970px !important;
     top: 25px;
 }
-.ant-modal.addGroupCreation {
+
+.ant-modal.VoucherType{
     width: 970px !important;
+    top: 25px;
+}
+.ant-modal.addGroupCreation {
+    width: 700px !important;
     top: 38px;
 }
 

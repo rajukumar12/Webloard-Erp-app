@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef , useContext} from 'react'
+import { AppContext } from 'components/ContextApi';
 import { Card, Table, Select, Input, Button, Badge, Menu, Modal, Form, message } from 'antd';
 import ProductListData from "assets/data/product-list.data.json"
 import { EditOutlined, DeleteOutlined, SearchOutlined, PlusCircleOutlined } from '@ant-design/icons';
@@ -19,6 +20,7 @@ const tailLayout = {
 };
 
 const Hns = () => {
+	const {showTitle}=useContext(AppContext)
 	const [list, setList] = useState(ProductListData)
 	const [selectedRows, setSelectedRows] = useState([])
 	const [selectedRowKeys, setSelectedRowKeys] = useState([])
@@ -94,10 +96,8 @@ const Hns = () => {
 			}
 			
 		} else {
-			// setSubmitLoading(true)
 			const response = await createHsn(name, detail, code);
-			if (response.success === true) {
-				
+			if (response.success === true){	
 			}
 			
 		}
@@ -157,7 +157,7 @@ const Hns = () => {
 		</Menu>
 	);
 
-	// delete gst***********
+	
 	const deleteRow = async (id) => {
 		if(!id) return;
 		setSubmitLoading(true)
@@ -338,7 +338,7 @@ const Hns = () => {
 						</div> */}
 					</Flex>
 					<div>
-						<Button onClick={showModal} ref={addButtonRef} autoFocus type="primary" icon={<PlusCircleOutlined />} block>Add Hsn</Button>
+						<Button onClick={showModal} ref={addButtonRef} autoFocus type="primary" icon={<PlusCircleOutlined />} block>Hsn</Button>
 					</div>
 				</Flex>
 				<div className="table-responsive">
@@ -368,48 +368,49 @@ const Hns = () => {
 				]}>
 				<Form
 					form={form}
-					style={{ width: '85%' }}
+					style={{ width: showTitle ? '85%' : '100%' }}
 					// style={{boxShadow: '2px 5px 15px -10px rgb(0,0,0,0.5)',  padding:'10px', width:'50%'}}
 					{...layout}
+					className={`${showTitle ? '' : 'hide-label'}`}
 					name="basic"
 					initialValues={{ remember: true }}
 					onFinish={onFinish}
 					onFinishFailed={onFinishFailed}
 				>
 					<Form.Item
-						// style={{width:"35%"}}
+					className={`${showTitle ? '' : 'hide-label'}`}
 						label="Name"
 						name="name"
 						onKeyDown={handleEnter}
 						rules={[{ required: true, message: ' Name field is required!' }]}
 					>
-						<Input autoFocus ref={formInputRef} />
+						<Input autoFocus ref={formInputRef} placeholder='Name' />
 					</Form.Item>
 					<Form.Item
-						// style={{width:"35%"}}
-						placeholder="Enter Gst"
+					className={`${showTitle ? '' : 'hide-label'}`}
 						label="Details"
 						name="detail"
 						onKeyDown={handleEnter}
 						rules={[{ required: true, message: 'Details field  is required' }]}
 					>
-						<Input />
+						<Input placeholder='Details'/>
 					</Form.Item>
 					<Form.Item
-						// style={{width:"35%"}}
-						placeholder="Enter Gst"
+						className={`${showTitle ? '' : 'hide-label'}`}
 						label="Code"
 						name="code"
 						onKeyDown={handleEnter}
 						rules={[{ required: true, message: 'Code field is required' }]}
 					>
-						<Input />
+						<Input  placeholder='Code'/>
 					</Form.Item>
 					<Form.Item {...tailLayout}  >
 						<div style={{
-							width: '82%',
-							marginLeft: "50px"
-						}}>
+								width: 'fit-content',
+								display: "flex",
+								justifyContent: "center"
+							}}
+						>
 							<Button  type="primary" htmlType="submit" loading={submitLoading}>
 								{isEdit ? "Save" : "Submit"}
 							</Button>

@@ -1,4 +1,4 @@
-import React, { useState, useContext, useRef } from 'react'
+import React, { useState, useRef, useContext } from 'react'
 import { AppContext } from 'components/ContextApi';
 import { Card, Table, Select, Input, Button, Badge, Menu, Modal, Form, message } from 'antd';
 import ProductListData from "assets/data/product-list.data.json"
@@ -7,8 +7,7 @@ import EllipsisDropdown from 'components/shared-components/EllipsisDropdown';
 import Flex from 'components/shared-components/Flex'
 import utils from 'utils'
 import { useEffect } from 'react';
-import { getState, createState, updateState, deleteState } from 'utils/api/state';
-import { getCountry } from 'utils/api/country';
+import { getMethodAllocate, createMethodAllocate,updateMethodAllocate, deleteMethodAllocate } from 'utils/api/methodAllocate';
 
 const layout = {
 	labelCol: { span: 8 },
@@ -18,40 +17,38 @@ const tailLayout = {
 	wrapperCol: { offset: 8, span: 16 },
 };
 
-const { Option } = Select
 
-const State = () => {
-	const { showTitle } = useContext(AppContext)
-	const [list, setList] = useState(ProductListData);
-	const [selectedRows, setSelectedRows] = useState([]);
-	const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-	const [hsnList, setHsnList] = useState([])
-	const [countryList, setCountryList] = useState([]);
+const MethodAllocate = () => {
+	const {showTitle}=useContext(AppContext)
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [submitLoading, setSubmitLoading] = useState(false)
 	const [isEdit, setIsEdit] = useState(false)
-	const [selectedId, setSelectedId] = useState("");
-	const [initialLoading, setInitialLoading] = useState(false);
-	const [submitLoading, setSubmitLoading] = useState(false);
+	const [selectedId, setSelectedId] = useState("")
+	const [list, setList] = useState(ProductListData)
+	const [selectedRows, setSelectedRows] = useState([])
+	const [selectedRowKeys, setSelectedRowKeys] = useState([])
+	const [methodAlocateList, setMethodAlocateList] = useState([]);
+	const [initialLoading, setInitialLoading] = useState(false)
 	const [openDeleteModal, setOpenDeleteModal] = useState({
 		open: false,
 		id: '',
 		name: ''
 	})
-
+	
 	const addButtonRef = useRef(null)
 	const formInputRef = useRef(null)
 	const showModal = () => {
 		setIsModalOpen(true);
+		// console.log(ref?.current)
+		// ref.current?.focus();
 	};
 	const showEditModal = (row) => {
 		setIsModalOpen(true);
 		setIsEdit(true);
 		setSelectedId(row.id)
 		form.setFieldsValue({
-			name: row.name,
-			short_code: row.short_code,
-			state_code: row.state_code,
-			country_id: row.Country_id
+			detail: row.detail,
+			name: row.name
 		})
 	};
 	const handleOk = () => {
@@ -62,48 +59,50 @@ const State = () => {
 		setIsEdit(false);
 		setSelectedId("")
 		form.resetFields();
-		setSubmitLoading(false)
 	};
 
+	
+	
+	useEffect(() => {
+		if(!isModalOpen) {
+			addButtonRef?.current?.focus()
+		} else {
+			console.log(formInputRef.current,'ref===')
+			formInputRef?.current?.focus()
+		}
+	},[isModalOpen])
 
 	function handleEnter(event) {
 		const form = event?.target?.form;
-
-		const index = Array.prototype.indexOf.call(form, event.target);
-		if (event.keyCode === 13) {
-			if ((index + 1) < form.elements.length) {
-				form.elements[index + 1]?.focus();
-			}
-			event.preventDefault();
-		} else if (event.keyCode === 27) {
-			if ((index - 1) > 0) {
-				form.elements[index - 1]?.focus();
-			}
-			event.preventDefault();
-		}
-	}
-
+        // console.log(form.elements, 'key===')
+        const index = Array.prototype.indexOf.call(form, event.target);
+        if (event.keyCode === 13) {
+            if ((index + 1) < form.elements.length) {
+                form.elements[index + 1]?.focus();
+				event.preventDefault();
+            }
+        } else if (event.keyCode === 27) {            
+            if ((index - 1) > 0) {
+                form.elements[index - 1]?.focus();
+            }
+            event.preventDefault();
+        }
+    }
 	const [form] = Form.useForm()
 	const onFinish = async (values) => {
 		try {
-			let response
-			const { name, short_code, state_code, country_id } = values
+			const { name, detail } = values;
 			setSubmitLoading(true)
 			if (isEdit && selectedId) {
-
-				response = await updateState(selectedId, name, short_code, state_code, country_id)
+				const response = await updateMethodAllocate(selectedId, name, detail);
+				if (response.success === true) {
+					message.success(response.message)
+				}
 			} else {
-				response = await createState(name, short_code, state_code, country_id);
-			}
-			if (response.success === true) {
-				message.success(response.message)
-			}
-			else if (response?.success === false) {
-				Object.keys(response.data).map(item => {
-					message.warning(response.data[item][0])
-				})
-				setSubmitLoading(false)
-				return
+				const response = await createMethodAllocate(name, detail);
+				if (response.success === true) {
+					message.success(response.message)
+				}
 			}
 			setSubmitLoading(false)
 			init()
@@ -113,54 +112,46 @@ const State = () => {
 			form.resetFields();
 		} catch (error) {
 			message.error(message)
-			setSubmitLoading(false)
+			submitLoading(false)
+			return
 		}
-
 	};
 
 	const onFinishFailed = errorInfo => {
+		// console.log('Failed:', errorInfo);
 	};
 
 	async function init() {
 		try {
 			setInitialLoading(true)
-			const response = await getState();
+			const response = await getMethodAllocate();
 			if (response.data?.length) {
-				setHsnList(response.data)
+				setMethodAlocateList(response.data)
 				setIsModalOpen(false);
 				// message.success(response.message)
 			} else {
-				setHsnList([])
+				setMethodAlocateList([])
 			}
 			setInitialLoading(false)
 		} catch (error) {
 			message.error(message)
-		}
-	}
-	async function cuntry() {
-		const response = await getCountry();
-		if (response.data?.length) {
-			setCountryList(response.data)
-			setIsModalOpen(false);
-		} else {
-			setHsnList([])
+			setInitialLoading(false)
 		}
 	}
 
 	useEffect(() => {
-		if (!isModalOpen) {
+		if(!isModalOpen) {
 			addButtonRef?.current?.focus()
 		} else {
 			formInputRef?.current?.focus()
 		}
-	}, [isModalOpen])
-
+	},[isModalOpen])
 	useEffect(() => {
 		init()
-		cuntry()
 	}, [])
 
 	const dropdownMenu = row => (
+
 		<Menu>
 			<Menu.Item onClick={() => showEditModal(row)}>
 				<Flex alignItems="center">
@@ -180,9 +171,10 @@ const State = () => {
 	const deleteRow = async (id) => {
 		if (!id) return;
 		setSubmitLoading(true)
-		const response = await deleteState(id)
+		const response = await deleteMethodAllocate(id)
 		setSubmitLoading(false)
-		if (response.success === true) {
+		init()
+		if (response?.success === true) {
 			message.success(response.message)
 			init()
 		}
@@ -199,8 +191,8 @@ const State = () => {
 			dataIndex: 'id'
 		},
 		{
-			title: 'State Name',
-			dataIndex: 'name',
+			title: 'Method allocate',
+			dataIndex: 'method',
 			render: (_, record) => (
 				<div className="d-flex">
 					{/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
@@ -211,46 +203,18 @@ const State = () => {
 			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
 		},
 		{
-			title: 'Sort Code',
-			dataIndex: 'short_code',
+			title: 'Detail',
+			dataIndex: 'method',
 			render: (_, record) => (
 				<div className="d-flex">
 					{/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
 					{/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
-					{record.short_code}
+					{record.detail}
 				</div>
 			),
 			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
 		},
-		{
-			title: 'State Code',
-			dataIndex: 'State_code',
-			render: (_, record) => (
-				<div className="d-flex">
-					{/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
-					{/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
-					{record.state_code}
-				</div>
-			),
-			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
-		},
-
-
-		{
-			title: 'Country Name',
-			dataIndex: 'counter_name',
-			render: (_, record) => (
-				<div className="d-flex">
-					{/* <AvatarStatus size={60} type="square" src={record.image} name={record.name}  /> */}
-					{/* <AvatarStatus size={60} type="square"name={record.name}  /> */}
-					{record.Country_name}
-				</div>
-			),
-			sorter: (a, b) => utils.antdTableSorter(a, b, 'name')
-		},
-
-
-
+		
 		{
 			title: 'Created Date',
 			dataIndex: 'name',
@@ -312,7 +276,6 @@ const State = () => {
 		}
 	}
 
-
 	return (
 		<>
 			<Card>
@@ -321,29 +284,55 @@ const State = () => {
 						<div className="mr-md-3 mb-3">
 							<Input placeholder="Search" prefix={<SearchOutlined />} onChange={e => onSearch(e)} />
 						</div>
+						{/* <div className="mb-3">
+							<Select
+								defaultValue="All"
+								className="w-100"
+								style={{ minWidth: 180 }}
+								onChange={handleShowCategory}
+								placeholder="Category"
+							>
+								<Option value="All">All</Option>
+								{
+									categories.map(elm => (
+										<Option key={elm} value={elm}>{elm}</Option>
+									))
+								}
+							</Select>
+						</div> */}
 					</Flex>
 					<div>
-						<Button ref={addButtonRef} onClick={showModal} type="primary" icon={<PlusCircleOutlined />} block loading={submitLoading}>State</Button>
+						<Button 
+							onClick={showModal}
+							autoFocus
+							ref={addButtonRef}
+							type="primary"
+							icon={<PlusCircleOutlined />}
+							block
+						>Method Allocate</Button>
 					</div>
 				</Flex>
 				<div className="table-responsive">
 					<Table
 						columns={tableColumns}
-						dataSource={hsnList}
+						dataSource={methodAlocateList}
 						rowKey='id'
 						rowSelection={{
 							selectedRowKeys: selectedRowKeys,
 							type: 'checkbox',
 							preserveSelectedRowKeys: false,
 							...rowSelection,
+
 						}}
 						loading={initialLoading}
 					/>
 				</div>
 			</Card>
 
+			{/* add Method allocate************************************************************************ */}
+
 			<Modal
-				title={isEdit ? "Edit State" : "Add State"} open={isModalOpen} onCancel={handleCancel} footer={[
+				title={isEdit ? "Edit Method Allocate" : "Add Method Allocate"} open={isModalOpen} onCancel={handleCancel} footer={[
 					// <Button type="primary" htmlType="submit"  onClick={onFinish}>
 					// 	Submit
 					// </Button>,
@@ -354,6 +343,7 @@ const State = () => {
 				<Form
 					form={form}
 					style={{ width: showTitle ? '85%' : '100%' }}
+					// style={{boxShadow: '2px 5px 15px -10px rgb(0,0,0,0.5)',  padding:'10px', width:'50%'}}
 					{...layout}
 					name="basic"
 					initialValues={{ remember: true }}
@@ -363,62 +353,40 @@ const State = () => {
 
 					<Form.Item
 						className={`${showTitle ? '' : 'hide-label'}`}
-						label="State name"
+						label="Method allocate"
 						name="name"
+						rules={[{ required: true, message: ' Method allocate field is required!' }]}
 						onKeyDown={handleEnter}
-						rules={[{ required: true, message: 'State name field is required!' }]}
+						// ref={ref}
 					>
-						<Input autoFocus placeholder='State name' ref={formInputRef} />
+						<Input ref={formInputRef} autoFocus placeholder='Method allocate' />
 					</Form.Item>
 
 					<Form.Item
-						className={`${showTitle ? '' : 'hide-label'}`}
+						className={showTitle ? '' : 'hide-label'}
+						label="Detail"
+						name="detail"
 						onKeyDown={handleEnter}
-						label="Sort code"
-						name="short_code"
-						rules={[{ required: true, message: 'Sort code field  is required' }]}
+						rules={[{ required: true, message: 'Detail field is required' }]}
 					>
-
-						<Input placeholder='Sort code' />
+						<Input placeholder='Detail' />
 					</Form.Item>
 
 					<Form.Item
-						className={`${showTitle ? '' : 'hide-label'}`}
-						onKeyDown={handleEnter}
-						label="State code"
-						name="state_code"
-						rules={[{ required: true, message: 'State code field is required' }]}
+						{...tailLayout}
+						className={showTitle ? '' : 'center-button'}
+						style={{
+							display: 'flex',
+							justifyContent: 'center'
+						}}
 					>
-						<Input placeholder='State code'/>
-					</Form.Item>
-
-					<Form.Item
-						onKeyDown={handleEnter}
-						name="country_id"
-						label="Country"
-						rules={[{ required: true, message: 'Country  select is required' }]}
-						className={`${showTitle ? '' : 'hide-label'}`}
-					>
-						<Select className="w-100" placeholder="Select Country">
-							{
-								countryList.length > 0 ?
-									countryList.map((elm) => {
-										return <Option key={elm.id} value={elm.id}>{elm.name}</Option>
-									})
-									:
-									"No Data"
-							}
-						</Select>
-					</Form.Item>
-
-
-					<Form.Item {...tailLayout}  >
-
-						<div style={{
-							width: 'fit-content',
-							display: "flex",
-							justifyContent: "center"
-						}}>
+						<div
+							style={{
+								width: 'fit-content',
+								display: "flex",
+								justifyContent: "center"
+							}}
+						>
 							<Button type="primary" htmlType="submit" loading={submitLoading}>
 								{isEdit ? "Save" : "Submit"}
 							</Button>
@@ -426,16 +394,13 @@ const State = () => {
 								Cancel
 							</Button>
 						</div>
-
 					</Form.Item>
-
-
 
 				</Form>
 			</Modal>
 			{/* Delete confirmation popup */}
 			<Modal
-				title={"Delete State"}
+				title={"Delete Method allocate"}
 				open={openDeleteModal.open}
 				onCancel={() => setOpenDeleteModal({
 					open: false,
@@ -462,15 +427,11 @@ const State = () => {
 				]}
 			>
 				<div>
-					<h2>{`Are you sure you want to delete ${openDeleteModal.name} State?`}</h2>
+					<h2>{`Are you sure you want to delete ${openDeleteModal.name} Method allocate?`}</h2>
 				</div>
 			</Modal>
 		</>
 	)
-
-
-
-
 }
 
-export default State
+export default MethodAllocate

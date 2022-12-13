@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import { Layout } from "antd";
 import { MenuFoldOutlined, MenuUnfoldOutlined, SearchOutlined } from '@ant-design/icons';
@@ -11,6 +11,8 @@ import NavSearch  from './NavSearch';
 import SearchInput from './NavSearch/SearchInput.js'
 import { toggleCollapsedNav, onMobileNavToggle } from 'store/slices/themeSlice';
 import { NAV_TYPE_TOP, SIDE_NAV_COLLAPSED_WIDTH, SIDE_NAV_WIDTH } from 'constants/ThemeConstant';
+import { FormControlLabel, Switch } from "@mui/material";
+import { AppContext } from "components/ContextApi";
 import utils from 'utils'
 
 const { Header } = Layout;
@@ -74,6 +76,11 @@ export const HeaderNav = props => {
 		}
 	})
 	
+	const {showTitle, setShowTitle }=useContext(AppContext)
+	const handelSwitchChange = (e) => {
+        setShowTitle(e.target.checked)
+    }
+
 	return (
 		<Header className={`app-header ${navMode}`} style={{backgroundColor: headerNavColor}}>
 			<div className={`app-header-wrapper ${isNavTop ? 'layout-top-nav' : ''}`}>
@@ -99,6 +106,16 @@ export const HeaderNav = props => {
 						</ul>
 					</div>
 					<div className="nav-right">
+					
+					<div style={{display:'flex', justifyContent:'justify', alignItems:'center'}}>
+					<FormControlLabel
+                            value="start"
+                            control={<Switch color="primary" onChange={handelSwitchChange} checked={showTitle} />}
+                            label="Show Title"
+                            labelPlacement="start"
+
+                        />
+					</div>
 						<NavNotification />
 						<NavLanguage />
 						<NavPanel direction={direction} />

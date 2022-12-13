@@ -439,6 +439,14 @@ const appsNavTree = [{
           submenu: []
         },
  
+        {
+          key: 'apps-master-metho_allocate',
+          path: `${APP_PREFIX_PATH}/apps/master/metho_allocate`,
+          title: 'sidenav.apps.master.metho_allocate',
+          icon: '',
+          breadcrumb: false,
+          submenu: []
+        },
       ]
     },
 

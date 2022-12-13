@@ -2,6 +2,7 @@ import React from 'react'
 import LoginForm from '../../components/LoginForm'
 import { Card, Row, Col } from "antd";
 import { useSelector } from 'react-redux';
+import logo from '../../../../assets/logo/vvelocity_logo.jpg'
 
 const backgroundStyle = {
 	backgroundImage: 'url(/img/others/img-17.jpg)',
@@ -19,7 +20,8 @@ const LoginOne = props => {
 						<Card>
 							<div className="my-4">
 								<div className="text-center">
-									<img className="img-fluid" src={`/img/${theme === 'light' ? 'logo.png': 'logo-white.png'}`} alt="" />
+								<img  className="img-fluid"src={logo?logo:"logo-white.png"} width='250' height={250} alt="" />
+									{/* <img className="img-fluid" src={`/img/${theme === 'light' ? logo: 'logo-white.png'}`} alt="" /> */}
 									<p>Don't have an account yet? <a href="/auth/register-1">Sign Up</a></p>
 								</div>
 								<Row justify="center">
